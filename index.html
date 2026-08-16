@@ -107,7 +107,7 @@
     }
     .search-box input:focus { width: 240px; }
 
-    /* HERO CAROUSEL AUTOMATIQUE (4S) */
+    /* HERO CAROUSEL */
     .hero-carousel {
       position: relative;
       width: 100%;
@@ -136,7 +136,7 @@
       transform: translate(-50%, -50%) scale(1.25);
       z-index: -2;
     }
-    .hero-video-wrapper iframe { width: 100%; height: 100%; border: none; }
+    .hero-video-wrapper iframe { width: 100%; height: 100%; border: none; pointer-events: none; }
 
     .hero-overlay {
       position: absolute;
@@ -221,7 +221,6 @@
       border-color: #fff;
     }
 
-    /* INDICATEURS CAROUSEL */
     .carousel-indicators {
       position: absolute;
       bottom: 35px; right: 5%;
@@ -239,7 +238,7 @@
       box-shadow: 0 0 10px var(--zigou-red);
     }
 
-    /* SECTION CONTENU */
+    /* MAIN CONTAINER */
     .main-container { padding: 0 5% 80px 5%; margin-top: -60px; position: relative; z-index: 10; }
     .row-title {
       font-size: 1.7rem; font-weight: 800; margin: 40px 0 20px 0;
@@ -259,7 +258,7 @@
       padding-bottom: 20px;
     }
 
-    /* CARTE NETFLIX HOVER 3D */
+    /* CARTE NETFLIX HOVER */
     .card-container { position: relative; height: 150px; }
 
     .card {
@@ -335,45 +334,135 @@
     .card-title-text { font-size: 1.1rem; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .card-tags { font-size: 0.8rem; color: var(--text-muted); }
 
-    /* LECTEUR MODAL CINÉMA */
-    .modal-overlay {
+    /* LECTEUR STYLE NETFLIX (FULLSCREEN OVERLAY) */
+    .netflix-player-overlay {
       position: fixed;
       top: 0; left: 0; width: 100vw; height: 100vh;
-      background-color: rgba(0, 0, 0, 0.95);
-      backdrop-filter: blur(20px);
-      display: flex; align-items: center; justify-content: center;
-      z-index: 1000;
-      animation: modalFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    @keyframes modalFadeIn { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } }
-
-    .modal-container {
-      position: relative;
-      width: 92%; max-width: 1120px;
-      background: #121216;
-      border-radius: 14px;
+      background: #000;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
       overflow: hidden;
-      box-shadow: 0 0 80px rgba(255, 11, 24, 0.45), 0 0 120px rgba(0,0,0,0.95);
-      border: 1px solid rgba(255,255,255,0.12);
     }
 
-    .modal-player { position: relative; padding-top: 56.25%; background: #000; }
-    .modal-player iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
-
-    .close-btn {
+    .player-video-container {
       position: absolute;
-      top: 20px; right: 20px;
-      background: rgba(0,0,0,0.75);
-      color: #fff;
-      width: 44px; height: 44px;
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.3rem; z-index: 10;
-      transition: all 0.25s;
-      border: 1px solid rgba(255,255,255,0.25);
+      top: 0; left: 0; width: 100%; height: 100%;
+      z-index: 1;
+      pointer-events: none;
     }
-    .close-btn:hover { background: var(--zigou-red); transform: rotate(90deg); box-shadow: 0 0 20px var(--zigou-red); }
+
+    .player-video-container iframe {
+      width: 100%; height: 100%;
+      border: none;
+    }
+
+    .player-top-bar {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 30px 40px;
+      background: linear-gradient(180deg, rgba(0,0,0,0.85) 0%, transparent 100%);
+      transition: opacity 0.3s;
+    }
+
+    .back-btn {
+      font-size: 1.8rem;
+      color: #fff;
+      transition: transform 0.2s;
+    }
+    .back-btn:hover { transform: scale(1.2); color: var(--zigou-red); }
+
+    .player-movie-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .player-controls-bottom {
+      position: relative;
+      z-index: 10;
+      padding: 20px 40px 30px 40px;
+      background: linear-gradient(0deg, rgba(0,0,0,0.9) 0%, transparent 100%);
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      transition: opacity 0.3s;
+    }
+
+    /* BARRE DE PROGRESSION CUSTOM */
+    .progress-bar-container {
+      width: 100%;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 3px;
+      cursor: pointer;
+      position: relative;
+      transition: height 0.15s;
+    }
+    .progress-bar-container:hover { height: 10px; }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: var(--zigou-red);
+      border-radius: 3px;
+      position: relative;
+      box-shadow: 0 0 10px var(--zigou-red);
+    }
+
+    .progress-bar-scrubber {
+      position: absolute;
+      right: -6px; top: 50%;
+      transform: translateY(-50%) scale(0);
+      width: 14px; height: 14px;
+      background: #fff;
+      border-radius: 50%;
+      box-shadow: 0 0 10px rgba(0,0,0,0.8);
+      transition: transform 0.15s;
+    }
+    .progress-bar-container:hover .progress-bar-scrubber { transform: translateY(-50%) scale(1); }
+
+    /* COMMANDES DU BAS */
+    .controls-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .controls-left, .controls-right {
+      display: flex;
+      align-items: center;
+      gap: 25px;
+    }
+
+    .control-btn {
+      color: #e5e5e5;
+      font-size: 1.5rem;
+      transition: color 0.2s, transform 0.2s;
+    }
+    .control-btn:hover { color: #fff; transform: scale(1.15); }
+
+    .volume-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .volume-slider {
+      width: 80px;
+      accent-color: var(--zigou-red);
+      cursor: pointer;
+    }
+
+    .time-display {
+      font-size: 0.95rem;
+      color: #b3b3b3;
+      font-weight: 500;
+      min-width: 100px;
+    }
   </style>
 </head>
 <body>
@@ -381,7 +470,7 @@
   <div id="root"></div>
 
   <script type="text/babel">
-    const { useState, useEffect } = React;
+    const { useState, useEffect, useRef } = React;
 
     const catalog = [
       { id: "NlNzSz9iNrM", title: "Inception Visuelle", desc: "Une plongée spectaculaire au cœur des images et des effets visuels modernes d'un niveau cinématographique.", match: "99%", age: "13+", duration: "12m", tags: "Sensationnel • Action • 4K", hero: true },
@@ -391,6 +480,218 @@
       { id: "F5ffp2CP8rk", title: "Plan Séquence Épique", desc: "Analyse technique d'une scène d'action fluide tournée sans aucune coupure apparente.", match: "94%", age: "16+", duration: "15m", tags: "Intense • Rythmé • 5.1" },
       { id: "XpdAJHyo_PU", title: "Montage Frénétique", desc: "Quand le rythme de l'image s'accorde parfaitement à la musique pour créer une expérience visuelle inédite.", match: "91%", age: "Tous", duration: "18m", tags: "Musique • Montage • HD" }
     ];
+
+    /* COMPOSANT LECTEUR VIDEO NETFLIX AVEC YOUTUBE API IFRAME */
+    function NetflixPlayer({ movie, onClose }) {
+      const playerRef = useRef(null);
+      const [isPlaying, setIsPlaying] = useState(true);
+      const [currentTime, setCurrentTime] = useState(0);
+      const [duration, setDuration] = useState(0);
+      const [volume, setVolume] = useState(100);
+      const [isMuted, setIsMuted] = useState(false);
+      const [controlsVisible, setControlsVisible] = useState(true);
+      const hideControlsTimeout = useRef(null);
+
+      // Chargement de l'API Youtube Iframe
+      useEffect(() => {
+        let ytPlayer;
+
+        const onYouTubeIframeAPIReady = () => {
+          ytPlayer = new window.YT.Player('netflix-yt-iframe', {
+            events: {
+              'onReady': (event) => {
+                playerRef.current = event.target;
+                event.target.playVideo();
+                setDuration(event.target.getDuration());
+              },
+              'onStateChange': (event) => {
+                if (event.data === window.YT.PlayerState.PLAYING) {
+                  setIsPlaying(true);
+                } else if (event.data === window.YT.PlayerState.PAUSED) {
+                  setIsPlaying(false);
+                }
+              }
+            }
+          });
+        };
+
+        if (!window.YT) {
+          const tag = document.createElement('script');
+          tag.src = "https://www.youtube.com/iframe_api";
+          window.onYouTubeIframeAPIReady = onYouTubeIframeAPIReady;
+          document.body.appendChild(tag);
+        } else {
+          onYouTubeIframeAPIReady();
+        }
+
+        const timer = setInterval(() => {
+          if (playerRef.current && playerRef.current.getCurrentTime) {
+            setCurrentTime(playerRef.current.getCurrentTime());
+            setDuration(playerRef.current.getDuration() || 0);
+          }
+        }, 500);
+
+        return () => {
+          clearInterval(timer);
+          if (ytPlayer && ytPlayer.destroy) ytPlayer.destroy();
+        };
+      }, [movie.id]);
+
+      // Masquer les contrôles en cas d'inactivité
+      const handleMouseMove = () => {
+        setControlsVisible(true);
+        clearTimeout(hideControlsTimeout.current);
+        hideControlsTimeout.current = setTimeout(() => {
+          if (isPlaying) setControlsVisible(false);
+        }, 3500);
+      };
+
+      const togglePlay = () => {
+        if (!playerRef.current) return;
+        if (isPlaying) {
+          playerRef.current.pauseVideo();
+        } else {
+          playerRef.current.playVideo();
+        }
+        setIsPlaying(!isPlaying);
+      };
+
+      const handleSeek = (e) => {
+        const rect = e.currentTarget.getBoundingClientRect();
+        const clickPosition = (e.clientX - rect.left) / rect.width;
+        const targetTime = clickPosition * duration;
+        if (playerRef.current) {
+          playerRef.current.seekTo(targetTime, true);
+          setCurrentTime(targetTime);
+        }
+      };
+
+      const handleSkip = (seconds) => {
+        if (playerRef.current) {
+          const newTime = playerRef.current.getCurrentTime() + seconds;
+          playerRef.current.seekTo(newTime, true);
+        }
+      };
+
+      const handleVolumeChange = (e) => {
+        const val = Number(e.target.value);
+        setVolume(val);
+        if (playerRef.current) {
+          playerRef.current.setVolume(val);
+          if (val === 0) {
+            playerRef.current.mute();
+            setIsMuted(true);
+          } else {
+            playerRef.current.unMute();
+            setIsMuted(false);
+          }
+        }
+      };
+
+      const toggleMute = () => {
+        if (!playerRef.current) return;
+        if (isMuted) {
+          playerRef.current.unMute();
+          setIsMuted(false);
+        } else {
+          playerRef.current.mute();
+          setIsMuted(true);
+        }
+      };
+
+      const toggleFullscreen = () => {
+        const elem = document.getElementById('netflix-player-root');
+        if (!document.fullscreenElement) {
+          elem.requestFullscreen().catch(err => console.log(err));
+        } else {
+          document.exitFullscreen();
+        }
+      };
+
+      const formatTime = (sec) => {
+        if (isNaN(sec)) return "00:00";
+        const m = Math.floor(sec / 60);
+        const s = Math.floor(sec % 60);
+        return `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+      };
+
+      const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
+
+      return (
+        <div 
+          id="netflix-player-root" 
+          className="netflix-player-overlay"
+          onMouseMove={handleMouseMove}
+        >
+          {/* VIDEO BACKGROUND */}
+          <div className="player-video-container">
+            <iframe
+              id="netflix-yt-iframe"
+              src={`https://www.youtube.com/embed/${movie.id}?enablejsapi=1&controls=0&autoplay=1&modestbranding=1&rel=0`}
+              allow="autoplay; fullscreen"
+            ></iframe>
+          </div>
+
+          {/* TOP BAR */}
+          <div className="player-top-bar" style={{ opacity: controlsVisible ? 1 : 0 }}>
+            <button className="back-btn" onClick={onClose} title="Retour à l'accueil">
+              <i className="fas fa-arrow-left"></i>
+            </button>
+            <span className="player-movie-title">{movie.title}</span>
+          </div>
+
+          {/* BOTTOM CONTROLS */}
+          <div className="player-controls-bottom" style={{ opacity: controlsVisible ? 1 : 0 }}>
+            {/* PROGRESS BAR */}
+            <div className="progress-bar-container" onClick={handleSeek}>
+              <div className="progress-bar-fill" style={{ width: `${progressPercent}%` }}>
+                <div className="progress-bar-scrubber"></div>
+              </div>
+            </div>
+
+            <div className="controls-row">
+              <div className="controls-left">
+                <button className="control-btn" onClick={togglePlay}>
+                  <i className={isPlaying ? "fas fa-pause" : "fas fa-play"}></i>
+                </button>
+
+                <button className="control-btn" onClick={() => handleSkip(-10)} title="Reculer 10s">
+                  <i className="fas fa-undo-alt"></i>
+                </button>
+
+                <button className="control-btn" onClick={() => handleSkip(10)} title="Avancer 10s">
+                  <i className="fas fa-redo-alt"></i>
+                </button>
+
+                <div className="volume-container">
+                  <button className="control-btn" onClick={toggleMute}>
+                    <i className={isMuted || volume === 0 ? "fas fa-volume-mute" : "fas fa-volume-up"}></i>
+                  </button>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={isMuted ? 0 : volume}
+                    onChange={handleVolumeChange}
+                    className="volume-slider"
+                  />
+                </div>
+
+                <div className="time-display">
+                  {formatTime(currentTime)} / {formatTime(duration)}
+                </div>
+              </div>
+
+              <div className="controls-right">
+                <button className="control-btn" onClick={toggleFullscreen} title="Plein écran">
+                  <i className="fas fa-expand"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
 
     function MovieCard({ movie, onPlay, isFavorite, onToggleFavorite }) {
       const [hovered, setHovered] = useState(false);
@@ -421,7 +722,7 @@
             <div className="card-body">
               <div className="card-actions">
                 <div className="card-actions-left">
-                  <button className="icon-btn icon-btn-play" onClick={() => onPlay(movie.id)} title="Regarder">
+                  <button className="icon-btn icon-btn-play" onClick={() => onPlay(movie)} title="Regarder">
                     <i className="fas fa-play"></i>
                   </button>
                   <button 
@@ -452,19 +753,19 @@
     function App() {
       const [currentTab, setCurrentTab] = useState('home');
       const [searchTerm, setSearchTerm] = useState('');
-      const [activeVideoId, setActiveVideoId] = useState(null);
+      const [activeMovie, setActiveMovie] = useState(null);
       const [heroIndex, setHeroIndex] = useState(0);
 
       const heroMovies = catalog.filter(m => m.hero);
 
-      // Carousel du Hero TOUTES LES 4 SECONDES (4000ms)
+      // Carousel du Hero
       useEffect(() => {
-        if (currentTab !== 'home' || searchTerm) return;
+        if (currentTab !== 'home' || searchTerm || activeMovie) return;
         const interval = setInterval(() => {
           setHeroIndex(prev => (prev + 1) % heroMovies.length);
         }, 4000);
         return () => clearInterval(interval);
-      }, [currentTab, searchTerm, heroMovies.length]);
+      }, [currentTab, searchTerm, heroMovies.length, activeMovie]);
 
       const [favorites, setFavorites] = useState(() => {
         const saved = localStorage.getItem('zigouflix_favs');
@@ -516,7 +817,7 @@
             </div>
           </nav>
 
-          {/* HERO CAROUSEL AUTOMATIQUE 4S */}
+          {/* HERO CAROUSEL */}
           {currentTab === 'home' && !searchTerm && (
             <div className="hero-carousel">
               {heroMovies.map((movie, idx) => (
@@ -541,7 +842,7 @@
                     <h1 className="hero-title">{movie.title}</h1>
                     <p className="hero-desc">{movie.desc}</p>
                     <div className="hero-btns">
-                      <button className="btn btn-main" onClick={() => setActiveVideoId(movie.id)}>
+                      <button className="btn btn-main" onClick={() => setActiveMovie(movie)}>
                         <i className="fas fa-play"></i> Regarder
                       </button>
                       <button 
@@ -556,7 +857,6 @@
                 </div>
               ))}
 
-              {/* Puces de navigation */}
               <div className="carousel-indicators">
                 {heroMovies.map((_, idx) => (
                   <div 
@@ -569,7 +869,7 @@
             </div>
           )}
 
-          {/* CONTENU - CATEGORIE UNIQUE: ZIGOUNE LE COMMENCEMENT */}
+          {/* CONTENU PRINCIPAL */}
           <main className="main-container" style={{ marginTop: (currentTab === 'mylist' || searchTerm) ? '120px' : '-60px' }}>
             
             {(searchTerm || currentTab === 'mylist') ? (
@@ -585,7 +885,7 @@
                       <MovieCard 
                         key={movie.id} 
                         movie={movie} 
-                        onPlay={setActiveVideoId}
+                        onPlay={setActiveMovie}
                         isFavorite={favorites.includes(movie.id)}
                         onToggleFavorite={toggleFavorite}
                       />
@@ -600,7 +900,7 @@
                     <MovieCard 
                       key={movie.id} 
                       movie={movie} 
-                      onPlay={setActiveVideoId}
+                      onPlay={setActiveMovie}
                       isFavorite={favorites.includes(movie.id)}
                       onToggleFavorite={toggleFavorite}
                     />
@@ -610,23 +910,12 @@
             )}
           </main>
 
-          {/* LECTEUR MODAL */}
-          {activeVideoId && (
-            <div className="modal-overlay" onClick={() => setActiveVideoId(null)}>
-              <div className="modal-container" onClick={e => e.stopPropagation()}>
-                <button className="close-btn" onClick={() => setActiveVideoId(null)}>
-                  <i className="fas fa-times"></i>
-                </button>
-                <div className="modal-player">
-                  <iframe
-                    src={`https://www.youtube.com/embed/${activeVideoId}?autoplay=1&rel=0`}
-                    title="Zigouflix Player"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  ></iframe>
-                </div>
-              </div>
-            </div>
+          {/* LECTEUR STYLE NETFLIX PLEIN ÉCRAN */}
+          {activeMovie && (
+            <NetflixPlayer 
+              movie={activeMovie} 
+              onClose={() => setActiveMovie(null)} 
+            />
           )}
         </div>
       );
