@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zigouflix - Streaming Ultra HD Gold</title>
+  
+  <!-- CDN React, ReactDOM, Babel & FontAwesome -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    :root {
+      --bg-color: #08080a;
+      --card-bg: #121216;
+      --text-main: #ffffff;
+      --text-muted: #a0a0a8;
+      --zigou-red: #ff0b18;
+      --zigou-red-glow: rgba(255, 11, 24, 0.75);
+      --nav-bg: rgba(8, 8, 10, 0.82);
+      --transition-smooth: all 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
+    
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button { cursor: pointer; border: none; background: none; color: inherit; font-family: inherit; }
+
+    /* SCROLLBAR CUSTOM GLOW */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #08080a; }
+    ::-webkit-scrollbar-thumb { background: #222; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--zigou-red); box-shadow: 0 0 15px var(--zigou-red); }
+
+    /* NAVBAR PREMIUM */
+    .navbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 5%;
+      background-color: var(--nav-bg);
+      backdrop-filter: blur(25px) saturate(180%);
+      -webkit-backdrop-filter: blur(25px) saturate(180%);
+      position: fixed;
+      top: 0; width: 100%; z-index: 100;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      transition: var(--transition-smooth);
+    }
+
+    .nav-left { display: flex; align-items: center; gap: 45px; }
+
+    .logo {
+      color: var(--zigou-red);
+      font-size: 2.4rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: -1.5px;
+      text-shadow: 0 0 20px var(--zigou-red-glow), 0 0 40px rgba(255, 11, 24, 0.3);
+      cursor: pointer;
+      user-select: none;
+      transition: transform 0.3s;
+    }
+    .logo:hover { transform: scale(1.05); }
+
+    .nav-links { display: flex; gap: 28px; list-style: none; font-size: 0.95rem; }
+    .nav-item { color: var(--text-muted); transition: all 0.3s; cursor: pointer; position: relative; font-weight: 500; }
+    .nav-item:hover, .nav-item.active { color: var(--text-main); font-weight: 700; }
+    .nav-item.active::after {
+      content: ''; position: absolute; bottom: -8px; left: 0; width: 100%; height: 3px;
+      background: var(--zigou-red); border-radius: 2px; box-shadow: 0 0 12px var(--zigou-red);
+    }
+
+    .nav-right { display: flex; align-items: center; gap: 20px; }
+
+    .search-box {
+      display: flex;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 8px 16px;
+      border-radius: 30px;
+      backdrop-filter: blur(10px);
+      transition: var(--transition-smooth);
+    }
+    .search-box:focus-within {
+      border-color: var(--zigou-red);
+      box-shadow: 0 0 20px var(--zigou-red-glow);
+      background: rgba(0, 0, 0, 0.7);
+    }
+    .search-box input {
+      background: transparent;
+      border: none;
+      color: #fff;
+      margin-left: 10px;
+      font-size: 0.9rem;
+      width: 160px;
+      transition: width 0.3s ease;
+    }
+    .search-box input:focus { width: 240px; }
+
+    /* HERO CAROUSEL AUTOMATIQUE (4S) */
+    .hero-carousel {
+      position: relative;
+      width: 100%;
+      height: 88vh;
+      overflow: hidden;
+    }
+
+    .hero-slide {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      opacity: 0;
+      transition: opacity 0.8s ease-in-out, transform 1s ease-out;
+      transform: scale(1.08);
+      pointer-events: none;
+    }
+    .hero-slide.active {
+      opacity: 1;
+      transform: scale(1);
+      pointer-events: auto;
+    }
+
+    .hero-video-wrapper {
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 100vw; height: 100vh;
+      transform: translate(-50%, -50%) scale(1.25);
+      z-index: -2;
+    }
+    .hero-video-wrapper iframe { width: 100%; height: 100%; border: none; }
+
+    .hero-overlay {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: 
+        radial-gradient(circle at 20% 50%, rgba(8,8,10,0.85) 0%, rgba(8,8,10,0.4) 60%, rgba(8,8,10,0.9) 100%),
+        linear-gradient(180deg, transparent 60%, var(--bg-color) 100%);
+      z-index: -1;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 0 5%;
+      max-width: 720px;
+    }
+
+    .hero-badges { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; }
+    .badge-top10 {
+      background: linear-gradient(135deg, #ff0b18, #ff416c);
+      color: #fff; font-size: 0.75rem; font-weight: 900;
+      padding: 5px 12px; border-radius: 4px; text-transform: uppercase;
+      letter-spacing: 0.5px;
+      box-shadow: 0 0 15px rgba(255, 11, 24, 0.6);
+    }
+    .badge-quality {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      color: #fff; font-size: 0.7rem; font-weight: 700;
+      padding: 3px 8px; border-radius: 4px; backdrop-filter: blur(8px);
+    }
+
+    .hero-title {
+      font-size: 4.5rem;
+      font-weight: 900;
+      line-height: 1.02;
+      margin-bottom: 18px;
+      text-shadow: 0 5px 30px rgba(0,0,0,0.9);
+      letter-spacing: -1.5px;
+      background: linear-gradient(180deg, #ffffff 0%, #dcdcdc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero-desc {
+      font-size: 1.15rem;
+      color: #d8d8e0;
+      margin-bottom: 32px;
+      line-height: 1.55;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.9);
+    }
+
+    .hero-btns { display: flex; gap: 18px; align-items: center; }
+    .btn {
+      display: flex; align-items: center; gap: 12px;
+      padding: 15px 34px; border-radius: 8px;
+      font-size: 1.1rem; font-weight: 800;
+      transition: var(--transition-smooth);
+    }
+    .btn-main {
+      background-color: var(--text-main);
+      color: #000;
+      box-shadow: 0 6px 20px rgba(255,255,255,0.25);
+    }
+    .btn-main:hover {
+      background-color: #ffffff;
+      transform: translateY(-3px) scale(1.03);
+      box-shadow: 0 10px 30px rgba(255,255,255,0.5);
+    }
+    .btn-sec {
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+    }
+    .btn-sec:hover {
+      background: rgba(255, 255, 255, 0.25);
+      transform: translateY(-3px) scale(1.03);
+      border-color: #fff;
+    }
+
+    /* INDICATEURS CAROUSEL */
+    .carousel-indicators {
+      position: absolute;
+      bottom: 35px; right: 5%;
+      display: flex; gap: 10px; z-index: 10;
+    }
+    .indicator-dot {
+      width: 30px; height: 4px;
+      background: rgba(255,255,255,0.3);
+      border-radius: 2px; cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .indicator-dot.active {
+      background: var(--zigou-red);
+      width: 50px;
+      box-shadow: 0 0 10px var(--zigou-red);
+    }
+
+    /* SECTION CONTENU */
+    .main-container { padding: 0 5% 80px 5%; margin-top: -60px; position: relative; z-index: 10; }
+    .row-title {
+      font-size: 1.7rem; font-weight: 800; margin: 40px 0 20px 0;
+      display: flex; align-items: center; gap: 12px;
+      letter-spacing: -0.5px;
+    }
+    .row-title::before {
+      content: ''; display: block; width: 4px; height: 24px;
+      background: var(--zigou-red); border-radius: 2px;
+      box-shadow: 0 0 12px var(--zigou-red);
+    }
+
+    .video-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 20px;
+      padding-bottom: 20px;
+    }
+
+    /* CARTE NETFLIX HOVER 3D */
+    .card-container { position: relative; height: 150px; }
+
+    .card {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background-color: var(--card-bg);
+      border-radius: 10px;
+      overflow: hidden;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.7);
+      transition: var(--transition-smooth);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      z-index: 1;
+    }
+
+    .card:hover {
+      width: 340px;
+      height: 360px;
+      top: -105px;
+      left: -45px;
+      z-index: 30;
+      box-shadow: 0 25px 50px rgba(0,0,0,0.95), 0 0 25px rgba(255, 11, 24, 0.4);
+      border-color: rgba(255, 11, 24, 0.6);
+    }
+
+    .card-img { width: 100%; height: 150px; object-fit: cover; }
+
+    .card-preview {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 150px;
+      opacity: 0;
+      transition: opacity 0.4s 0.2s;
+      pointer-events: none;
+    }
+
+    .card:hover .card-img { opacity: 0; }
+    .card:hover .card-preview { opacity: 1; }
+
+    .card-body {
+      padding: 18px;
+      opacity: 0;
+      transform: translateY(15px);
+      transition: opacity 0.3s 0.18s, transform 0.3s 0.18s;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .card:hover .card-body { opacity: 1; transform: translateY(0); }
+
+    .card-actions { display: flex; justify-content: space-between; align-items: center; }
+    .card-actions-left { display: flex; gap: 10px; }
+
+    .icon-btn {
+      width: 40px; height: 40px;
+      border: 2px solid rgba(255,255,255,0.2);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.25s;
+      font-size: 1rem;
+      background: rgba(0, 0, 0, 0.5);
+    }
+    .icon-btn:hover { border-color: #fff; background-color: rgba(255,255,255,0.25); transform: scale(1.12); }
+    .icon-btn.active { border-color: var(--zigou-red); color: var(--zigou-red); box-shadow: 0 0 12px var(--zigou-red-glow); }
+    .icon-btn-play { background-color: #fff; color: #000; border: none; }
+    .icon-btn-play:hover { background-color: #ffffff; transform: scale(1.12); box-shadow: 0 0 15px rgba(255,255,255,0.6); }
+
+    .card-info { display: flex; align-items: center; gap: 10px; font-size: 0.85rem; }
+    .match { color: #46d369; font-weight: bold; }
+    .age { border: 1px solid var(--text-muted); padding: 0 6px; font-size: 0.7rem; border-radius: 3px; color: #ccc; }
+    .quality-tag { border: 1px solid #888; font-size: 0.65rem; padding: 0 4px; border-radius: 2px; }
+
+    .card-title-text { font-size: 1.1rem; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .card-tags { font-size: 0.8rem; color: var(--text-muted); }
+
+    /* LECTEUR MODAL CINÉMA */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background-color: rgba(0, 0, 0, 0.95);
+      backdrop-filter: blur(20px);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 1000;
+      animation: modalFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes modalFadeIn { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } }
+
+    .modal-container {
+      position: relative;
+      width: 92%; max-width: 1120px;
+      background: #121216;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 0 80px rgba(255, 11, 24, 0.45), 0 0 120px rgba(0,0,0,0.95);
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .modal-player { position: relative; padding-top: 56.25%; background: #000; }
+    .modal-player iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+
+    .close-btn {
+      position: absolute;
+      top: 20px; right: 20px;
+      background: rgba(0,0,0,0.75);
+      color: #fff;
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem; z-index: 10;
+      transition: all 0.25s;
+      border: 1px solid rgba(255,255,255,0.25);
+    }
+    .close-btn:hover { background: var(--zigou-red); transform: rotate(90deg); box-shadow: 0 0 20px var(--zigou-red); }
+  </style>
+</head>
+<body>
+
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    const catalog = [
+      { id: "NlNzSz9iNrM", title: "Inception Visuelle", desc: "Une plongée spectaculaire au cœur des images et des effets visuels modernes d'un niveau cinématographique.", match: "99%", age: "13+", duration: "12m", tags: "Sensationnel • Action • 4K", hero: true },
+      { id: "3imnQO1MM_k", title: "Les Ombres du Court", desc: "Un thriller psychologique visuel qui joue avec les contrastes et le suspense le plus absolu.", match: "98%", age: "13+", duration: "10m", tags: "Mystère • Suspense • 4K", hero: true },
+      { id: "WQrmiOMZrRk", title: "Couleurs & Émotions", desc: "Comment la palette de couleurs d'un film influence vos sentiments à votre insu à chaque plan.", match: "95%", age: "Tous", duration: "7m", tags: "Inspirant • Esthétique • 4K", hero: true },
+      { id: "0dcY-benLkU", title: "L'Art du Cadre", desc: "Découvrez comment la géométrie et la lumière façonnent les grands chefs-d'œuvre du cinéma mondial.", match: "96%", age: "Tous", duration: "8m", tags: "Cinéma • Masterclass • HDR", hero: true },
+      { id: "F5ffp2CP8rk", title: "Plan Séquence Épique", desc: "Analyse technique d'une scène d'action fluide tournée sans aucune coupure apparente.", match: "94%", age: "16+", duration: "15m", tags: "Intense • Rythmé • 5.1" },
+      { id: "XpdAJHyo_PU", title: "Montage Frénétique", desc: "Quand le rythme de l'image s'accorde parfaitement à la musique pour créer une expérience visuelle inédite.", match: "91%", age: "Tous", duration: "18m", tags: "Musique • Montage • HD" }
+    ];
+
+    function MovieCard({ movie, onPlay, isFavorite, onToggleFavorite }) {
+      const [hovered, setHovered] = useState(false);
+      const previewSrc = `https://www.youtube.com/embed/${movie.id}?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&loop=1&playlist=${movie.id}`;
+
+      return (
+        <div className="card-container">
+          <div 
+            className="card"
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
+          >
+            <img 
+              src={`https://img.youtube.com/vi/${movie.id}/hqdefault.jpg`} 
+              alt={movie.title} 
+              className="card-img"
+            />
+            
+            {hovered && (
+              <iframe 
+                src={previewSrc} 
+                className="card-preview" 
+                frameBorder="0"
+                allow="autoplay"
+              ></iframe>
+            )}
+
+            <div className="card-body">
+              <div className="card-actions">
+                <div className="card-actions-left">
+                  <button className="icon-btn icon-btn-play" onClick={() => onPlay(movie.id)} title="Regarder">
+                    <i className="fas fa-play"></i>
+                  </button>
+                  <button 
+                    className={`icon-btn ${isFavorite ? 'active' : ''}`} 
+                    onClick={(e) => { e.stopPropagation(); onToggleFavorite(movie.id); }}
+                    title={isFavorite ? "Retirer de ma liste" : "Ajouter à ma liste"}
+                  >
+                    <i className={isFavorite ? "fas fa-check" : "fas fa-plus"}></i>
+                  </button>
+                </div>
+              </div>
+
+              <div className="card-info">
+                <span className="match">{movie.match}</span>
+                <span className="age">{movie.age}</span>
+                <span className="quality-tag">4K</span>
+                <span>{movie.duration}</span>
+              </div>
+
+              <div className="card-title-text">{movie.title}</div>
+              <div className="card-tags">{movie.tags}</div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function App() {
+      const [currentTab, setCurrentTab] = useState('home');
+      const [searchTerm, setSearchTerm] = useState('');
+      const [activeVideoId, setActiveVideoId] = useState(null);
+      const [heroIndex, setHeroIndex] = useState(0);
+
+      const heroMovies = catalog.filter(m => m.hero);
+
+      // Carousel du Hero TOUTES LES 4 SECONDES (4000ms)
+      useEffect(() => {
+        if (currentTab !== 'home' || searchTerm) return;
+        const interval = setInterval(() => {
+          setHeroIndex(prev => (prev + 1) % heroMovies.length);
+        }, 4000);
+        return () => clearInterval(interval);
+      }, [currentTab, searchTerm, heroMovies.length]);
+
+      const [favorites, setFavorites] = useState(() => {
+        const saved = localStorage.getItem('zigouflix_favs');
+        return saved ? JSON.parse(saved) : [];
+      });
+
+      useEffect(() => {
+        localStorage.setItem('zigouflix_favs', JSON.stringify(favorites));
+      }, [favorites]);
+
+      const toggleFavorite = (id) => {
+        setFavorites(prev => 
+          prev.includes(id) ? prev.filter(favId => favId !== id) : [...prev, id]
+        );
+      };
+
+      return (
+        <div>
+          {/* NAVBAR */}
+          <nav className="navbar">
+            <div className="nav-left">
+              <div className="logo" onClick={() => { setCurrentTab('home'); setSearchTerm(''); }}>Zigouflix</div>
+              <ul className="nav-links">
+                <li 
+                  className={`nav-item ${currentTab === 'home' ? 'active' : ''}`}
+                  onClick={() => setCurrentTab('home')}
+                >
+                  Accueil
+                </li>
+                <li 
+                  className={`nav-item ${currentTab === 'mylist' ? 'active' : ''}`}
+                  onClick={() => setCurrentTab('mylist')}
+                >
+                  Ma Liste {favorites.length > 0 && `(${favorites.length})`}
+                </li>
+              </ul>
+            </div>
+
+            <div className="nav-right">
+              <div className="search-box">
+                <i className="fas fa-search" style={{color: '#aaa'}}></i>
+                <input 
+                  type="text" 
+                  placeholder="Rechercher..." 
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+            </div>
+          </nav>
+
+          {/* HERO CAROUSEL AUTOMATIQUE 4S */}
+          {currentTab === 'home' && !searchTerm && (
+            <div className="hero-carousel">
+              {heroMovies.map((movie, idx) => (
+                <div key={movie.id} className={`hero-slide ${idx === heroIndex ? 'active' : ''}`}>
+                  <div className="hero-video-wrapper">
+                    {idx === heroIndex && (
+                      <iframe 
+                        src={`https://www.youtube.com/embed/${movie.id}?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&loop=1&playlist=${movie.id}`}
+                        allow="autoplay"
+                      ></iframe>
+                    )}
+                  </div>
+                  <div className="hero-overlay"></div>
+                  
+                  <div className="hero-content">
+                    <div className="hero-badges">
+                      <span className="badge-top10">N° 1 EN TENDANCE</span>
+                      <span className="badge-quality">DOLBY VISION</span>
+                      <span className="badge-quality">IMAX ENHANCED</span>
+                      <span className="badge-quality">4K ULTRA HD</span>
+                    </div>
+                    <h1 className="hero-title">{movie.title}</h1>
+                    <p className="hero-desc">{movie.desc}</p>
+                    <div className="hero-btns">
+                      <button className="btn btn-main" onClick={() => setActiveVideoId(movie.id)}>
+                        <i className="fas fa-play"></i> Regarder
+                      </button>
+                      <button 
+                        className="btn btn-sec" 
+                        onClick={() => toggleFavorite(movie.id)}
+                      >
+                        <i className={favorites.includes(movie.id) ? "fas fa-check" : "fas fa-plus"}></i> 
+                        {favorites.includes(movie.id) ? "Dans ma liste" : "Ajouter à ma liste"}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              {/* Puces de navigation */}
+              <div className="carousel-indicators">
+                {heroMovies.map((_, idx) => (
+                  <div 
+                    key={idx} 
+                    className={`indicator-dot ${idx === heroIndex ? 'active' : ''}`}
+                    onClick={() => setHeroIndex(idx)}
+                  ></div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* CONTENU - CATEGORIE UNIQUE: ZIGOUNE LE COMMENCEMENT */}
+          <main className="main-container" style={{ marginTop: (currentTab === 'mylist' || searchTerm) ? '120px' : '-60px' }}>
+            
+            {(searchTerm || currentTab === 'mylist') ? (
+              <div>
+                <h2 className="row-title">
+                  {searchTerm ? `Résultats pour "${searchTerm}"` : 'Ma Liste Personnelle'}
+                </h2>
+                <div className="video-grid">
+                  {catalog
+                    .filter(m => (currentTab === 'mylist' ? favorites.includes(m.id) : true))
+                    .filter(m => m.title.toLowerCase().includes(searchTerm.toLowerCase()) || m.tags.toLowerCase().includes(searchTerm.toLowerCase()))
+                    .map(movie => (
+                      <MovieCard 
+                        key={movie.id} 
+                        movie={movie} 
+                        onPlay={setActiveVideoId}
+                        isFavorite={favorites.includes(movie.id)}
+                        onToggleFavorite={toggleFavorite}
+                      />
+                    ))}
+                </div>
+              </div>
+            ) : (
+              <div>
+                <h2 className="row-title">Zigoune le commencement</h2>
+                <div className="video-grid">
+                  {catalog.map(movie => (
+                    <MovieCard 
+                      key={movie.id} 
+                      movie={movie} 
+                      onPlay={setActiveVideoId}
+                      isFavorite={favorites.includes(movie.id)}
+                      onToggleFavorite={toggleFavorite}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+          </main>
+
+          {/* LECTEUR MODAL */}
+          {activeVideoId && (
+            <div className="modal-overlay" onClick={() => setActiveVideoId(null)}>
+              <div className="modal-container" onClick={e => e.stopPropagation()}>
+                <button className="close-btn" onClick={() => setActiveVideoId(null)}>
+                  <i className="fas fa-times"></i>
+                </button>
+                <div className="modal-player">
+                  <iframe
+                    src={`https://www.youtube.com/embed/${activeVideoId}?autoplay=1&rel=0`}
+                    title="Zigouflix Player"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  ></iframe>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
