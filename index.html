@@ -125,9 +125,6 @@
       transition: border-radius 0.2s;
     }
 
-    /* BARRE NAVIGATION MOBILE (MASQUÉE SUR PC) */
-    .mobile-nav { display: none; }
-
     /* HERO */
     .hero-carousel {
       position: relative;
@@ -589,191 +586,6 @@
       .nav-links { display: none; }
       .kbd-hint { display: none; }
     }
-
-    /* ==========================================================================
-       ADAPTATIONS MOBILE EXCLUSIVES (N'IMPACTENT PAS L'EXPÉRIENCE PC)
-       ========================================================================== */
-    @media (max-width: 768px) {
-      body {
-        padding-bottom: 60px; /* Espace réservé pour la barre de navigation du bas */
-      }
-
-      /* Navbar Mobile */
-      .navbar {
-        padding: 12px 16px;
-        background: linear-gradient(180deg, rgba(0,0,0,0.9) 0%, transparent 100%);
-      }
-      .logo {
-        font-size: 1.6rem;
-      }
-      .search-box, .nav-right .nav-icon {
-        display: none; /* Déplacé vers la navigation du bas */
-      }
-      .avatar {
-        width: 28px;
-        height: 28px;
-      }
-
-      /* Barre de Navigation Basse Style App Mobile */
-      .mobile-nav {
-        display: flex;
-        justify-content: space-around;
-        align-items: center;
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        height: 56px;
-        background-color: #121212;
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-        z-index: 1000;
-      }
-      .mobile-nav-item {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 3px;
-        color: var(--text-dim);
-        font-size: 0.65rem;
-      }
-      .mobile-nav-item.active {
-        color: #fff;
-      }
-      .mobile-nav-item i {
-        font-size: 1.2rem;
-      }
-
-      /* Hero Carousel Mobile */
-      .hero-carousel {
-        height: 70vh;
-      }
-      .hero-video-wrapper {
-        display: none; /* Évite de charger des vidéos lourdes en fond sur mobile */
-      }
-      .hero-slide {
-        background-size: cover;
-        background-position: center;
-      }
-      .hero-overlay {
-        background: linear-gradient(180deg, rgba(11,11,13,0.2) 0%, rgba(11,11,13,0.8) 70%, var(--bg-color) 100%);
-      }
-      .hero-content {
-        padding: 0 16px;
-        justify-content: flex-end;
-        padding-bottom: 40px;
-      }
-      .hero-title {
-        font-size: 2.2rem;
-        margin-bottom: 10px;
-      }
-      .hero-desc {
-        font-size: 0.85rem;
-        margin-bottom: 16px;
-        display: -webkit-box;
-        -webkit-line-clamp: 3;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-      }
-      .btn {
-        padding: 8px 16px;
-        font-size: 0.9rem;
-      }
-      .age-gate {
-        display: none;
-      }
-      .carousel-indicators {
-        bottom: 12px;
-        left: 16px;
-      }
-
-      /* Container Principal & Rows Mobile */
-      .main-container {
-        margin-top: -30px;
-      }
-      .row-title {
-        font-size: 1.1rem;
-        margin-left: 16px;
-      }
-      .video-row {
-        padding: 0 16px;
-        gap: 8px;
-      }
-      .row-arrow {
-        display: none !important; /* Pas besoin de flèches sur écran tactile */
-      }
-
-      /* Cartes Vidéo Tactiles */
-      .card-container {
-        width: 145px;
-        height: 90px;
-      }
-      .card {
-        height: 90px;
-      }
-      .card-img {
-        height: 90px;
-      }
-      .card-container.top10 {
-        width: 180px;
-      }
-      .rank-number {
-        font-size: 5rem;
-        margin-right: -10px;
-      }
-
-      /* Désactivation de l'agrandissement complexe au survol (hover) sur mobile */
-      .card.expanded {
-        position: relative !important;
-        width: 100% !important;
-        height: 100% !important;
-        top: 0 !important;
-        left: 0 !important;
-        box-shadow: none !important;
-      }
-      .card-body, .card-preview {
-        display: none !important;
-      }
-
-      /* Modale Infos Mobile (Bottom Sheet) */
-      .modal-overlay {
-        padding: 0;
-        align-items: flex-end;
-      }
-      .modal-box {
-        border-radius: 16px 16px 0 0;
-        max-height: 85vh;
-        overflow-y: auto;
-      }
-      .modal-body {
-        padding: 16px 20px 30px 20px;
-      }
-      .modal-hero-title {
-        font-size: 1.3rem;
-        left: 20px;
-        bottom: 16px;
-      }
-      .modal-hero-btns {
-        right: 20px;
-        bottom: 16px;
-      }
-
-      /* Lecteur Vidéo Mobile */
-      .player-top-bar {
-        padding: 16px 20px;
-      }
-      .player-movie-title {
-        font-size: 1rem;
-      }
-      .player-controls-bottom {
-        padding: 10px 20px 20px 20px;
-      }
-      .controls-left, .controls-right {
-        gap: 12px;
-      }
-      .volume-container, .time-display {
-        display: none; /* Gain de place sur petits écrans */
-      }
-    }
   </style>
 </head>
 <body>
@@ -915,6 +727,7 @@
         if (next === 0) setIsMuted(true); else { playerRef.current.unMute(); setIsMuted(false); }
       }, []);
 
+      // Clavier: espace/K play-pause, flèches seek/volume, M mute, F plein écran, Échap fermer
       useEffect(() => {
         const onKeyDown = (e) => {
           switch (e.key) {
@@ -1026,19 +839,13 @@
                   <button className="control-btn" onClick={toggleMute}>
                     <i className={isMuted || volume === 0 ? "fas fa-volume-mute" : volume < 50 ? "fas fa-volume-down" : "fas fa-volume-up"}></i>
                   </button>
-                  <input
-                    type="range"
-                    className="volume-slider"
-                    min="0"
-                    max="100"
-                    value={isMuted ? 0 : volume}
-                    onChange={handleVolumeChange}
-                  />
+                  <input type="range" min="0" max="100" value={isMuted ? 0 : volume} onChange={handleVolumeChange} className="volume-slider" />
                 </div>
-                <span className="time-display">{formatTime(currentTime)} / {formatTime(duration)}</span>
+                <div className="time-display">{formatTime(currentTime)} / {formatTime(duration)}</div>
               </div>
 
               <div className="controls-right">
+                <button className="control-btn" title="Épisodes suivants"><i className="fas fa-list-ul"></i></button>
                 <button className="control-btn" onClick={toggleFullscreen} title="Plein écran">
                   <i className="fas fa-expand"></i>
                 </button>
@@ -1049,455 +856,289 @@
       );
     }
 
-    /* ===================== CARTE INDIVIDUELLE ===================== */
-    function VideoCard({ item, rank, isTop10, onOpenModal, onPlay, isMyList, onToggleMyList }) {
-      const [isHovered, setIsHovered] = useState(false);
-      const hoverTimeout = useRef(null);
-
-      const handleMouseEnter = () => {
-        hoverTimeout.current = setTimeout(() => setIsHovered(true), 300);
-      };
-
-      const handleMouseLeave = () => {
-        clearTimeout(hoverTimeout.current);
-        setIsHovered(false);
-      };
-
-      const imgUrl = `https://img.youtube.com/vi/${item.id}/hqdefault.jpg`;
+    /* ===================== CARD ===================== */
+    function MovieCard({ movie, onPlay, onInfo, isFavorite, onToggleFavorite, rank }) {
+      const [hovered, setHovered] = useState(false);
+      const previewSrc = `https://www.youtube.com/embed/${movie.id}?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&loop=1&playlist=${movie.id}`;
 
       return (
-        <div className={`card-container ${isTop10 ? 'top10' : ''}`}>
-          {isTop10 && <div className="rank-number">{rank}</div>}
-          
+        <div className={`card-container ${rank ? 'top10' : ''}`}>
+          {rank && <span className="rank-number">{rank}</span>}
           <div
-            className={`card ${isHovered ? 'expanded' : ''}`}
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-            onClick={() => onOpenModal(item)}
+            className={`card ${hovered ? 'expanded' : ''}`}
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
+            onClick={() => hovered && onInfo(movie)}
           >
-            <img src={imgUrl} alt={item.title} className="card-img" />
+            <img src={`https://img.youtube.com/vi/${movie.id}/hqdefault.jpg`} alt={movie.title} className="card-img" />
 
-            {item.progress && (
-              <div className="progress-mini">
-                <div className="progress-mini-fill" style={{ width: `${item.progress}%` }}></div>
-              </div>
+            {hovered && (
+              <iframe src={previewSrc} className="card-preview" frameBorder="0" allow="autoplay"></iframe>
             )}
 
-            {isHovered && (
-              <div className="card-preview">
-                <iframe
-                  src={`https://www.youtube.com/embed/${item.id}?autoplay=1&mute=1&controls=0&loop=1&playlist=${item.id}&modestbranding=1`}
-                  style={{ width: '100%', height: '100%', border: 'none' }}
-                ></iframe>
+            {movie.progress !== undefined && (
+              <div className="progress-mini">
+                <div className="progress-mini-fill" style={{ width: `${movie.progress}%` }}></div>
               </div>
             )}
 
             <div className="card-body">
               <div className="card-actions">
                 <div className="card-actions-left">
-                  <button className="icon-btn icon-btn-play" onClick={(e) => { e.stopPropagation(); onPlay(item); }}>
+                  <button className="icon-btn icon-btn-play" onClick={(e) => { e.stopPropagation(); onPlay(movie); }} title="Regarder">
                     <i className="fas fa-play"></i>
                   </button>
                   <button
-                    className={`icon-btn ${isMyList ? 'active' : ''}`}
-                    onClick={(e) => { e.stopPropagation(); onToggleMyList(item); }}
+                    className={`icon-btn ${isFavorite ? 'active' : ''}`}
+                    onClick={(e) => { e.stopPropagation(); onToggleFavorite(movie.id); }}
+                    title={isFavorite ? "Retirer de ma liste" : "Ajouter à ma liste"}
                   >
-                    <i className={isMyList ? "fas fa-check" : "fas fa-plus"}></i>
-                  </button>
-                  <button className="icon-btn">
-                    <i className="far fa-thumbs-up"></i>
+                    <i className={isFavorite ? "fas fa-check" : "fas fa-plus"}></i>
                   </button>
                 </div>
-                <button className="icon-btn" onClick={(e) => { e.stopPropagation(); onOpenModal(item); }}>
+                <button className="icon-btn" onClick={(e) => { e.stopPropagation(); onInfo(movie); }} title="Plus d'infos">
                   <i className="fas fa-chevron-down"></i>
                 </button>
               </div>
 
               <div className="card-info">
-                <span className="match">{item.match}</span>
-                <span className="age">{item.age}</span>
-                <span>{item.duration}</span>
-                <span className="quality-tag">HD</span>
+                <span className="match">{movie.match}</span>
+                <span className="age">{movie.age}</span>
+                <span className="quality-tag">4K</span>
+                <span>{movie.duration}</span>
               </div>
 
-              <div className="card-title-text">{item.title}</div>
-              <div className="card-tags">{item.tags}</div>
+              <div className="card-title-text">{movie.title}</div>
+              <div className="card-tags">{movie.tags}</div>
             </div>
           </div>
         </div>
       );
     }
 
-    /* ===================== RANGÉE / CAROUSEL ===================== */
-    function CategoryRow({ category, onOpenModal, onPlay, myList, onToggleMyList }) {
+    /* ===================== ROW WITH ARROWS ===================== */
+    function Row({ category, onPlay, onInfo, favorites, onToggleFavorite }) {
       const rowRef = useRef(null);
 
-      const scroll = (direction) => {
-        if (rowRef.current) {
-          const { scrollLeft, clientWidth } = rowRef.current;
-          const scrollAmount = clientWidth * 0.75;
-          rowRef.current.scrollTo({
-            left: direction === 'left' ? scrollLeft - scrollAmount : scrollLeft + scrollAmount,
-            behavior: 'smooth'
-          });
-        }
-      };
-
-      return (
-        <div className="row-wrapper">
-          <h2 className="row-title">{category.title}</h2>
-          
-          <button className="row-arrow left" onClick={() => scroll('left')}>
-            <i className="fas fa-chevron-left"></i>
-          </button>
-          
-          <div className="video-row" ref={rowRef}>
-            {category.items.map((item, idx) => (
-              <VideoCard
-                key={idx}
-                item={item}
-                rank={idx + 1}
-                isTop10={category.top10}
-                onOpenModal={onOpenModal}
-                onPlay={onPlay}
-                isMyList={myList.some(m => m.id === item.id)}
-                onToggleMyList={onToggleMyList}
-              />
-            ))}
-          </div>
-
-          <button className="row-arrow right" onClick={() => scroll('right')}>
-            <i className="fas fa-chevron-right"></i>
-          </button>
-        </div>
-      );
-    }
-
-    /* ===================== HERO CAROUSEL ===================== */
-    function HeroCarousel({ items, onOpenModal, onPlay, myList, onToggleMyList }) {
-      const [currentIndex, setCurrentIndex] = useState(0);
-
-      useEffect(() => {
-        const timer = setInterval(() => {
-          setCurrentIndex((prev) => (prev + 1) % items.length);
-        }, 8000);
-        return () => clearInterval(timer);
-      }, [items.length]);
-
-      const current = items[currentIndex];
-
-      return (
-        <div className="hero-carousel">
-          {items.map((movie, idx) => {
-            const isActive = idx === currentIndex;
-            return (
-              <div
-                key={movie.id}
-                className={`hero-slide ${isActive ? 'active' : ''}`}
-                style={{ backgroundImage: `url(https://img.youtube.com/vi/${movie.id}/maxresdefault.jpg)` }}
-              >
-                {isActive && (
-                  <div className="hero-video-wrapper">
-                    <iframe
-                      src={`https://www.youtube.com/embed/${movie.id}?autoplay=1&mute=1&controls=0&loop=1&playlist=${movie.id}&modestbranding=1&enablejsapi=1`}
-                      allow="autoplay"
-                    ></iframe>
-                  </div>
-                )}
-                <div className="hero-overlay"></div>
-              </div>
-            );
-          })}
-
-          <div className="hero-content">
-            <div className="hero-badges">
-              <div className="badge-top10">
-                <span className="n-box">Z</span> Top 10 Auj.
-              </div>
-              <span className="badge-quality">ULTRA HD 4K</span>
-            </div>
-
-            <h1 className="hero-title">{current.title}</h1>
-
-            <div className="hero-meta">
-              <span className="match">{current.match} de correspondance</span>
-              <span className="age">{current.age}</span>
-              <span>{current.duration}</span>
-            </div>
-
-            <p className="hero-desc">{current.desc}</p>
-
-            <div className="hero-btns">
-              <button className="btn btn-main" onClick={() => onPlay(current)}>
-                <i className="fas fa-play"></i> Lecture
-              </button>
-              <button className="btn btn-sec" onClick={() => onOpenModal(current)}>
-                <i className="fas fa-info-circle"></i> Plus d'infos
-              </button>
-              <button
-                className="btn-icon-round"
-                onClick={() => onToggleMyList(current)}
-                title="Ma Liste"
-              >
-                <i className={myList.some(m => m.id === current.id) ? "fas fa-check" : "fas fa-plus"}></i>
-              </button>
-            </div>
-          </div>
-
-          <div className="age-gate">16+</div>
-
-          <div className="carousel-indicators">
-            {items.map((_, idx) => (
-              <div
-                key={idx}
-                className={`indicator-dot ${idx === currentIndex ? 'active' : ''}`}
-                onClick={() => setCurrentIndex(idx)}
-              ></div>
-            ))}
-          </div>
-        </div>
-      );
-    }
-
-    /* ===================== MODALE INFOS ===================== */
-    function InfoModal({ movie, onClose, onPlay, isMyList, onToggleMyList }) {
-      if (!movie) return null;
-
-      return (
-        <div className="modal-overlay" onClick={onClose}>
-          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-hero">
-              <iframe
-                src={`https://www.youtube.com/embed/${movie.id}?autoplay=1&mute=0&controls=1&modestbranding=1`}
-                allow="autoplay; fullscreen"
-              ></iframe>
-              <button className="modal-close" onClick={onClose}>
-                <i className="fas fa-times"></i>
-              </button>
-              <div className="modal-hero-overlay"></div>
-              <div className="modal-hero-title">{movie.title}</div>
-              <div className="modal-hero-btns">
-                <button className="btn btn-main" onClick={() => { onClose(); onPlay(movie); }}>
-                  <i className="fas fa-play"></i> Lecture
-                </button>
-                <button
-                  className="btn-icon-round"
-                  onClick={() => onToggleMyList(movie)}
-                >
-                  <i className={isMyList ? "fas fa-check" : "fas fa-plus"}></i>
-                </button>
-              </div>
-            </div>
-
-            <div className="modal-body">
-              <div className="modal-meta-row">
-                <span className="match">{movie.match} recommandé</span>
-                <span className="age">{movie.age}</span>
-                <span>{movie.duration}</span>
-                <span className="quality-tag">4K ULTRA HD</span>
-              </div>
-
-              <p className="modal-desc">{movie.desc}</p>
-
-              <div className="modal-tags">
-                <p><b>Distribution :</b> <span>{movie.cast}</span></p>
-                <p><b>Genres :</b> <span>{movie.genres}</span></p>
-                <p><b>Mots-clés :</b> <span>{movie.tags}</span></p>
-              </div>
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    /* ===================== APP PRINCIPALE ===================== */
-    function App() {
-      const [scrolled, setScrolled] = useState(false);
-      const [activeTab, setActiveTab] = useState('accueil');
-      const [activeMovie, setActiveMovie] = useState(null);
-      const [playingMovie, setPlayingMovie] = useState(null);
-      const [searchQuery, setSearchQuery] = useState('');
-      const [myList, setMyList] = useState([]);
-
-      useEffect(() => {
-        const handleScroll = () => {
-          if (window.scrollY > 50) setScrolled(true);
-          else setScrolled(false);
-        };
-        window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
-      }, []);
-
-      const toggleMyList = (movie) => {
-        setMyList((prev) => {
-          const exists = prev.some((m) => m.id === movie.id);
-          if (exists) return prev.filter((m) => m.id !== movie.id);
-          return [...prev, movie];
-        });
-      };
-
-      const handleNextMovie = () => {
-        if (!playingMovie) return;
-        const currentIndex = RAW.findIndex((m) => m.id === playingMovie.id);
-        const nextIndex = (currentIndex + 1) % RAW.length;
-        setPlayingMovie(RAW[nextIndex]);
-      };
-
-      const filterMovies = () => {
-        if (!searchQuery) return RAW;
-        return RAW.filter(
-          (m) =>
-            m.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            m.tags.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            m.genres.toLowerCase().includes(searchQuery.toLowerCase())
-        );
+      const scroll = (dir) => {
+        if (!rowRef.current) return;
+        const amount = rowRef.current.clientWidth * 0.85;
+        rowRef.current.scrollBy({ left: dir * amount, behavior: 'smooth' });
       };
 
       return (
         <div>
-          {/* HEADER PC & MOBILE */}
-          <header className={`navbar ${scrolled ? 'scrolled' : ''}`}>
+          <h2 className="row-title">{category.title}</h2>
+          <div className="row-wrapper">
+            <div className="row-arrow left" onClick={() => scroll(-1)}><i className="fas fa-chevron-left"></i></div>
+            <div className="video-row" ref={rowRef}>
+              {category.items.map((movie, i) => (
+                <MovieCard
+                  key={movie.id + '-' + i}
+                  movie={movie}
+                  rank={category.top10 ? i + 1 : null}
+                  onPlay={onPlay}
+                  onInfo={onInfo}
+                  isFavorite={favorites.includes(movie.id)}
+                  onToggleFavorite={onToggleFavorite}
+                />
+              ))}
+            </div>
+            <div className="row-arrow right" onClick={() => scroll(1)}><i className="fas fa-chevron-right"></i></div>
+          </div>
+        </div>
+      );
+    }
+
+    /* ===================== INFO MODAL ===================== */
+    function InfoModal({ movie, onClose, onPlay, isFavorite, onToggleFavorite }) {
+      const previewSrc = `https://www.youtube.com/embed/${movie.id}?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&loop=1&playlist=${movie.id}`;
+      return (
+        <div className="modal-overlay" onClick={onClose}>
+          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-hero">
+              <iframe src={previewSrc} allow="autoplay"></iframe>
+              <div className="modal-hero-overlay"></div>
+              <button className="modal-close" onClick={onClose}><i className="fas fa-times"></i></button>
+              <div className="modal-hero-title">{movie.title}</div>
+              <div className="modal-hero-btns">
+                <button className="btn-icon-round" style={{ background: '#fff', color: '#000', border: 'none', width: 46, height: 46 }} onClick={() => onPlay(movie)}>
+                  <i className="fas fa-play"></i>
+                </button>
+                <button className="btn-icon-round" onClick={() => onToggleFavorite(movie.id)}>
+                  <i className={isFavorite ? "fas fa-check" : "fas fa-plus"}></i>
+                </button>
+              </div>
+            </div>
+            <div className="modal-body">
+              <div className="modal-meta-row">
+                <span className="match">{movie.match} pertinent</span>
+                <span>{movie.duration}</span>
+                <span className="age">{movie.age}</span>
+                <span className="quality-tag">4K</span>
+                <span className="quality-tag">HDR</span>
+              </div>
+              <p className="modal-desc">{movie.desc}</p>
+              <div className="modal-tags">
+                <div><b>Distribution : </b><span>{movie.cast}</span></div>
+                <div><b>Genres : </b><span>{movie.genres}</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    /* ===================== APP ===================== */
+    function App() {
+      const [currentTab, setCurrentTab] = useState('home');
+      const [searchTerm, setSearchTerm] = useState('');
+      const [activeMovie, setActiveMovie] = useState(null);
+      const [infoMovie, setInfoMovie] = useState(null);
+      const [heroIndex, setHeroIndex] = useState(0);
+      const [scrolled, setScrolled] = useState(false);
+
+      const heroMovies = RAW;
+
+      useEffect(() => {
+        if (currentTab !== 'home' || searchTerm || activeMovie) return;
+        const interval = setInterval(() => setHeroIndex(prev => (prev + 1) % heroMovies.length), 5000);
+        return () => clearInterval(interval);
+      }, [currentTab, searchTerm, heroMovies.length, activeMovie]);
+
+      useEffect(() => {
+        const onScroll = () => setScrolled(window.scrollY > 20);
+        window.addEventListener('scroll', onScroll);
+        return () => window.removeEventListener('scroll', onScroll);
+      }, []);
+
+      const [favorites, setFavorites] = useState([]);
+      const toggleFavorite = (id) => {
+        setFavorites(prev => prev.includes(id) ? prev.filter(f => f !== id) : [...prev, id]);
+      };
+
+      const playFromInfo = (movie) => { setInfoMovie(null); setActiveMovie(movie); };
+
+      const playNext = () => {
+        const all = RAW;
+        const idx = all.findIndex(m => m.id === activeMovie.id);
+        setActiveMovie(all[(idx + 1) % all.length]);
+      };
+
+      const allSearchable = RAW;
+      const searchResults = allSearchable.filter(m =>
+        m.title.toLowerCase().includes(searchTerm.toLowerCase()) || m.tags.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      const favoriteItems = allSearchable.filter(m => favorites.includes(m.id));
+
+      return (
+        <div>
+          <nav className={`navbar ${scrolled || currentTab !== 'home' || searchTerm ? 'scrolled' : ''}`}>
             <div className="nav-left">
-              <div className="logo" onClick={() => setActiveTab('accueil')}>ZIGOUFLIX</div>
+              <div className="logo" onClick={() => { setCurrentTab('home'); setSearchTerm(''); }}>ZIGOUFLIX</div>
               <ul className="nav-links">
-                <li className={`nav-item ${activeTab === 'accueil' ? 'active' : ''}`} onClick={() => setActiveTab('accueil')}>Accueil</li>
-                <li className={`nav-item ${activeTab === 'series' ? 'active' : ''}`} onClick={() => setActiveTab('series')}>Séries</li>
-                <li className={`nav-item ${activeTab === 'films' ? 'active' : ''}`} onClick={() => setActiveTab('films')}>Films</li>
-                <li className={`nav-item ${activeTab === 'nouveautes' ? 'active' : ''}`} onClick={() => setActiveTab('nouveautes')}>Nouveautés les plus regardées</li>
-                <li className={`nav-item ${activeTab === 'mylist' ? 'active' : ''}`} onClick={() => setActiveTab('mylist')}>Ma liste ({myList.length})</li>
+                <li className={`nav-item ${currentTab === 'home' ? 'active' : ''}`} onClick={() => setCurrentTab('home')}>Accueil</li>
+                <li className="nav-item">Séries</li>
+                <li className="nav-item">Films</li>
+                <li className="nav-item">Nouveautés</li>
+                <li className={`nav-item ${currentTab === 'mylist' ? 'active' : ''}`} onClick={() => setCurrentTab('mylist')}>
+                  Ma Liste {favorites.length > 0 && `(${favorites.length})`}
+                </li>
               </ul>
             </div>
 
             <div className="nav-right">
               <div className="search-box">
-                <i className="fas fa-search nav-icon"></i>
-                <input
-                  type="text"
-                  placeholder="Titres, genres..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
+                <i className="fas fa-search" style={{ color: '#aaa' }}></i>
+                <input type="text" placeholder="Titres, personnes, genres" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
               </div>
-              <i className="fas fa-bell nav-icon"></i>
+              <i className="nav-icon fas fa-bell"></i>
               <div className="avatar">Z</div>
             </div>
-          </header>
+          </nav>
 
-          {/* PLAYER FULLSCREEN */}
-          {playingMovie && (
-            <NetflixPlayer
-              movie={playingMovie}
-              onClose={() => setPlayingMovie(null)}
-              onNext={handleNextMovie}
-            />
-          )}
+          {currentTab === 'home' && !searchTerm && (
+            <div className="hero-carousel">
+              {heroMovies.map((movie, idx) => (
+                <div key={movie.id} className={`hero-slide ${idx === heroIndex ? 'active' : ''}`}>
+                  <div className="hero-video-wrapper">
+                    {idx === heroIndex && (
+                      <iframe src={`https://www.youtube.com/embed/${movie.id}?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&loop=1&playlist=${movie.id}`} allow="autoplay"></iframe>
+                    )}
+                  </div>
+                  <div className="hero-overlay"></div>
 
-          {/* VUE RECHERCHE / LISTE */}
-          {searchQuery ? (
-            <div style={{ paddingTop: '120px' }}>
-              <h2 className="row-title">Résultats pour "{searchQuery}"</h2>
-              <div className="video-grid">
-                {filterMovies().map((movie) => (
-                  <VideoCard
-                    key={movie.id}
-                    item={movie}
-                    onOpenModal={setActiveMovie}
-                    onPlay={setPlayingMovie}
-                    isMyList={myList.some((m) => m.id === movie.id)}
-                    onToggleMyList={toggleMyList}
-                  />
-                ))}
-              </div>
-            </div>
-          ) : activeTab === 'mylist' ? (
-            <div style={{ paddingTop: '120px', minHeight: '80vh' }}>
-              <h2 className="row-title">Ma Liste</h2>
-              {myList.length === 0 ? (
-                <p style={{ margin: '20px 4.5%', color: '#808080' }}>Votre liste est vide pour le moment.</p>
-              ) : (
-                <div className="video-grid">
-                  {myList.map((movie) => (
-                    <VideoCard
-                      key={movie.id}
-                      item={movie}
-                      onOpenModal={setActiveMovie}
-                      onPlay={setPlayingMovie}
-                      isMyList={true}
-                      onToggleMyList={toggleMyList}
-                    />
-                  ))}
+                  <div className="hero-content">
+                    <div className="hero-badges">
+                      <span className="badge-top10"><span className="n-box">TOP 10</span> #{idx + 1} en tendance aujourd'hui</span>
+                    </div>
+                    <h1 className="hero-title">{movie.title}</h1>
+                    <div className="hero-meta">
+                      <span className="match">{movie.match} pertinent</span>
+                      <span className="age">{movie.age}</span>
+                      <span className="badge-quality">4K ULTRA HD</span>
+                      <span className="badge-quality">HDR</span>
+                    </div>
+                    <p className="hero-desc">{movie.desc}</p>
+                    <div className="hero-btns">
+                      <button className="btn btn-main" onClick={() => setActiveMovie(movie)}>
+                        <i className="fas fa-play"></i> Lecture
+                      </button>
+                      <button className="btn btn-sec" onClick={() => setInfoMovie(movie)}>
+                        <i className="fas fa-info-circle"></i> Plus d'infos
+                      </button>
+                      <button className="btn-icon-round" onClick={() => toggleFavorite(movie.id)} title={favorites.includes(movie.id) ? "Dans ma liste" : "Ajouter à ma liste"}>
+                        <i className={favorites.includes(movie.id) ? "fas fa-check" : "fas fa-plus"}></i>
+                      </button>
+                    </div>
+                  </div>
+                  <div className="age-gate">{movie.age}</div>
                 </div>
-              )}
-            </div>
-          ) : (
-            /* VUE ACCUEIL PRINCIPALE */
-            <main>
-              <HeroCarousel
-                items={RAW.slice(0, 4)}
-                onOpenModal={setActiveMovie}
-                onPlay={setPlayingMovie}
-                myList={myList}
-                onToggleMyList={toggleMyList}
-              />
+              ))}
 
-              <div className="main-container">
-                {categories.map((cat, idx) => (
-                  <CategoryRow
-                    key={idx}
-                    category={cat}
-                    onOpenModal={setActiveMovie}
-                    onPlay={setPlayingMovie}
-                    myList={myList}
-                    onToggleMyList={toggleMyList}
-                  />
+              <div className="carousel-indicators">
+                {heroMovies.map((_, idx) => (
+                  <div key={idx} className={`indicator-dot ${idx === heroIndex ? 'active' : ''}`} onClick={() => setHeroIndex(idx)}></div>
                 ))}
               </div>
-            </main>
+            </div>
           )}
 
-          {/* MODALE DETAILS */}
-          <InfoModal
-            movie={activeMovie}
-            onClose={() => setActiveMovie(null)}
-            onPlay={setPlayingMovie}
-            isMyList={activeMovie ? myList.some((m) => m.id === activeMovie.id) : false}
-            onToggleMyList={toggleMyList}
-          />
+          <main className="main-container" style={{ marginTop: (currentTab === 'mylist' || searchTerm) ? '100px' : '-90px' }}>
+            {searchTerm ? (
+              <div>
+                <h2 className="row-title">Résultats pour "{searchTerm}"</h2>
+                <div className="video-grid">
+                  {searchResults.map(movie => (
+                    <MovieCard key={movie.id} movie={movie} onPlay={setActiveMovie} onInfo={setInfoMovie} isFavorite={favorites.includes(movie.id)} onToggleFavorite={toggleFavorite} />
+                  ))}
+                  {searchResults.length === 0 && <p style={{ color: '#888' }}>Aucun résultat trouvé.</p>}
+                </div>
+              </div>
+            ) : currentTab === 'mylist' ? (
+              <div>
+                <h2 className="row-title">Ma Liste Personnelle</h2>
+                <div className="video-grid">
+                  {favoriteItems.map(movie => (
+                    <MovieCard key={movie.id} movie={movie} onPlay={setActiveMovie} onInfo={setInfoMovie} isFavorite={true} onToggleFavorite={toggleFavorite} />
+                  ))}
+                  {favoriteItems.length === 0 && <p style={{ color: '#888' }}>Votre liste est vide pour le moment.</p>}
+                </div>
+              </div>
+            ) : (
+              categories.map((cat, i) => (
+                <Row key={i} category={cat} onPlay={setActiveMovie} onInfo={setInfoMovie} favorites={favorites} onToggleFavorite={toggleFavorite} />
+              ))
+            )}
+          </main>
 
-          {/* BARRE DE NAVIGATION BASSE (MOBILE ONLY) */}
-          <div className="mobile-nav">
-            <div
-              className={`mobile-nav-item ${activeTab === 'accueil' ? 'active' : ''}`}
-              onClick={() => { setActiveTab('accueil'); setSearchQuery(''); }}
-            >
-              <i className="fas fa-home"></i>
-              <span>Accueil</span>
-            </div>
-            <div
-              className={`mobile-nav-item ${searchQuery ? 'active' : ''}`}
-              onClick={() => {
-                const q = prompt("Rechercher un film ou un genre :");
-                if (q !== null) setSearchQuery(q);
-              }}
-            >
-              <i className="fas fa-search"></i>
-              <span>Recherche</span>
-            </div>
-            <div
-              className={`mobile-nav-item ${activeTab === 'nouveautes' ? 'active' : ''}`}
-              onClick={() => { setActiveTab('nouveautes'); setSearchQuery(''); }}
-            >
-              <i className="fas fa-film"></i>
-              <span>Nouveautés</span>
-            </div>
-            <div
-              className={`mobile-nav-item ${activeTab === 'mylist' ? 'active' : ''}`}
-              onClick={() => { setActiveTab('mylist'); setSearchQuery(''); }}
-            >
-              <i className="fas fa-bookmark"></i>
-              <span>Ma Liste</span>
-            </div>
-          </div>
+          {infoMovie && (
+            <InfoModal movie={infoMovie} onClose={() => setInfoMovie(null)} onPlay={playFromInfo} isFavorite={favorites.includes(infoMovie.id)} onToggleFavorite={toggleFavorite} />
+          )}
+
+          {activeMovie && (
+            <NetflixPlayer movie={activeMovie} onClose={() => setActiveMovie(null)} onNext={playNext} />
+          )}
         </div>
       );
     }
