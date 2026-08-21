@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Zigouflix - Streaming Ultra HD Gold</title>
 
   <!-- CDN React, ReactDOM, Babel & FontAwesome -->
@@ -25,9 +25,10 @@
       --zigou-red-glow: rgba(229, 9, 20, 0.7);
       --nav-bg: #0b0b0d;
       --transition-smooth: all 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+      --vh: 1vh;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
+    * { box-sizing: border-box; margin: 0; padding: 0; outline: none; -webkit-tap-highlight-color: transparent; }
 
     html { scroll-behavior: smooth; }
 
@@ -40,6 +41,7 @@
     }
 
     button { cursor: pointer; border: none; background: none; color: inherit; font-family: inherit; }
+    img { -webkit-user-drag: none; }
 
     /* SCROLLBAR CUSTOM GLOW */
     ::-webkit-scrollbar { width: 8px; height: 0; }
@@ -77,6 +79,7 @@
       user-select: none;
       transition: transform 0.3s, filter 0.3s;
       filter: drop-shadow(0 0 1px rgba(0,0,0,0.6));
+      white-space: nowrap;
     }
     .logo:hover { transform: scale(1.04); }
 
@@ -123,13 +126,31 @@
       font-weight: 800; font-size: 0.85rem;
       cursor: pointer;
       transition: border-radius 0.2s;
+      flex-shrink: 0;
     }
+
+    .refresh-btn {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 0.78rem; color: var(--text-muted);
+      border: 1px solid rgba(255,255,255,0.2);
+      padding: 6px 12px; border-radius: 20px;
+      transition: var(--transition-smooth);
+      white-space: nowrap;
+    }
+    .refresh-btn:hover { border-color: #fff; color: #fff; }
+    .refresh-btn i.spinning { animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Mobile nav */
+    .nav-hamburger, .mobile-search-toggle { display: none; font-size: 1.25rem; }
+    .mobile-search-overlay { display: none; }
 
     /* HERO */
     .hero-carousel {
       position: relative;
       width: 100%;
       height: 90vh;
+      height: calc(var(--vh, 1vh) * 90);
       overflow: hidden;
     }
 
@@ -154,6 +175,9 @@
       background: #000;
     }
     .hero-video-wrapper iframe { width: 100%; height: 100%; border: none; pointer-events: none; }
+    .hero-video-wrapper img.hero-fallback-img {
+      width: 100%; height: 100%; object-fit: cover;
+    }
 
     .hero-overlay {
       position: absolute;
@@ -203,7 +227,7 @@
       text-shadow: 0 3px 20px rgba(0,0,0,0.9);
       letter-spacing: -1px;
     }
-    .hero-meta { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; font-size: 0.95rem; }
+    .hero-meta { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; font-size: 0.95rem; flex-wrap: wrap; }
     .hero-meta .match { color: #46d369; font-weight: 700; }
     .hero-meta .age { border: 1px solid var(--text-dim); padding: 1px 7px; font-size: 0.75rem; border-radius: 3px; color: #ccc; }
     .hero-desc {
@@ -212,9 +236,13 @@
       margin-bottom: 28px;
       line-height: 1.5;
       text-shadow: 0 2px 10px rgba(0,0,0,0.9);
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
     }
 
-    .hero-btns { display: flex; gap: 14px; align-items: center; }
+    .hero-btns { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
     .btn {
       display: flex; align-items: center; gap: 10px;
       padding: 13px 28px; border-radius: 4px;
@@ -238,6 +266,7 @@
       border: 1.5px solid rgba(255,255,255,0.5);
       font-size: 1rem;
       transition: var(--transition-smooth);
+      flex-shrink: 0;
     }
     .btn-icon-round:hover { border-color: #fff; background: rgba(42,42,42,0.9); }
 
@@ -273,38 +302,9 @@
       font-size: 1.35rem; font-weight: 700; margin: 0 0 8px 4.5%;
       letter-spacing: -0.2px;
       color: #e5e5e5;
+      display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
     }
-
-    .row-wrapper { position: relative; padding: 20px 0; }
-    .row-wrapper:hover .row-arrow { opacity: 1; }
-
-    .row-arrow {
-      position: absolute;
-      top: 0; bottom: 0;
-      width: 4.5%;
-      min-width: 44px;
-      display: flex; align-items: center; justify-content: center;
-      background: rgba(11,11,13,0.55);
-      z-index: 20;
-      opacity: 0;
-      transition: opacity 0.25s, background 0.25s;
-      font-size: 1.8rem;
-      color: #fff;
-    }
-    .row-arrow:hover { background: rgba(11,11,13,0.85); }
-    .row-arrow.left { left: 0; }
-    .row-arrow.right { right: 0; }
-
-    .video-row {
-      display: flex;
-      gap: 6px;
-      overflow-x: auto;
-      overflow-y: visible;
-      scroll-behavior: smooth;
-      padding: 0 4.5%;
-      scrollbar-width: none;
-    }
-    .video-row::-webkit-scrollbar { display: none; }
+    .row-title .row-count { font-size: 0.8rem; font-weight: 400; color: var(--text-dim); }
 
     .video-grid {
       display: grid;
@@ -313,23 +313,8 @@
       padding: 0 4.5% 20px 4.5%;
     }
 
-    /* CARTE NETFLIX HOVER */
-    .card-container { position: relative; flex: 0 0 auto; width: 240px; height: 135px; }
-    .card-container.top10 { width: 280px; display: flex; align-items: flex-end; }
-
-    .rank-number {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 8rem;
-      line-height: 1;
-      color: transparent;
-      -webkit-text-stroke: 3px #4d4d4d;
-      flex: 0 0 auto;
-      margin-right: -18px;
-      user-select: none;
-      align-self: flex-end;
-      position: relative;
-      z-index: 1;
-    }
+    /* CARTE NETFLIX HOVER (desktop) */
+    .card-container { position: relative; flex: 0 0 auto; width: 100%; height: 135px; }
 
     .card {
       position: relative;
@@ -343,20 +328,18 @@
       z-index: 1;
       flex: 0 0 auto;
     }
-    .card-container.top10 .card { width: 100%; }
 
     .card.expanded {
       position: absolute;
-      width: 300px;
+      width: 130%;
       height: 320px;
       top: -95px;
-      left: -30px;
+      left: -15%;
       z-index: 50;
       box-shadow: 0 25px 50px rgba(0,0,0,0.95);
     }
-    .card-container.top10 .card.expanded { left: 0; }
 
-    .card-img { width: 100%; height: 135px; object-fit: cover; display: block; }
+    .card-img { width: 100%; height: 135px; object-fit: cover; display: block; background: #111; }
     .card.expanded .card-img { height: 168px; }
 
     .card-preview {
@@ -367,13 +350,6 @@
       pointer-events: none;
     }
     .card.expanded .card-preview { opacity: 1; }
-
-    .progress-mini {
-      position: absolute; bottom: 0; left: 0; width: 100%; height: 3px;
-      background: rgba(255,255,255,0.3); z-index: 3;
-    }
-    .card.expanded .progress-mini { display: none; }
-    .progress-mini-fill { height: 100%; background: var(--zigou-red); }
 
     .card-body {
       padding: 14px;
@@ -405,13 +381,29 @@
     .icon-btn-play { background-color: #fff; color: #000; border: none; }
     .icon-btn-play:hover { background-color: rgba(255,255,255,0.75); }
 
-    .card-info { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; }
+    .card-info { display: flex; align-items: center; gap: 8px; font-size: 0.78rem; flex-wrap: wrap; color: var(--text-muted); }
     .match { color: #46d369; font-weight: bold; }
     .age { border: 1px solid var(--text-muted); padding: 0 5px; font-size: 0.68rem; border-radius: 3px; color: #ccc; }
     .quality-tag { border: 1px solid #888; font-size: 0.62rem; padding: 0 4px; border-radius: 2px; }
 
     .card-title-text { font-size: 0.95rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .card-tags { font-size: 0.75rem; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .card-tags { font-size: 0.78rem; color: var(--text-muted); overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.35; }
+
+    /* Version tactile : pas de hover, carte statique toujours lisible */
+    @media (hover: none) {
+      .card-container { height: auto; }
+      .card, .card.expanded {
+        position: relative; width: 100%; height: auto; top: 0; left: 0;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+      }
+      .card-img, .card.expanded .card-img { height: 150px; }
+      .card-preview { display: none; }
+      .card-body, .card.expanded .card-body {
+        position: relative; opacity: 1; transform: none;
+        height: auto; padding: 10px 4px 4px 4px;
+      }
+      .card-tags { -webkit-line-clamp: 2; }
+    }
 
     /* INFO MODAL */
     .modal-overlay {
@@ -449,20 +441,24 @@
       font-size: 1rem; z-index: 5;
     }
     .modal-close:hover { background: #000; }
-    .modal-hero-title { position: absolute; bottom: 24px; left: 44px; font-size: 2rem; font-weight: 800; z-index: 3; }
+    .modal-hero-title { position: absolute; bottom: 24px; left: 44px; right: 100px; font-size: 2rem; font-weight: 800; z-index: 3; }
     .modal-hero-btns { position: absolute; bottom: 24px; right: 44px; display: flex; gap: 10px; z-index: 3; }
 
     .modal-body { padding: 24px 44px 40px 44px; }
-    .modal-meta-row { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; font-size: 0.95rem; }
-    .modal-desc { color: #d2d2d2; line-height: 1.5; font-size: 0.95rem; margin-bottom: 6px; }
+    .modal-meta-row { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; font-size: 0.95rem; flex-wrap: wrap; }
+    .modal-desc { color: #d2d2d2; line-height: 1.5; font-size: 0.95rem; margin-bottom: 6px; white-space: pre-line; }
     .modal-tags { color: var(--text-dim); font-size: 0.85rem; margin-top: 18px; }
     .modal-tags b { color: var(--text-dim); font-weight: 400; }
     .modal-tags span { color: #fff; }
+    .modal-yt-link { display: inline-flex; align-items: center; gap: 8px; margin-top: 18px; color: #fff; font-size: 0.9rem; font-weight: 600; }
+    .modal-yt-link i { color: #ff0000; font-size: 1.2rem; }
+    .modal-yt-link:hover { text-decoration: underline; }
 
     /* LECTEUR STYLE NETFLIX */
     .netflix-player-overlay {
       position: fixed;
       top: 0; left: 0; width: 100vw; height: 100vh;
+      height: calc(var(--vh, 1vh) * 100);
       background: #000;
       z-index: 9999;
       display: flex;
@@ -481,9 +477,31 @@
     }
     .player-video-container iframe { width: 100%; height: 100%; border: none; }
 
-    .player-loading {
+    .player-tap-zones { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; display: flex; }
+    .player-tap-zone { flex: 1; height: 100%; }
+    .player-tap-zone.center { flex: 1.6; }
+
+    .seek-flash {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      background: rgba(0,0,0,0.55); color: #fff; border-radius: 50%;
+      width: 70px; height: 70px; display: flex; align-items: center; justify-content: center;
+      flex-direction: column; font-size: 0.85rem; font-weight: 700; gap: 2px;
+      z-index: 3; pointer-events: none;
+      animation: seekFlashPop 0.6s ease forwards;
+    }
+    .seek-flash.left { left: 12%; }
+    .seek-flash.right { right: 12%; }
+    .seek-flash i { font-size: 1.2rem; }
+    @keyframes seekFlashPop {
+      0% { opacity: 0; transform: translateY(-50%) scale(0.6); }
+      20% { opacity: 1; transform: translateY(-50%) scale(1); }
+      80% { opacity: 1; }
+      100% { opacity: 0; transform: translateY(-50%) scale(1); }
+    }
+
+    .player-loading, .player-buffering {
       position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
-      z-index: 2; color: var(--zigou-red); font-size: 2.5rem;
+      z-index: 4; color: var(--zigou-red); font-size: 2.5rem;
     }
 
     .player-top-bar {
@@ -496,12 +514,12 @@
       background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, transparent 100%);
       transition: opacity 0.35s;
     }
-    .back-btn { font-size: 1.6rem; color: #fff; transition: transform 0.2s; }
+    .back-btn { font-size: 1.6rem; color: #fff; transition: transform 0.2s; flex-shrink: 0; }
     .back-btn:hover { transform: scale(1.15); }
 
-    .player-title-block { display: flex; flex-direction: column; gap: 4px; }
-    .player-movie-title { font-size: 1.3rem; font-weight: 700; color: #fff; }
-    .player-movie-meta { display: flex; gap: 8px; align-items: center; font-size: 0.78rem; color: #b3b3b3; }
+    .player-title-block { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+    .player-movie-title { font-size: 1.3rem; font-weight: 700; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .player-movie-meta { display: flex; gap: 8px; align-items: center; font-size: 0.78rem; color: #b3b3b3; flex-wrap: wrap; }
     .player-movie-meta .quality-tag { border: 1px solid #888; padding: 0 4px; border-radius: 2px; }
 
     .player-next-btn {
@@ -512,6 +530,7 @@
       border-radius: 3px;
       font-size: 0.9rem; font-weight: 600;
       transition: background 0.2s;
+      flex-shrink: 0;
     }
     .player-next-btn:hover { background: rgba(80,80,80,0.95); }
 
@@ -534,6 +553,9 @@
       cursor: pointer;
       position: relative;
       transition: height 0.12s;
+      padding: 12px 0;
+      margin: -12px 0;
+      background-clip: content-box;
     }
     .progress-bar-container:hover { height: 7px; }
 
@@ -556,7 +578,7 @@
     }
     .progress-bar-container:hover .progress-bar-scrubber { transform: translateY(-50%) scale(1); }
 
-    .controls-row { display: flex; align-items: center; justify-content: space-between; }
+    .controls-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
     .controls-left, .controls-right { display: flex; align-items: center; gap: 22px; }
 
     .control-btn { color: #fff; font-size: 1.4rem; transition: color 0.15s, transform 0.15s; }
@@ -581,10 +603,95 @@
     }
     .kbd-hint kbd { border: 1px solid #555; border-radius: 3px; padding: 1px 5px; margin-right: 4px; }
 
+    /* Etats de chargement / erreur pleine page */
+    .full-state {
+      min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 18px; text-align: center; padding: 20px;
+    }
+    .full-state i.fa-circle-notch { font-size: 2.4rem; color: var(--zigou-red); }
+    .full-state h2 { font-size: 1.4rem; }
+    .full-state p { color: var(--text-muted); max-width: 480px; font-size: 0.9rem; line-height: 1.5; }
+    .full-state .btn-main { padding: 11px 22px; font-size: 0.95rem; }
+
+    .empty-note { color: var(--text-dim); padding: 0 4.5%; font-size: 0.9rem; }
+
+    /* ===================== RESPONSIVE ===================== */
     @media (max-width: 900px) {
       .hero-title { font-size: 2.6rem; }
       .nav-links { display: none; }
       .kbd-hint { display: none; }
+    }
+
+    @media (max-width: 760px) {
+      .navbar { padding: 12px 4.5%; }
+      .nav-left { gap: 16px; }
+      .logo { font-size: 1.7rem; }
+      .nav-hamburger { display: block; }
+      .search-box { display: none; }
+      .mobile-search-toggle { display: block; }
+      .refresh-btn span { display: none; }
+      .refresh-btn { padding: 8px; border-radius: 50%; }
+
+      .nav-links.mobile-open {
+        display: flex; flex-direction: column; gap: 0;
+        position: fixed; top: 58px; left: 0; width: 100%;
+        background: rgba(11,11,13,0.98);
+        padding: 6px 6% 14px 6%;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+      }
+      .nav-links.mobile-open .nav-item { padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.06); opacity: 1; }
+
+      .mobile-search-overlay.open {
+        display: flex; position: fixed; top: 0; left: 0; width: 100%; z-index: 1001;
+        background: rgba(11,11,13,0.98); padding: 14px 4.5%; align-items: center; gap: 12px;
+      }
+      .mobile-search-overlay .search-box { display: flex; flex: 1; }
+      .mobile-search-overlay .search-box input { width: 100%; }
+      .mobile-search-overlay .search-box input:focus { width: 100%; }
+
+      .hero-carousel { height: 78vh; height: calc(var(--vh, 1vh) * 78); }
+      .hero-title { font-size: 2.1rem; }
+      .hero-desc { font-size: 0.95rem; -webkit-line-clamp: 2; margin-bottom: 20px; }
+      .hero-content { max-width: 100%; padding: 0 5.5%; }
+      .hero-badges { margin-bottom: 10px; }
+      .hero-meta { font-size: 0.82rem; gap: 8px; margin-bottom: 10px; }
+      .hero-btns { gap: 10px; }
+      .btn { padding: 11px 18px; font-size: 0.95rem; }
+      .btn-icon-round { width: 40px; height: 40px; }
+      .age-gate { display: none; }
+
+      .main-container { margin-top: -60px; }
+      .row-title { font-size: 1.1rem; margin-left: 5.5%; }
+      .video-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 0 5.5% 20px 5.5%; }
+      .card-img { height: 110px; }
+      .card.expanded .card-img { height: 110px; }
+      .card-title-text { font-size: 0.85rem; }
+      .card-tags { font-size: 0.72rem; }
+      .card-info { font-size: 0.68rem; }
+      .icon-btn { width: 30px; height: 30px; font-size: 0.8rem; }
+
+      .modal-body { padding: 18px 20px 30px 20px; }
+      .modal-hero-title { font-size: 1.3rem; left: 20px; right: 70px; bottom: 16px; }
+      .modal-hero-btns { right: 20px; bottom: 16px; gap: 8px; }
+      .modal-close { top: 10px; right: 10px; }
+
+      .player-top-bar { padding: 16px 16px; gap: 12px; }
+      .player-movie-title { font-size: 1rem; }
+      .player-movie-meta { font-size: 0.7rem; }
+      .player-next-btn span { display: none; }
+      .player-next-btn { padding: 10px 12px; }
+      .player-controls-bottom { padding: 10px 16px 22px 16px; gap: 14px; }
+      .control-btn { font-size: 1.6rem; }
+      .controls-left, .controls-right { gap: 16px; }
+      .volume-container .volume-slider { width: 60px; opacity: 1; }
+      .time-display { font-size: 0.72rem; min-width: 78px; }
+      .controls-right .fa-list-ul { display: none; }
+    }
+
+    @media (max-width: 420px) {
+      .video-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+      .hero-title { font-size: 1.7rem; }
+      .logo { font-size: 1.45rem; }
     }
   </style>
 </head>
@@ -593,63 +700,203 @@
   <div id="root"></div>
 
   <script type="text/babel">
-    const { useState, useEffect, useRef, useCallback } = React;
+    const { useState, useEffect, useRef, useCallback, useMemo } = React;
 
-    const RAW = [
-      { id: "NlNzSz9iNrM", title: "Inception Visuelle", desc: "Une plongée spectaculaire au cœur des images et des effets visuels modernes d'un niveau cinématographique.", match: "99%", age: "13+", duration: "12m", tags: "Sensationnel • Action • 4K", cast: "Réalisé par une équipe FX primée", genres: "Action, Science-fiction, Spectacle visuel" },
-      { id: "3imnQO1MM_k", title: "Les Ombres du Court", desc: "Un thriller psychologique visuel qui joue avec les contrastes et le suspense le plus absolu.", match: "98%", age: "13+", duration: "10m", tags: "Mystère • Suspense • 4K", cast: "Une production indépendante saluée", genres: "Thriller, Mystère, Drame" },
-      { id: "WQrmiOMZrRk", title: "Couleurs & Émotions", desc: "Comment la palette de couleurs d'un film influence vos sentiments à votre insu à chaque plan.", match: "95%", age: "Tous", duration: "7m", tags: "Inspirant • Esthétique • 4K", cast: "Un essai visuel primé en festival", genres: "Documentaire, Art, Design" },
-      { id: "0dcY-benLkU", title: "L'Art du Cadre", desc: "Découvrez comment la géométrie et la lumière façonnent les grands chefs-d'œuvre du cinéma mondial.", match: "96%", age: "Tous", duration: "8m", tags: "Cinéma • Masterclass • HDR", cast: "Masterclass animée par des chefs opérateurs", genres: "Documentaire, Éducatif" },
-      { id: "F5ffp2CP8rk", title: "Plan Séquence Épique", desc: "Analyse technique d'une scène d'action fluide tournée sans aucune coupure apparente.", match: "94%", age: "16+", duration: "15m", tags: "Intense • Rythmé • 5.1", cast: "Cascadeurs et cadreurs professionnels", genres: "Action, Making-of" },
-      { id: "XpdAJHyo_PU", title: "Montage Frénétique", desc: "Quand le rythme de l'image s'accorde parfaitement à la musique pour créer une expérience visuelle inédite.", match: "91%", age: "Tous", duration: "18m", tags: "Musique • Montage • HD", cast: "Collectif de monteurs indépendants", genres: "Musical, Expérimental" }
+    /* ===================== CONFIG CHAINE ===================== */
+    const CHANNEL_ID = "UCb14vXu5c-_c7VH7CJMNnXw"; // @supremeofficiel0
+    const RSS_URL = `https://www.youtube.com/feeds/videos.xml?channel_id=${CHANNEL_ID}`;
+    const REFRESH_INTERVAL_MS = 15 * 60 * 1000; // re-synchronise toutes les 15 min
+
+    // Plusieurs proxys CORS en cascade : YouTube ne renvoie pas d'en-têtes CORS,
+    // donc un fichier statique doit passer par un relais pour lire le flux RSS.
+    const CORS_PROXIES = [
+      (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+      (url) => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
+      (url) => `https://thingproxy.freeboard.io/fetch/${url}`,
     ];
 
-    const withProgress = (arr) => arr.map((m, i) => ({ ...m, progress: [72, 35, 90, 18, 55, 40][i % 6] }));
+    async function fetchWithTimeout(url, ms) {
+      const controller = new AbortController();
+      const t = setTimeout(() => controller.abort(), ms);
+      try {
+        const res = await fetch(url, { signal: controller.signal });
+        return res;
+      } finally {
+        clearTimeout(t);
+      }
+    }
 
-    const categories = [
-      { title: "Tendances actuelles", top10: true, items: RAW },
-      { title: "Continuer à regarder pour Vous", items: withProgress([...RAW].reverse()), continueWatching: true },
-      { title: "Recommandé pour vous", items: [RAW[2], RAW[4], RAW[0], RAW[5], RAW[1], RAW[3]] },
-      { title: "Zigoune le commencement", items: [RAW[1], RAW[3], RAW[5], RAW[0], RAW[2], RAW[4]] }
-    ];
+    async function fetchChannelRSS() {
+      let lastError = null;
+      for (const buildProxyUrl of CORS_PROXIES) {
+        try {
+          const res = await fetchWithTimeout(buildProxyUrl(RSS_URL), 9000);
+          if (!res.ok) throw new Error("HTTP " + res.status);
+          const text = await res.text();
+          if (!text || text.indexOf("<feed") === -1) throw new Error("Réponse invalide");
+          return text;
+        } catch (err) {
+          lastError = err;
+        }
+      }
+      throw lastError || new Error("Impossible de contacter YouTube");
+    }
+
+    function parseYoutubeRSS(xmlText) {
+      const doc = new DOMParser().parseFromString(xmlText, "text/xml");
+      const parserError = doc.getElementsByTagName("parsererror")[0];
+      if (parserError) throw new Error("Flux YouTube illisible");
+
+      const YT_NS = "http://www.youtube.com/xml/schemas/2015";
+      const MEDIA_NS = "http://search.yahoo.com/mrss/";
+      const ATOM_NS = "http://www.w3.org/2005/Atom";
+
+      const entries = Array.from(doc.getElementsByTagNameNS(ATOM_NS, "entry"));
+      const seen = new Set();
+      const videos = [];
+
+      for (const entry of entries) {
+        const videoIdNode = entry.getElementsByTagNameNS(YT_NS, "videoId")[0];
+        const videoId = videoIdNode ? videoIdNode.textContent.trim() : null;
+        if (!videoId || seen.has(videoId)) continue; // dédoublonnage garanti
+        seen.add(videoId);
+
+        const titleNode = entry.getElementsByTagNameNS(ATOM_NS, "title")[0];
+        const publishedNode = entry.getElementsByTagNameNS(ATOM_NS, "published")[0];
+        const linkNode = entry.getElementsByTagNameNS(ATOM_NS, "link")[0];
+        const group = entry.getElementsByTagNameNS(MEDIA_NS, "group")[0];
+
+        let desc = "";
+        let views = 0;
+        let thumb = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
+
+        if (group) {
+          const descNode = group.getElementsByTagNameNS(MEDIA_NS, "description")[0];
+          if (descNode) desc = descNode.textContent.trim();
+          const thumbNode = group.getElementsByTagNameNS(MEDIA_NS, "thumbnail")[0];
+          if (thumbNode && thumbNode.getAttribute("url")) thumb = thumbNode.getAttribute("url");
+          const community = group.getElementsByTagNameNS(MEDIA_NS, "community")[0];
+          if (community) {
+            const statsNode = community.getElementsByTagNameNS(MEDIA_NS, "statistics")[0];
+            if (statsNode) views = parseInt(statsNode.getAttribute("views") || "0", 10) || 0;
+          }
+        }
+
+        videos.push({
+          id: videoId,
+          title: titleNode ? titleNode.textContent.trim() : "Sans titre",
+          desc: desc || "Aucune description fournie pour cette vidéo.",
+          published: publishedNode ? publishedNode.textContent.trim() : null,
+          views,
+          thumb,
+          watchUrl: linkNode ? linkNode.getAttribute("href") : `https://www.youtube.com/watch?v=${videoId}`,
+        });
+      }
+
+      videos.sort((a, b) => new Date(b.published || 0) - new Date(a.published || 0));
+      return videos;
+    }
+
+    /* ===================== FORMATAGE ===================== */
+    const numberFormatterFR = new Intl.NumberFormat("fr-FR");
+    const dateFormatterFR = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "long", year: "numeric" });
+
+    function formatViews(n) {
+      if (!n) return "Vues non communiquées";
+      return `${numberFormatterFR.format(n)} vue${n > 1 ? "s" : ""}`;
+    }
+
+    function formatDate(iso) {
+      if (!iso) return "Date inconnue";
+      try { return dateFormatterFR.format(new Date(iso)); } catch (e) { return "Date inconnue"; }
+    }
+
+    function formatTimeAgo(iso) {
+      if (!iso) return "";
+      const diffMs = Date.now() - new Date(iso).getTime();
+      const sec = Math.floor(diffMs / 1000);
+      const units = [
+        ["an", 31536000], ["mois", 2592000], ["semaine", 604800],
+        ["jour", 86400], ["heure", 3600], ["minute", 60],
+      ];
+      for (const [label, secs] of units) {
+        const val = Math.floor(sec / secs);
+        if (val >= 1) return `il y a ${val} ${label}${val > 1 && label !== "mois" ? "s" : ""}`;
+      }
+      return "à l'instant";
+    }
+
+    /* ===================== HOOK MOBILE / TACTILE ===================== */
+    function useMediaQuery(query) {
+      const [matches, setMatches] = useState(() => typeof window !== "undefined" && window.matchMedia(query).matches);
+      useEffect(() => {
+        const mql = window.matchMedia(query);
+        const handler = (e) => setMatches(e.matches);
+        mql.addEventListener ? mql.addEventListener("change", handler) : mql.addListener(handler);
+        setMatches(mql.matches);
+        return () => {
+          mql.removeEventListener ? mql.removeEventListener("change", handler) : mql.removeListener(handler);
+        };
+      }, [query]);
+      return matches;
+    }
+
+    // Fixe la hauteur réelle du viewport mobile (évite les soucis avec 100vh + barre d'adresse)
+    function useRealViewportHeight() {
+      useEffect(() => {
+        const setVh = () => document.documentElement.style.setProperty("--vh", `${window.innerHeight * 0.01}px`);
+        setVh();
+        window.addEventListener("resize", setVh);
+        window.addEventListener("orientationchange", setVh);
+        return () => {
+          window.removeEventListener("resize", setVh);
+          window.removeEventListener("orientationchange", setVh);
+        };
+      }, []);
+    }
 
     /* ===================== PLAYER ===================== */
     function NetflixPlayer({ movie, onClose, onNext }) {
       const playerRef = useRef(null);
       const [isPlaying, setIsPlaying] = useState(true);
       const [isReady, setIsReady] = useState(false);
+      const [isBuffering, setIsBuffering] = useState(false);
       const [currentTime, setCurrentTime] = useState(0);
       const [duration, setDuration] = useState(0);
       const [volume, setVolume] = useState(100);
       const [isMuted, setIsMuted] = useState(false);
       const [controlsVisible, setControlsVisible] = useState(true);
+      const [seekFlash, setSeekFlash] = useState(null); // { dir: 'left'|'right', key }
       const hideControlsTimeout = useRef(null);
+      const lastTapRef = useRef({ time: 0, zone: null });
+      const isTouch = useMediaQuery("(hover: none)");
 
       useEffect(() => {
         let ytPlayer;
         let destroyed = false;
 
         const onYouTubeIframeAPIReady = () => {
-          ytPlayer = new window.YT.Player('netflix-yt-iframe', {
+          ytPlayer = new window.YT.Player("netflix-yt-iframe", {
             events: {
-              'onReady': (event) => {
+              onReady: (event) => {
                 if (destroyed) return;
                 playerRef.current = event.target;
                 event.target.playVideo();
                 setDuration(event.target.getDuration());
                 setIsReady(true);
               },
-              'onStateChange': (event) => {
-                if (event.data === window.YT.PlayerState.PLAYING) setIsPlaying(true);
+              onStateChange: (event) => {
+                if (event.data === window.YT.PlayerState.PLAYING) { setIsPlaying(true); setIsBuffering(false); }
                 else if (event.data === window.YT.PlayerState.PAUSED) setIsPlaying(false);
+                else if (event.data === window.YT.PlayerState.BUFFERING) setIsBuffering(true);
                 else if (event.data === window.YT.PlayerState.ENDED) onNext();
-              }
-            }
+              },
+            },
           });
         };
 
         if (!window.YT || !window.YT.Player) {
-          const tag = document.createElement('script');
+          const tag = document.createElement("script");
           tag.src = "https://www.youtube.com/iframe_api";
           window.onYouTubeIframeAPIReady = onYouTubeIframeAPIReady;
           document.body.appendChild(tag);
@@ -673,11 +920,8 @@
 
       const togglePlay = useCallback(() => {
         if (!playerRef.current) return;
-        if (playerRef.current.getPlayerState() === 1) {
-          playerRef.current.pauseVideo();
-        } else {
-          playerRef.current.playVideo();
-        }
+        if (playerRef.current.getPlayerState() === 1) playerRef.current.pauseVideo();
+        else playerRef.current.playVideo();
       }, []);
 
       const handleSeek = (e) => {
@@ -697,6 +941,12 @@
         }
       }, []);
 
+      const flashSeek = (dir, seconds) => {
+        handleSkip(seconds);
+        setSeekFlash({ dir, seconds, key: Date.now() });
+        setTimeout(() => setSeekFlash(null), 600);
+      };
+
       const handleVolumeChange = (e) => {
         const val = Number(e.target.value);
         setVolume(val);
@@ -714,7 +964,7 @@
       }, []);
 
       const toggleFullscreen = useCallback(() => {
-        const elem = document.getElementById('netflix-player-root');
+        const elem = document.getElementById("netflix-player-root");
         if (!document.fullscreenElement) elem.requestFullscreen().catch(() => {});
         else document.exitFullscreen();
       }, []);
@@ -731,29 +981,48 @@
       useEffect(() => {
         const onKeyDown = (e) => {
           switch (e.key) {
-            case ' ': case 'k': e.preventDefault(); togglePlay(); break;
-            case 'ArrowRight': handleSkip(10); break;
-            case 'ArrowLeft': handleSkip(-10); break;
-            case 'ArrowUp': e.preventDefault(); changeVolume(10); break;
-            case 'ArrowDown': e.preventDefault(); changeVolume(-10); break;
-            case 'm': toggleMute(); break;
-            case 'f': toggleFullscreen(); break;
-            case 'Escape': onClose(); break;
+            case " ": case "k": e.preventDefault(); togglePlay(); break;
+            case "ArrowRight": handleSkip(10); break;
+            case "ArrowLeft": handleSkip(-10); break;
+            case "ArrowUp": e.preventDefault(); changeVolume(10); break;
+            case "ArrowDown": e.preventDefault(); changeVolume(-10); break;
+            case "m": toggleMute(); break;
+            case "f": toggleFullscreen(); break;
+            case "Escape": onClose(); break;
           }
         };
-        window.addEventListener('keydown', onKeyDown);
-        return () => window.removeEventListener('keydown', onKeyDown);
+        window.addEventListener("keydown", onKeyDown);
+        return () => window.removeEventListener("keydown", onKeyDown);
       }, [togglePlay, handleSkip, changeVolume, toggleMute, toggleFullscreen, onClose]);
 
-      const handleMouseMove = () => {
+      const showControlsTemporarily = useCallback(() => {
         setControlsVisible(true);
         clearTimeout(hideControlsTimeout.current);
         hideControlsTimeout.current = setTimeout(() => {
           if (isPlaying) setControlsVisible(false);
-        }, 3200);
-      };
+        }, isTouch ? 4000 : 3200);
+      }, [isPlaying, isTouch]);
 
-      useEffect(() => { handleMouseMove(); }, [isPlaying]);
+      useEffect(() => { showControlsTemporarily(); }, [isPlaying]);
+
+      // Zones de tap tactile : gauche = -10s, droite = +10s, centre = play/pause + affichage des contrôles
+      const handleZoneTap = (zone) => {
+        const now = Date.now();
+        const isDoubleTap = zone === lastTapRef.current.zone && now - lastTapRef.current.time < 320;
+        lastTapRef.current = { time: now, zone };
+
+        if (zone === "center") {
+          if (!controlsVisible) { showControlsTemporarily(); return; }
+          if (isDoubleTap) togglePlay();
+          else showControlsTemporarily();
+          return;
+        }
+
+        if (isDoubleTap) {
+          flashSeek(zone, zone === "left" ? -10 : 10);
+        }
+        showControlsTemporarily();
+      };
 
       const formatTime = (sec) => {
         if (isNaN(sec)) return "00:00";
@@ -761,8 +1030,8 @@
         const m = Math.floor((sec % 3600) / 60);
         const s = Math.floor(sec % 60);
         return h > 0
-          ? `${h}:${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`
-          : `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+          ? `${h}:${m < 10 ? "0" : ""}${m}:${s < 10 ? "0" : ""}${s}`
+          : `${m < 10 ? "0" : ""}${m}:${s < 10 ? "0" : ""}${s}`;
       };
 
       const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
@@ -771,20 +1040,38 @@
       return (
         <div
           id="netflix-player-root"
-          className={`netflix-player-overlay ${!controlsVisible && isPlaying ? 'hide-cursor' : ''}`}
-          onMouseMove={handleMouseMove}
-          onDoubleClick={toggleFullscreen}
+          className={`netflix-player-overlay ${!controlsVisible && isPlaying && !isTouch ? "hide-cursor" : ""}`}
+          onMouseMove={!isTouch ? showControlsTemporarily : undefined}
+          onDoubleClick={!isTouch ? toggleFullscreen : undefined}
         >
           <div className="player-video-container">
             <iframe
               id="netflix-yt-iframe"
-              src={`https://www.youtube.com/embed/${movie.id}?enablejsapi=1&controls=0&autoplay=1&modestbranding=1&rel=0&iv_load_policy=3`}
+              src={`https://www.youtube.com/embed/${movie.id}?enablejsapi=1&controls=0&autoplay=1&modestbranding=1&rel=0&iv_load_policy=3&playsinline=1`}
               allow="autoplay; fullscreen"
             ></iframe>
           </div>
 
+          {isTouch && (
+            <div className="player-tap-zones">
+              <div className="player-tap-zone" onClick={() => handleZoneTap("left")}></div>
+              <div className="player-tap-zone center" onClick={() => handleZoneTap("center")}></div>
+              <div className="player-tap-zone" onClick={() => handleZoneTap("right")}></div>
+            </div>
+          )}
+
+          {seekFlash && (
+            <div className={`seek-flash ${seekFlash.dir}`} key={seekFlash.key}>
+              <i className={`fas ${seekFlash.dir === "left" ? "fa-backward" : "fa-forward"}`}></i>
+              <span>{seekFlash.dir === "left" ? "-10s" : "+10s"}</span>
+            </div>
+          )}
+
           {!isReady && (
             <div className="player-loading"><i className="fas fa-circle-notch fa-spin"></i></div>
+          )}
+          {isReady && isBuffering && (
+            <div className="player-buffering"><i className="fas fa-circle-notch fa-spin"></i></div>
           )}
 
           <div className="kbd-hint" style={{ opacity: controlsVisible ? 1 : 0 }}>
@@ -794,27 +1081,25 @@
             <span><kbd>Échap</kbd>quitter</span>
           </div>
 
-          <div className="player-top-bar" style={{ opacity: controlsVisible ? 1 : 0, pointerEvents: controlsVisible ? 'auto' : 'none' }}>
+          <div className="player-top-bar" style={{ opacity: controlsVisible ? 1 : 0, pointerEvents: controlsVisible ? "auto" : "none" }}>
             <button className="back-btn" onClick={onClose} title="Retour à l'accueil">
               <i className="fas fa-arrow-left"></i>
             </button>
             <div className="player-title-block">
               <span className="player-movie-title">{movie.title}</span>
               <div className="player-movie-meta">
-                <span className="match">{movie.match} pertinent</span>
-                <span>{movie.age}</span>
-                <span className="quality-tag">4K</span>
-                <span className="quality-tag">5.1</span>
+                <span>{formatViews(movie.views)}</span>
+                <span>{formatDate(movie.published)}</span>
               </div>
             </div>
             {nearEnd && (
               <button className="player-next-btn" onClick={onNext}>
-                <i className="fas fa-step-forward"></i> Lecture suivante
+                <i className="fas fa-step-forward"></i> <span>Lecture suivante</span>
               </button>
             )}
           </div>
 
-          <div className="player-controls-bottom" style={{ opacity: controlsVisible ? 1 : 0, pointerEvents: controlsVisible ? 'auto' : 'none' }}>
+          <div className="player-controls-bottom" style={{ opacity: controlsVisible ? 1 : 0, pointerEvents: controlsVisible ? "auto" : "none" }}>
             <div className="progress-bar-container" onClick={handleSeek}>
               <div className="progress-bar-fill" style={{ width: `${progressPercent}%` }}>
                 <div className="progress-bar-scrubber"></div>
@@ -826,10 +1111,10 @@
                 <button className="control-btn" onClick={togglePlay}>
                   <i className={isPlaying ? "fas fa-pause" : "fas fa-play"}></i>
                 </button>
-                <button className="control-btn" onClick={() => handleSkip(-10)} title="Reculer 10s">
+                <button className="control-btn" onClick={() => flashSeek("left", -10)} title="Reculer 10s">
                   <i className="fas fa-undo-alt"></i>
                 </button>
-                <button className="control-btn" onClick={() => handleSkip(10)} title="Avancer 10s">
+                <button className="control-btn" onClick={() => flashSeek("right", 10)} title="Avancer 10s">
                   <i className="fas fa-redo-alt"></i>
                 </button>
                 <button className="control-btn" onClick={onNext} title="Suivant">
@@ -845,7 +1130,7 @@
               </div>
 
               <div className="controls-right">
-                <button className="control-btn" title="Épisodes suivants"><i className="fas fa-list-ul"></i></button>
+                <button className="control-btn fa-list-ul-wrap" title="Épisodes suivants"><i className="fas fa-list-ul"></i></button>
                 <button className="control-btn" onClick={toggleFullscreen} title="Plein écran">
                   <i className="fas fa-expand"></i>
                 </button>
@@ -857,29 +1142,25 @@
     }
 
     /* ===================== CARD ===================== */
-    function MovieCard({ movie, onPlay, onInfo, isFavorite, onToggleFavorite, rank }) {
+    function MovieCard({ movie, onPlay, onInfo, isFavorite, onToggleFavorite }) {
+      const isTouch = useMediaQuery("(hover: none)");
+      const isNarrow = useMediaQuery("(max-width: 760px)");
       const [hovered, setHovered] = useState(false);
+      const showExpanded = isTouch ? true : hovered;
       const previewSrc = `https://www.youtube.com/embed/${movie.id}?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&loop=1&playlist=${movie.id}`;
 
       return (
-        <div className={`card-container ${rank ? 'top10' : ''}`}>
-          {rank && <span className="rank-number">{rank}</span>}
+        <div className="card-container">
           <div
-            className={`card ${hovered ? 'expanded' : ''}`}
-            onMouseEnter={() => setHovered(true)}
-            onMouseLeave={() => setHovered(false)}
-            onClick={() => hovered && onInfo(movie)}
+            className={`card ${showExpanded ? "expanded" : ""}`}
+            onMouseEnter={() => !isTouch && setHovered(true)}
+            onMouseLeave={() => !isTouch && setHovered(false)}
+            onClick={() => (isTouch || hovered) && onInfo(movie)}
           >
-            <img src={`https://img.youtube.com/vi/${movie.id}/hqdefault.jpg`} alt={movie.title} className="card-img" />
+            <img src={movie.thumb} alt={movie.title} className="card-img" loading="lazy" />
 
-            {hovered && (
+            {hovered && !isTouch && !isNarrow && (
               <iframe src={previewSrc} className="card-preview" frameBorder="0" allow="autoplay"></iframe>
-            )}
-
-            {movie.progress !== undefined && (
-              <div className="progress-mini">
-                <div className="progress-mini-fill" style={{ width: `${movie.progress}%` }}></div>
-              </div>
             )}
 
             <div className="card-body">
@@ -889,7 +1170,7 @@
                     <i className="fas fa-play"></i>
                   </button>
                   <button
-                    className={`icon-btn ${isFavorite ? 'active' : ''}`}
+                    className={`icon-btn ${isFavorite ? "active" : ""}`}
                     onClick={(e) => { e.stopPropagation(); onToggleFavorite(movie.id); }}
                     title={isFavorite ? "Retirer de ma liste" : "Ajouter à ma liste"}
                   >
@@ -902,49 +1183,14 @@
               </div>
 
               <div className="card-info">
-                <span className="match">{movie.match}</span>
-                <span className="age">{movie.age}</span>
-                <span className="quality-tag">4K</span>
-                <span>{movie.duration}</span>
+                <span>{formatViews(movie.views)}</span>
+                <span>•</span>
+                <span>{formatTimeAgo(movie.published)}</span>
               </div>
 
               <div className="card-title-text">{movie.title}</div>
-              <div className="card-tags">{movie.tags}</div>
+              <div className="card-tags">{movie.desc}</div>
             </div>
-          </div>
-        </div>
-      );
-    }
-
-    /* ===================== ROW WITH ARROWS ===================== */
-    function Row({ category, onPlay, onInfo, favorites, onToggleFavorite }) {
-      const rowRef = useRef(null);
-
-      const scroll = (dir) => {
-        if (!rowRef.current) return;
-        const amount = rowRef.current.clientWidth * 0.85;
-        rowRef.current.scrollBy({ left: dir * amount, behavior: 'smooth' });
-      };
-
-      return (
-        <div>
-          <h2 className="row-title">{category.title}</h2>
-          <div className="row-wrapper">
-            <div className="row-arrow left" onClick={() => scroll(-1)}><i className="fas fa-chevron-left"></i></div>
-            <div className="video-row" ref={rowRef}>
-              {category.items.map((movie, i) => (
-                <MovieCard
-                  key={movie.id + '-' + i}
-                  movie={movie}
-                  rank={category.top10 ? i + 1 : null}
-                  onPlay={onPlay}
-                  onInfo={onInfo}
-                  isFavorite={favorites.includes(movie.id)}
-                  onToggleFavorite={onToggleFavorite}
-                />
-              ))}
-            </div>
-            <div className="row-arrow right" onClick={() => scroll(1)}><i className="fas fa-chevron-right"></i></div>
           </div>
         </div>
       );
@@ -972,17 +1218,13 @@
             </div>
             <div className="modal-body">
               <div className="modal-meta-row">
-                <span className="match">{movie.match} pertinent</span>
-                <span>{movie.duration}</span>
-                <span className="age">{movie.age}</span>
-                <span className="quality-tag">4K</span>
-                <span className="quality-tag">HDR</span>
+                <span className="match">{formatViews(movie.views)}</span>
+                <span>{formatDate(movie.published)}</span>
               </div>
               <p className="modal-desc">{movie.desc}</p>
-              <div className="modal-tags">
-                <div><b>Distribution : </b><span>{movie.cast}</span></div>
-                <div><b>Genres : </b><span>{movie.genres}</span></div>
-              </div>
+              <a className="modal-yt-link" href={movie.watchUrl} target="_blank" rel="noopener noreferrer">
+                <i className="fab fa-youtube"></i> Voir la fiche originale sur YouTube
+              </a>
             </div>
           </div>
         </div>
@@ -991,93 +1233,173 @@
 
     /* ===================== APP ===================== */
     function App() {
-      const [currentTab, setCurrentTab] = useState('home');
-      const [searchTerm, setSearchTerm] = useState('');
+      useRealViewportHeight();
+      const isNarrow = useMediaQuery("(max-width: 760px)");
+
+      const [currentTab, setCurrentTab] = useState("home");
+      const [searchTerm, setSearchTerm] = useState("");
       const [activeMovie, setActiveMovie] = useState(null);
       const [infoMovie, setInfoMovie] = useState(null);
       const [heroIndex, setHeroIndex] = useState(0);
       const [scrolled, setScrolled] = useState(false);
+      const [navOpen, setNavOpen] = useState(false);
+      const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
 
-      const heroMovies = RAW;
+      const [videos, setVideos] = useState([]);
+      const [status, setStatus] = useState("loading"); // loading | ready | error
+      const [errorMsg, setErrorMsg] = useState("");
+      const [isRefreshing, setIsRefreshing] = useState(false);
+      const [lastSync, setLastSync] = useState(null);
+
+      const syncVideos = useCallback(async (isBackground) => {
+        if (isBackground) setIsRefreshing(true); else setStatus("loading");
+        try {
+          const xml = await fetchChannelRSS();
+          const parsed = parseYoutubeRSS(xml);
+          // Fusion + dédoublonnage par id : chaque vidéo n'existe qu'une seule fois
+          setVideos((prev) => {
+            const map = new Map();
+            [...prev, ...parsed].forEach((v) => map.set(v.id, v));
+            const merged = Array.from(map.values());
+            merged.sort((a, b) => new Date(b.published || 0) - new Date(a.published || 0));
+            return merged;
+          });
+          setStatus("ready");
+          setLastSync(new Date());
+        } catch (err) {
+          if (!isBackground) {
+            setStatus("error");
+            setErrorMsg(err.message || "Erreur inconnue");
+          }
+        } finally {
+          if (isBackground) setIsRefreshing(false);
+        }
+      }, []);
+
+      useEffect(() => { syncVideos(false); }, [syncVideos]);
+
+      // Re-synchronisation automatique périodique avec la chaîne YouTube
+      useEffect(() => {
+        const interval = setInterval(() => syncVideos(true), REFRESH_INTERVAL_MS);
+        return () => clearInterval(interval);
+      }, [syncVideos]);
+
+      const heroMovies = useMemo(() => videos.slice(0, 5), [videos]);
 
       useEffect(() => {
-        if (currentTab !== 'home' || searchTerm || activeMovie) return;
-        const interval = setInterval(() => setHeroIndex(prev => (prev + 1) % heroMovies.length), 5000);
+        if (currentTab !== "home" || searchTerm || activeMovie || heroMovies.length < 2) return;
+        const interval = setInterval(() => setHeroIndex((prev) => (prev + 1) % heroMovies.length), 6000);
         return () => clearInterval(interval);
       }, [currentTab, searchTerm, heroMovies.length, activeMovie]);
 
       useEffect(() => {
         const onScroll = () => setScrolled(window.scrollY > 20);
-        window.addEventListener('scroll', onScroll);
-        return () => window.removeEventListener('scroll', onScroll);
+        window.addEventListener("scroll", onScroll);
+        return () => window.removeEventListener("scroll", onScroll);
       }, []);
 
       const [favorites, setFavorites] = useState([]);
       const toggleFavorite = (id) => {
-        setFavorites(prev => prev.includes(id) ? prev.filter(f => f !== id) : [...prev, id]);
+        setFavorites((prev) => (prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]));
       };
 
       const playFromInfo = (movie) => { setInfoMovie(null); setActiveMovie(movie); };
 
       const playNext = () => {
-        const all = RAW;
-        const idx = all.findIndex(m => m.id === activeMovie.id);
-        setActiveMovie(all[(idx + 1) % all.length]);
+        if (!videos.length) return;
+        const idx = videos.findIndex((m) => m.id === activeMovie.id);
+        setActiveMovie(videos[(idx + 1) % videos.length]);
       };
 
-      const allSearchable = RAW;
-      const searchResults = allSearchable.filter(m =>
-        m.title.toLowerCase().includes(searchTerm.toLowerCase()) || m.tags.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-      const favoriteItems = allSearchable.filter(m => favorites.includes(m.id));
+      const searchResults = useMemo(() => {
+        const term = searchTerm.toLowerCase();
+        return videos.filter((m) => m.title.toLowerCase().includes(term) || m.desc.toLowerCase().includes(term));
+      }, [videos, searchTerm]);
+
+      const favoriteItems = useMemo(() => videos.filter((m) => favorites.includes(m.id)), [videos, favorites]);
+
+      const goHome = () => { setCurrentTab("home"); setSearchTerm(""); setNavOpen(false); setMobileSearchOpen(false); };
+
+      if (status === "loading" && videos.length === 0) {
+        return (
+          <div className="full-state">
+            <i className="fas fa-circle-notch fa-spin"></i>
+            <h2>Synchronisation avec la chaîne YouTube…</h2>
+            <p>Zigouflix récupère les dernières vidéos publiées pour construire ton catalogue.</p>
+          </div>
+        );
+      }
+
+      if (status === "error" && videos.length === 0) {
+        return (
+          <div className="full-state">
+            <i className="fas fa-triangle-exclamation" style={{ color: "var(--zigou-red)", fontSize: "2.4rem" }}></i>
+            <h2>Impossible de charger la chaîne</h2>
+            <p>{errorMsg} — le flux RSS de YouTube passe par un relais externe (aucune clé API n'est utilisée), qui peut être temporairement indisponible. Réessaie dans un instant.</p>
+            <button className="btn btn-main" onClick={() => syncVideos(false)}>
+              <i className="fas fa-rotate-right"></i> Réessayer
+            </button>
+          </div>
+        );
+      }
 
       return (
         <div>
-          <nav className={`navbar ${scrolled || currentTab !== 'home' || searchTerm ? 'scrolled' : ''}`}>
+          <nav className={`navbar ${scrolled || currentTab !== "home" || searchTerm ? "scrolled" : ""}`}>
             <div className="nav-left">
-              <div className="logo" onClick={() => { setCurrentTab('home'); setSearchTerm(''); }}>ZIGOUFLIX</div>
-              <ul className="nav-links">
-                <li className={`nav-item ${currentTab === 'home' ? 'active' : ''}`} onClick={() => setCurrentTab('home')}>Accueil</li>
-                <li className="nav-item">Séries</li>
-                <li className="nav-item">Films</li>
-                <li className="nav-item">Nouveautés</li>
-                <li className={`nav-item ${currentTab === 'mylist' ? 'active' : ''}`} onClick={() => setCurrentTab('mylist')}>
+              <i className="fas fa-bars nav-hamburger" onClick={() => setNavOpen((o) => !o)}></i>
+              <div className="logo" onClick={goHome}>ZIGOUFLIX</div>
+              <ul className={`nav-links ${navOpen ? "mobile-open" : ""}`}>
+                <li className={`nav-item ${currentTab === "home" ? "active" : ""}`} onClick={goHome}>Accueil</li>
+                <li className={`nav-item ${currentTab === "mylist" ? "active" : ""}`} onClick={() => { setCurrentTab("mylist"); setNavOpen(false); }}>
                   Ma Liste {favorites.length > 0 && `(${favorites.length})`}
                 </li>
               </ul>
             </div>
 
             <div className="nav-right">
+              <button className="refresh-btn" onClick={() => syncVideos(true)} disabled={isRefreshing} title="Resynchroniser avec YouTube">
+                <i className={`fas fa-rotate-right ${isRefreshing ? "spinning" : ""}`}></i>
+                <span>{isRefreshing ? "Synchronisation…" : "Actualiser"}</span>
+              </button>
               <div className="search-box">
-                <i className="fas fa-search" style={{ color: '#aaa' }}></i>
-                <input type="text" placeholder="Titres, personnes, genres" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+                <i className="fas fa-search" style={{ color: "#aaa" }}></i>
+                <input type="text" placeholder="Titres, mots-clés" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
               </div>
-              <i className="nav-icon fas fa-bell"></i>
+              <i className="fas fa-search nav-icon mobile-search-toggle" onClick={() => setMobileSearchOpen(true)}></i>
               <div className="avatar">Z</div>
             </div>
           </nav>
 
-          {currentTab === 'home' && !searchTerm && (
+          <div className={`mobile-search-overlay ${mobileSearchOpen ? "open" : ""}`}>
+            <div className="search-box">
+              <i className="fas fa-search" style={{ color: "#aaa" }}></i>
+              <input autoFocus type="text" placeholder="Titres, mots-clés" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+            </div>
+            <i className="fas fa-times nav-icon" onClick={() => setMobileSearchOpen(false)}></i>
+          </div>
+
+          {currentTab === "home" && !searchTerm && heroMovies.length > 0 && (
             <div className="hero-carousel">
               {heroMovies.map((movie, idx) => (
-                <div key={movie.id} className={`hero-slide ${idx === heroIndex ? 'active' : ''}`}>
+                <div key={movie.id} className={`hero-slide ${idx === heroIndex ? "active" : ""}`}>
                   <div className="hero-video-wrapper">
-                    {idx === heroIndex && (
+                    {idx === heroIndex && !isNarrow ? (
                       <iframe src={`https://www.youtube.com/embed/${movie.id}?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&loop=1&playlist=${movie.id}`} allow="autoplay"></iframe>
+                    ) : (
+                      <img src={movie.thumb} alt={movie.title} className="hero-fallback-img" />
                     )}
                   </div>
                   <div className="hero-overlay"></div>
 
                   <div className="hero-content">
                     <div className="hero-badges">
-                      <span className="badge-top10"><span className="n-box">TOP 10</span> #{idx + 1} en tendance aujourd'hui</span>
+                      <span className="badge-top10"><span className="n-box">TOP</span> #{idx + 1} des dernières vidéos</span>
                     </div>
                     <h1 className="hero-title">{movie.title}</h1>
                     <div className="hero-meta">
-                      <span className="match">{movie.match} pertinent</span>
-                      <span className="age">{movie.age}</span>
-                      <span className="badge-quality">4K ULTRA HD</span>
-                      <span className="badge-quality">HDR</span>
+                      <span className="match">{formatViews(movie.views)}</span>
+                      <span className="age">{formatDate(movie.published)}</span>
                     </div>
                     <p className="hero-desc">{movie.desc}</p>
                     <div className="hero-btns">
@@ -1092,43 +1414,54 @@
                       </button>
                     </div>
                   </div>
-                  <div className="age-gate">{movie.age}</div>
                 </div>
               ))}
 
               <div className="carousel-indicators">
                 {heroMovies.map((_, idx) => (
-                  <div key={idx} className={`indicator-dot ${idx === heroIndex ? 'active' : ''}`} onClick={() => setHeroIndex(idx)}></div>
+                  <div key={idx} className={`indicator-dot ${idx === heroIndex ? "active" : ""}`} onClick={() => setHeroIndex(idx)}></div>
                 ))}
               </div>
             </div>
           )}
 
-          <main className="main-container" style={{ marginTop: (currentTab === 'mylist' || searchTerm) ? '100px' : '-90px' }}>
+          <main className="main-container" style={{ marginTop: (currentTab === "mylist" || searchTerm || heroMovies.length === 0) ? (isNarrow ? "80px" : "100px") : undefined }}>
             {searchTerm ? (
               <div>
-                <h2 className="row-title">Résultats pour "{searchTerm}"</h2>
+                <h2 className="row-title">Résultats pour "{searchTerm}" <span className="row-count">({searchResults.length})</span></h2>
                 <div className="video-grid">
-                  {searchResults.map(movie => (
+                  {searchResults.map((movie) => (
                     <MovieCard key={movie.id} movie={movie} onPlay={setActiveMovie} onInfo={setInfoMovie} isFavorite={favorites.includes(movie.id)} onToggleFavorite={toggleFavorite} />
                   ))}
-                  {searchResults.length === 0 && <p style={{ color: '#888' }}>Aucun résultat trouvé.</p>}
                 </div>
+                {searchResults.length === 0 && <p className="empty-note">Aucun résultat trouvé.</p>}
               </div>
-            ) : currentTab === 'mylist' ? (
+            ) : currentTab === "mylist" ? (
               <div>
                 <h2 className="row-title">Ma Liste Personnelle</h2>
                 <div className="video-grid">
-                  {favoriteItems.map(movie => (
+                  {favoriteItems.map((movie) => (
                     <MovieCard key={movie.id} movie={movie} onPlay={setActiveMovie} onInfo={setInfoMovie} isFavorite={true} onToggleFavorite={toggleFavorite} />
                   ))}
-                  {favoriteItems.length === 0 && <p style={{ color: '#888' }}>Votre liste est vide pour le moment.</p>}
                 </div>
+                {favoriteItems.length === 0 && <p className="empty-note">Votre liste est vide pour le moment.</p>}
               </div>
             ) : (
-              categories.map((cat, i) => (
-                <Row key={i} category={cat} onPlay={setActiveMovie} onInfo={setInfoMovie} favorites={favorites} onToggleFavorite={toggleFavorite} />
-              ))
+              <div>
+                <h2 className="row-title">
+                  Toutes les vidéos de la chaîne <span className="row-count">({videos.length})</span>
+                </h2>
+                <div className="video-grid">
+                  {videos.map((movie) => (
+                    <MovieCard key={movie.id} movie={movie} onPlay={setActiveMovie} onInfo={setInfoMovie} isFavorite={favorites.includes(movie.id)} onToggleFavorite={toggleFavorite} />
+                  ))}
+                </div>
+                {lastSync && (
+                  <p className="empty-note" style={{ marginTop: 10 }}>
+                    Dernière synchronisation : {lastSync.toLocaleTimeString("fr-FR")} · mise à jour auto toutes les 15 min
+                  </p>
+                )}
+              </div>
             )}
           </main>
 
@@ -1143,7 +1476,7 @@
       );
     }
 
-    const root = ReactDOM.createRoot(document.getElementById('root'));
+    const root = ReactDOM.createRoot(document.getElementById("root"));
     root.render(<App />);
   </script>
 </body>
