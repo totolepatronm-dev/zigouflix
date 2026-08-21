@@ -125,21 +125,10 @@
       display: flex; align-items: center; justify-content: center;
       font-weight: 800; font-size: 0.85rem;
       cursor: pointer;
-      transition: border-radius 0.2s;
+      transition: transform 0.2s;
       flex-shrink: 0;
     }
-
-    .refresh-btn {
-      display: flex; align-items: center; gap: 8px;
-      font-size: 0.78rem; color: var(--text-muted);
-      border: 1px solid rgba(255,255,255,0.2);
-      padding: 6px 12px; border-radius: 20px;
-      transition: var(--transition-smooth);
-      white-space: nowrap;
-    }
-    .refresh-btn:hover { border-color: #fff; color: #fff; }
-    .refresh-btn i.spinning { animation: spin 1s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
+    .avatar:hover { transform: scale(1.08); }
 
     /* Mobile nav */
     .nav-hamburger, .mobile-search-toggle { display: none; font-size: 1.25rem; }
@@ -212,12 +201,6 @@
       font-family: 'Bebas Neue', sans-serif;
       font-size: 1rem;
     }
-    .badge-quality {
-      border: 1px solid rgba(255, 255, 255, 0.4);
-      color: #ddd; font-size: 0.68rem; font-weight: 700;
-      padding: 2px 7px; border-radius: 2px;
-      letter-spacing: 0.5px;
-    }
 
     .hero-title {
       font-size: 4.2rem;
@@ -228,8 +211,6 @@
       letter-spacing: -1px;
     }
     .hero-meta { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; font-size: 0.95rem; flex-wrap: wrap; }
-    .hero-meta .match { color: #46d369; font-weight: 700; }
-    .hero-meta .age { border: 1px solid var(--text-dim); padding: 1px 7px; font-size: 0.75rem; border-radius: 3px; color: #ccc; }
     .hero-desc {
       font-size: 1.1rem;
       color: #e8e8e8;
@@ -270,16 +251,6 @@
     }
     .btn-icon-round:hover { border-color: #fff; background: rgba(42,42,42,0.9); }
 
-    .age-gate {
-      position: absolute;
-      right: 4.5%; bottom: 0;
-      border-left: 4px solid var(--text-muted);
-      padding: 4px 0 4px 12px;
-      color: #d2d2d2;
-      font-size: 1rem;
-      z-index: 2;
-    }
-
     .carousel-indicators {
       position: absolute;
       bottom: 28px; left: 4.5%;
@@ -313,7 +284,7 @@
       padding: 0 4.5% 20px 4.5%;
     }
 
-    /* CARTE NETFLIX HOVER (desktop) */
+    /* CARTE NETFLIX HOVER */
     .card-container { position: relative; flex: 0 0 auto; width: 100%; height: 135px; }
 
     .card {
@@ -380,16 +351,13 @@
     .icon-btn.active { border-color: #fff; }
     .icon-btn-play { background-color: #fff; color: #000; border: none; }
     .icon-btn-play:hover { background-color: rgba(255,255,255,0.75); }
-
-    .card-info { display: flex; align-items: center; gap: 8px; font-size: 0.78rem; flex-wrap: wrap; color: var(--text-muted); }
-    .match { color: #46d369; font-weight: bold; }
-    .age { border: 1px solid var(--text-muted); padding: 0 5px; font-size: 0.68rem; border-radius: 3px; color: #ccc; }
-    .quality-tag { border: 1px solid #888; font-size: 0.62rem; padding: 0 4px; border-radius: 2px; }
+    .icon-btn-delete { color: #ff4d4d; border-color: rgba(255, 77, 77, 0.4); }
+    .icon-btn-delete:hover { background-color: rgba(255, 77, 77, 0.2); border-color: #ff4d4d; }
 
     .card-title-text { font-size: 0.95rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .card-tags { font-size: 0.78rem; color: var(--text-muted); overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.35; }
 
-    /* Version tactile : pas de hover, carte statique toujours lisible */
+    /* Tactile */
     @media (hover: none) {
       .card-container { height: auto; }
       .card, .card.expanded {
@@ -405,7 +373,7 @@
       .card-tags { -webkit-line-clamp: 2; }
     }
 
-    /* INFO MODAL */
+    /* MODALS */
     .modal-overlay {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(0,0,0,0.8);
@@ -424,6 +392,7 @@
       overflow: hidden;
       box-shadow: 0 20px 60px rgba(0,0,0,0.8);
       animation: modalPop 0.3s cubic-bezier(0.2,0.8,0.2,1);
+      position: relative;
     }
     @keyframes modalPop { from { transform: scale(0.94); opacity: 0.6; } to { transform: scale(1); opacity: 1; } }
 
@@ -445,14 +414,16 @@
     .modal-hero-btns { position: absolute; bottom: 24px; right: 44px; display: flex; gap: 10px; z-index: 3; }
 
     .modal-body { padding: 24px 44px 40px 44px; }
-    .modal-meta-row { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; font-size: 0.95rem; flex-wrap: wrap; }
     .modal-desc { color: #d2d2d2; line-height: 1.5; font-size: 0.95rem; margin-bottom: 6px; white-space: pre-line; }
-    .modal-tags { color: var(--text-dim); font-size: 0.85rem; margin-top: 18px; }
-    .modal-tags b { color: var(--text-dim); font-weight: 400; }
-    .modal-tags span { color: #fff; }
-    .modal-yt-link { display: inline-flex; align-items: center; gap: 8px; margin-top: 18px; color: #fff; font-size: 0.9rem; font-weight: 600; }
-    .modal-yt-link i { color: #ff0000; font-size: 1.2rem; }
-    .modal-yt-link:hover { text-decoration: underline; }
+
+    /* ADMIN MODAL FORM */
+    .admin-form { display: flex; flex-direction: column; gap: 16px; padding: 20px; }
+    .admin-form label { font-size: 0.9rem; color: var(--text-muted); display: flex; flex-direction: column; gap: 6px; }
+    .admin-form input, .admin-form textarea {
+      background: #222; border: 1px solid #444; border-radius: 4px; color: #fff; padding: 10px; font-family: inherit;
+    }
+    .admin-form input:focus, .admin-form textarea:focus { border-color: var(--zigou-red); }
+    .error-msg { color: #ff1f2e; font-size: 0.85rem; }
 
     /* LECTEUR STYLE NETFLIX */
     .netflix-player-overlay {
@@ -477,106 +448,28 @@
     }
     .player-video-container iframe { width: 100%; height: 100%; border: none; }
 
-    .player-tap-zones { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; display: flex; }
-    .player-tap-zone { flex: 1; height: 100%; }
-    .player-tap-zone.center { flex: 1.6; }
-
-    .seek-flash {
-      position: absolute; top: 50%; transform: translateY(-50%);
-      background: rgba(0,0,0,0.55); color: #fff; border-radius: 50%;
-      width: 70px; height: 70px; display: flex; align-items: center; justify-content: center;
-      flex-direction: column; font-size: 0.85rem; font-weight: 700; gap: 2px;
-      z-index: 3; pointer-events: none;
-      animation: seekFlashPop 0.6s ease forwards;
-    }
-    .seek-flash.left { left: 12%; }
-    .seek-flash.right { right: 12%; }
-    .seek-flash i { font-size: 1.2rem; }
-    @keyframes seekFlashPop {
-      0% { opacity: 0; transform: translateY(-50%) scale(0.6); }
-      20% { opacity: 1; transform: translateY(-50%) scale(1); }
-      80% { opacity: 1; }
-      100% { opacity: 0; transform: translateY(-50%) scale(1); }
-    }
-
-    .player-loading, .player-buffering {
-      position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
-      z-index: 4; color: var(--zigou-red); font-size: 2.5rem;
-    }
-
     .player-top-bar {
-      position: relative;
-      z-index: 10;
-      display: flex;
-      align-items: center;
-      gap: 20px;
-      padding: 26px 40px;
-      background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, transparent 100%);
-      transition: opacity 0.35s;
+      position: relative; z-index: 10; display: flex; align-items: center; gap: 20px; padding: 26px 40px;
+      background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, transparent 100%); transition: opacity 0.35s;
     }
     .back-btn { font-size: 1.6rem; color: #fff; transition: transform 0.2s; flex-shrink: 0; }
     .back-btn:hover { transform: scale(1.15); }
 
     .player-title-block { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
     .player-movie-title { font-size: 1.3rem; font-weight: 700; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .player-movie-meta { display: flex; gap: 8px; align-items: center; font-size: 0.78rem; color: #b3b3b3; flex-wrap: wrap; }
-    .player-movie-meta .quality-tag { border: 1px solid #888; padding: 0 4px; border-radius: 2px; }
-
-    .player-next-btn {
-      margin-left: auto;
-      display: flex; align-items: center; gap: 10px;
-      background: rgba(51,51,51,0.9);
-      padding: 10px 18px;
-      border-radius: 3px;
-      font-size: 0.9rem; font-weight: 600;
-      transition: background 0.2s;
-      flex-shrink: 0;
-    }
-    .player-next-btn:hover { background: rgba(80,80,80,0.95); }
 
     .player-controls-bottom {
-      position: relative;
-      z-index: 10;
-      padding: 15px 40px 34px 40px;
+      position: relative; z-index: 10; padding: 15px 40px 34px 40px;
       background: linear-gradient(0deg, rgba(0,0,0,0.9) 0%, transparent 100%);
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      transition: opacity 0.35s;
+      display: flex; flex-direction: column; gap: 12px; transition: opacity 0.35s;
     }
 
     .progress-bar-container {
-      width: 100%;
-      height: 4px;
-      background: rgba(255, 255, 255, 0.3);
-      border-radius: 3px;
-      cursor: pointer;
-      position: relative;
-      transition: height 0.12s;
-      padding: 12px 0;
-      margin: -12px 0;
-      background-clip: content-box;
+      width: 100%; height: 4px; background: rgba(255, 255, 255, 0.3); border-radius: 3px; cursor: pointer;
+      position: relative; transition: height 0.12s; padding: 12px 0; margin: -12px 0; background-clip: content-box;
     }
     .progress-bar-container:hover { height: 7px; }
-
-    .progress-bar-fill {
-      height: 100%;
-      background: var(--zigou-red);
-      border-radius: 3px;
-      position: relative;
-    }
-
-    .progress-bar-scrubber {
-      position: absolute;
-      right: -6px; top: 50%;
-      transform: translateY(-50%) scale(0);
-      width: 13px; height: 13px;
-      background: var(--zigou-red);
-      border-radius: 50%;
-      box-shadow: 0 0 4px rgba(0,0,0,0.6);
-      transition: transform 0.12s;
-    }
-    .progress-bar-container:hover .progress-bar-scrubber { transform: translateY(-50%) scale(1); }
+    .progress-bar-fill { height: 100%; background: var(--zigou-red); border-radius: 3px; position: relative; }
 
     .controls-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
     .controls-left, .controls-right { display: flex; align-items: center; gap: 22px; }
@@ -584,43 +477,7 @@
     .control-btn { color: #fff; font-size: 1.4rem; transition: color 0.15s, transform 0.15s; }
     .control-btn:hover { color: #d2d2d2; transform: scale(1.08); }
 
-    .volume-container { display: flex; align-items: center; gap: 8px; }
-    .volume-container:hover .volume-slider { width: 90px; opacity: 1; }
-    .volume-slider {
-      width: 0; opacity: 0;
-      accent-color: #fff;
-      cursor: pointer;
-      transition: width 0.25s, opacity 0.25s;
-    }
-
-    .time-display { font-size: 0.85rem; color: #e0e0e0; font-weight: 400; min-width: 100px; }
-
-    .kbd-hint {
-      position: absolute; top: 26px; right: 40px; z-index: 10;
-      font-size: 0.7rem; color: #8a8a8a;
-      display: flex; gap: 10px;
-      transition: opacity 0.35s;
-    }
-    .kbd-hint kbd { border: 1px solid #555; border-radius: 3px; padding: 1px 5px; margin-right: 4px; }
-
-    /* Etats de chargement / erreur pleine page */
-    .full-state {
-      min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;
-      gap: 18px; text-align: center; padding: 20px;
-    }
-    .full-state i.fa-circle-notch { font-size: 2.4rem; color: var(--zigou-red); }
-    .full-state h2 { font-size: 1.4rem; }
-    .full-state p { color: var(--text-muted); max-width: 480px; font-size: 0.9rem; line-height: 1.5; }
-    .full-state .btn-main { padding: 11px 22px; font-size: 0.95rem; }
-
     .empty-note { color: var(--text-dim); padding: 0 4.5%; font-size: 0.9rem; }
-
-    /* ===================== RESPONSIVE ===================== */
-    @media (max-width: 900px) {
-      .hero-title { font-size: 2.6rem; }
-      .nav-links { display: none; }
-      .kbd-hint { display: none; }
-    }
 
     @media (max-width: 760px) {
       .navbar { padding: 12px 4.5%; }
@@ -629,69 +486,23 @@
       .nav-hamburger { display: block; }
       .search-box { display: none; }
       .mobile-search-toggle { display: block; }
-      .refresh-btn span { display: none; }
-      .refresh-btn { padding: 8px; border-radius: 50%; }
 
       .nav-links.mobile-open {
-        display: flex; flex-direction: column; gap: 0;
-        position: fixed; top: 58px; left: 0; width: 100%;
-        background: rgba(11,11,13,0.98);
-        padding: 6px 6% 14px 6%;
-        border-bottom: 1px solid rgba(255,255,255,0.08);
+        display: flex; flex-direction: column; gap: 0; position: fixed; top: 58px; left: 0; width: 100%;
+        background: rgba(11,11,13,0.98); padding: 6px 6% 14px 6%; border-bottom: 1px solid rgba(255,255,255,0.08);
       }
       .nav-links.mobile-open .nav-item { padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.06); opacity: 1; }
-
-      .mobile-search-overlay.open {
-        display: flex; position: fixed; top: 0; left: 0; width: 100%; z-index: 1001;
-        background: rgba(11,11,13,0.98); padding: 14px 4.5%; align-items: center; gap: 12px;
-      }
-      .mobile-search-overlay .search-box { display: flex; flex: 1; }
-      .mobile-search-overlay .search-box input { width: 100%; }
-      .mobile-search-overlay .search-box input:focus { width: 100%; }
 
       .hero-carousel { height: 78vh; height: calc(var(--vh, 1vh) * 78); }
       .hero-title { font-size: 2.1rem; }
       .hero-desc { font-size: 0.95rem; -webkit-line-clamp: 2; margin-bottom: 20px; }
       .hero-content { max-width: 100%; padding: 0 5.5%; }
-      .hero-badges { margin-bottom: 10px; }
-      .hero-meta { font-size: 0.82rem; gap: 8px; margin-bottom: 10px; }
       .hero-btns { gap: 10px; }
       .btn { padding: 11px 18px; font-size: 0.95rem; }
-      .btn-icon-round { width: 40px; height: 40px; }
-      .age-gate { display: none; }
 
       .main-container { margin-top: -60px; }
       .row-title { font-size: 1.1rem; margin-left: 5.5%; }
       .video-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 0 5.5% 20px 5.5%; }
-      .card-img { height: 110px; }
-      .card.expanded .card-img { height: 110px; }
-      .card-title-text { font-size: 0.85rem; }
-      .card-tags { font-size: 0.72rem; }
-      .card-info { font-size: 0.68rem; }
-      .icon-btn { width: 30px; height: 30px; font-size: 0.8rem; }
-
-      .modal-body { padding: 18px 20px 30px 20px; }
-      .modal-hero-title { font-size: 1.3rem; left: 20px; right: 70px; bottom: 16px; }
-      .modal-hero-btns { right: 20px; bottom: 16px; gap: 8px; }
-      .modal-close { top: 10px; right: 10px; }
-
-      .player-top-bar { padding: 16px 16px; gap: 12px; }
-      .player-movie-title { font-size: 1rem; }
-      .player-movie-meta { font-size: 0.7rem; }
-      .player-next-btn span { display: none; }
-      .player-next-btn { padding: 10px 12px; }
-      .player-controls-bottom { padding: 10px 16px 22px 16px; gap: 14px; }
-      .control-btn { font-size: 1.6rem; }
-      .controls-left, .controls-right { gap: 16px; }
-      .volume-container .volume-slider { width: 60px; opacity: 1; }
-      .time-display { font-size: 0.72rem; min-width: 78px; }
-      .controls-right .fa-list-ul { display: none; }
-    }
-
-    @media (max-width: 420px) {
-      .video-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
-      .hero-title { font-size: 1.7rem; }
-      .logo { font-size: 1.45rem; }
     }
   </style>
 </head>
@@ -702,132 +513,15 @@
   <script type="text/babel">
     const { useState, useEffect, useRef, useCallback, useMemo } = React;
 
-    /* ===================== CONFIG CHAINE ===================== */
-    const CHANNEL_ID = "UCb14vXu5c-_c7VH7CJMNnXw"; // @supremeofficiel0
-    const RSS_URL = `https://www.youtube.com/feeds/videos.xml?channel_id=${CHANNEL_ID}`;
-    const REFRESH_INTERVAL_MS = 15 * 60 * 1000; // re-synchronise toutes les 15 min
+    const ADMIN_CODE = "2009zigoune@";
 
-    // Plusieurs proxys CORS en cascade : YouTube ne renvoie pas d'en-têtes CORS,
-    // donc un fichier statique doit passer par un relais pour lire le flux RSS.
-    const CORS_PROXIES = [
-      (url) => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
-      (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-      (url) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
-      (url) => `https://thingproxy.freeboard.io/fetch/${url}`,
-    ];
-
-    async function fetchWithTimeout(url, ms) {
-      const controller = new AbortController();
-      const t = setTimeout(() => controller.abort(), ms);
-      try {
-        const res = await fetch(url, { signal: controller.signal });
-        return res;
-      } finally {
-        clearTimeout(t);
-      }
+    // Extraire l'ID de la vidéo YouTube depuis une URL complète ou raccourcie
+    function extractYoutubeId(url) {
+      const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+      const match = url.match(regExp);
+      return (match && match[2].length === 11) ? match[2] : null;
     }
 
-    async function fetchChannelRSS() {
-      let lastError = null;
-      for (const buildProxyUrl of CORS_PROXIES) {
-        try {
-          const res = await fetchWithTimeout(buildProxyUrl(RSS_URL), 9000);
-          if (!res.ok) throw new Error("HTTP " + res.status);
-          const text = await res.text();
-          if (!text || text.indexOf("<feed") === -1) throw new Error("Réponse invalide");
-          return text;
-        } catch (err) {
-          lastError = err;
-        }
-      }
-      throw lastError || new Error("Impossible de contacter YouTube");
-    }
-
-    function parseYoutubeRSS(xmlText) {
-      const doc = new DOMParser().parseFromString(xmlText, "text/xml");
-      const parserError = doc.getElementsByTagName("parsererror")[0];
-      if (parserError) throw new Error("Flux YouTube illisible");
-
-      const YT_NS = "http://www.youtube.com/xml/schemas/2015";
-      const MEDIA_NS = "http://search.yahoo.com/mrss/";
-      const ATOM_NS = "http://www.w3.org/2005/Atom";
-
-      const entries = Array.from(doc.getElementsByTagNameNS(ATOM_NS, "entry"));
-      const seen = new Set();
-      const videos = [];
-
-      for (const entry of entries) {
-        const videoIdNode = entry.getElementsByTagNameNS(YT_NS, "videoId")[0];
-        const videoId = videoIdNode ? videoIdNode.textContent.trim() : null;
-        if (!videoId || seen.has(videoId)) continue; // dédoublonnage garanti
-        seen.add(videoId);
-
-        const titleNode = entry.getElementsByTagNameNS(ATOM_NS, "title")[0];
-        const publishedNode = entry.getElementsByTagNameNS(ATOM_NS, "published")[0];
-        const linkNode = entry.getElementsByTagNameNS(ATOM_NS, "link")[0];
-        const group = entry.getElementsByTagNameNS(MEDIA_NS, "group")[0];
-
-        let desc = "";
-        let views = 0;
-        let thumb = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
-
-        if (group) {
-          const descNode = group.getElementsByTagNameNS(MEDIA_NS, "description")[0];
-          if (descNode) desc = descNode.textContent.trim();
-          const thumbNode = group.getElementsByTagNameNS(MEDIA_NS, "thumbnail")[0];
-          if (thumbNode && thumbNode.getAttribute("url")) thumb = thumbNode.getAttribute("url");
-          const community = group.getElementsByTagNameNS(MEDIA_NS, "community")[0];
-          if (community) {
-            const statsNode = community.getElementsByTagNameNS(MEDIA_NS, "statistics")[0];
-            if (statsNode) views = parseInt(statsNode.getAttribute("views") || "0", 10) || 0;
-          }
-        }
-
-        videos.push({
-          id: videoId,
-          title: titleNode ? titleNode.textContent.trim() : "Sans titre",
-          desc: desc || "Aucune description fournie pour cette vidéo.",
-          published: publishedNode ? publishedNode.textContent.trim() : null,
-          views,
-          thumb,
-          watchUrl: linkNode ? linkNode.getAttribute("href") : `https://www.youtube.com/watch?v=${videoId}`,
-        });
-      }
-
-      videos.sort((a, b) => new Date(b.published || 0) - new Date(a.published || 0));
-      return videos;
-    }
-
-    /* ===================== FORMATAGE ===================== */
-    const numberFormatterFR = new Intl.NumberFormat("fr-FR");
-    const dateFormatterFR = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "long", year: "numeric" });
-
-    function formatViews(n) {
-      if (!n) return "Vues non communiquées";
-      return `${numberFormatterFR.format(n)} vue${n > 1 ? "s" : ""}`;
-    }
-
-    function formatDate(iso) {
-      if (!iso) return "Date inconnue";
-      try { return dateFormatterFR.format(new Date(iso)); } catch (e) { return "Date inconnue"; }
-    }
-
-    function formatTimeAgo(iso) {
-      if (!iso) return "";
-      const diffMs = Date.now() - new Date(iso).getTime();
-      const sec = Math.floor(diffMs / 1000);
-      const units = [
-        ["an", 31536000], ["mois", 2592000], ["semaine", 604800],
-        ["jour", 86400], ["heure", 3600], ["minute", 60],
-      ];
-      for (const [label, secs] of units) {
-        const val = Math.floor(sec / secs);
-        if (val >= 1) return `il y a ${val} ${label}${val > 1 && label !== "mois" ? "s" : ""}`;
-      }
-      return "à l'instant";
-    }
-
-    /* ===================== HOOK MOBILE / TACTILE ===================== */
     function useMediaQuery(query) {
       const [matches, setMatches] = useState(() => typeof window !== "undefined" && window.matchMedia(query).matches);
       useEffect(() => {
@@ -842,7 +536,6 @@
       return matches;
     }
 
-    // Fixe la hauteur réelle du viewport mobile (évite les soucis avec 100vh + barre d'adresse)
     function useRealViewportHeight() {
       useEffect(() => {
         const setVh = () => document.documentElement.style.setProperty("--vh", `${window.innerHeight * 0.01}px`);
@@ -860,36 +553,22 @@
     function NetflixPlayer({ movie, onClose, onNext }) {
       const playerRef = useRef(null);
       const [isPlaying, setIsPlaying] = useState(true);
-      const [isReady, setIsReady] = useState(false);
-      const [isBuffering, setIsBuffering] = useState(false);
       const [currentTime, setCurrentTime] = useState(0);
       const [duration, setDuration] = useState(0);
-      const [volume, setVolume] = useState(100);
-      const [isMuted, setIsMuted] = useState(false);
-      const [controlsVisible, setControlsVisible] = useState(true);
-      const [seekFlash, setSeekFlash] = useState(null); // { dir: 'left'|'right', key }
-      const hideControlsTimeout = useRef(null);
-      const lastTapRef = useRef({ time: 0, zone: null });
-      const isTouch = useMediaQuery("(hover: none)");
 
       useEffect(() => {
         let ytPlayer;
-        let destroyed = false;
-
         const onYouTubeIframeAPIReady = () => {
           ytPlayer = new window.YT.Player("netflix-yt-iframe", {
             events: {
               onReady: (event) => {
-                if (destroyed) return;
                 playerRef.current = event.target;
                 event.target.playVideo();
                 setDuration(event.target.getDuration());
-                setIsReady(true);
               },
               onStateChange: (event) => {
-                if (event.data === window.YT.PlayerState.PLAYING) { setIsPlaying(true); setIsBuffering(false); }
+                if (event.data === window.YT.PlayerState.PLAYING) setIsPlaying(true);
                 else if (event.data === window.YT.PlayerState.PAUSED) setIsPlaying(false);
-                else if (event.data === window.YT.PlayerState.BUFFERING) setIsBuffering(true);
                 else if (event.data === window.YT.PlayerState.ENDED) onNext();
               },
             },
@@ -913,17 +592,16 @@
         }, 500);
 
         return () => {
-          destroyed = true;
           clearInterval(timer);
           if (ytPlayer && ytPlayer.destroy) ytPlayer.destroy();
         };
       }, [movie.id]);
 
-      const togglePlay = useCallback(() => {
+      const togglePlay = () => {
         if (!playerRef.current) return;
-        if (playerRef.current.getPlayerState() === 1) playerRef.current.pauseVideo();
+        if (isPlaying) playerRef.current.pauseVideo();
         else playerRef.current.playVideo();
-      }, []);
+      };
 
       const handleSeek = (e) => {
         const rect = e.currentTarget.getBoundingClientRect();
@@ -935,116 +613,10 @@
         }
       };
 
-      const handleSkip = useCallback((seconds) => {
-        if (playerRef.current) {
-          const newTime = Math.max(0, playerRef.current.getCurrentTime() + seconds);
-          playerRef.current.seekTo(newTime, true);
-        }
-      }, []);
-
-      const flashSeek = (dir, seconds) => {
-        handleSkip(seconds);
-        setSeekFlash({ dir, seconds, key: Date.now() });
-        setTimeout(() => setSeekFlash(null), 600);
-      };
-
-      const handleVolumeChange = (e) => {
-        const val = Number(e.target.value);
-        setVolume(val);
-        if (playerRef.current) {
-          playerRef.current.setVolume(val);
-          if (val === 0) { playerRef.current.mute(); setIsMuted(true); }
-          else { playerRef.current.unMute(); setIsMuted(false); }
-        }
-      };
-
-      const toggleMute = useCallback(() => {
-        if (!playerRef.current) return;
-        if (playerRef.current.isMuted()) { playerRef.current.unMute(); setIsMuted(false); }
-        else { playerRef.current.mute(); setIsMuted(true); }
-      }, []);
-
-      const toggleFullscreen = useCallback(() => {
-        const elem = document.getElementById("netflix-player-root");
-        if (!document.fullscreenElement) elem.requestFullscreen().catch(() => {});
-        else document.exitFullscreen();
-      }, []);
-
-      const changeVolume = useCallback((delta) => {
-        if (!playerRef.current) return;
-        const next = Math.max(0, Math.min(100, playerRef.current.getVolume() + delta));
-        playerRef.current.setVolume(next);
-        setVolume(next);
-        if (next === 0) setIsMuted(true); else { playerRef.current.unMute(); setIsMuted(false); }
-      }, []);
-
-      // Clavier: espace/K play-pause, flèches seek/volume, M mute, F plein écran, Échap fermer
-      useEffect(() => {
-        const onKeyDown = (e) => {
-          switch (e.key) {
-            case " ": case "k": e.preventDefault(); togglePlay(); break;
-            case "ArrowRight": handleSkip(10); break;
-            case "ArrowLeft": handleSkip(-10); break;
-            case "ArrowUp": e.preventDefault(); changeVolume(10); break;
-            case "ArrowDown": e.preventDefault(); changeVolume(-10); break;
-            case "m": toggleMute(); break;
-            case "f": toggleFullscreen(); break;
-            case "Escape": onClose(); break;
-          }
-        };
-        window.addEventListener("keydown", onKeyDown);
-        return () => window.removeEventListener("keydown", onKeyDown);
-      }, [togglePlay, handleSkip, changeVolume, toggleMute, toggleFullscreen, onClose]);
-
-      const showControlsTemporarily = useCallback(() => {
-        setControlsVisible(true);
-        clearTimeout(hideControlsTimeout.current);
-        hideControlsTimeout.current = setTimeout(() => {
-          if (isPlaying) setControlsVisible(false);
-        }, isTouch ? 4000 : 3200);
-      }, [isPlaying, isTouch]);
-
-      useEffect(() => { showControlsTemporarily(); }, [isPlaying]);
-
-      // Zones de tap tactile : gauche = -10s, droite = +10s, centre = play/pause + affichage des contrôles
-      const handleZoneTap = (zone) => {
-        const now = Date.now();
-        const isDoubleTap = zone === lastTapRef.current.zone && now - lastTapRef.current.time < 320;
-        lastTapRef.current = { time: now, zone };
-
-        if (zone === "center") {
-          if (!controlsVisible) { showControlsTemporarily(); return; }
-          if (isDoubleTap) togglePlay();
-          else showControlsTemporarily();
-          return;
-        }
-
-        if (isDoubleTap) {
-          flashSeek(zone, zone === "left" ? -10 : 10);
-        }
-        showControlsTemporarily();
-      };
-
-      const formatTime = (sec) => {
-        if (isNaN(sec)) return "00:00";
-        const h = Math.floor(sec / 3600);
-        const m = Math.floor((sec % 3600) / 60);
-        const s = Math.floor(sec % 60);
-        return h > 0
-          ? `${h}:${m < 10 ? "0" : ""}${m}:${s < 10 ? "0" : ""}${s}`
-          : `${m < 10 ? "0" : ""}${m}:${s < 10 ? "0" : ""}${s}`;
-      };
-
       const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
-      const nearEnd = duration > 0 && duration - currentTime < 12 && duration - currentTime > 0;
 
       return (
-        <div
-          id="netflix-player-root"
-          className={`netflix-player-overlay ${!controlsVisible && isPlaying && !isTouch ? "hide-cursor" : ""}`}
-          onMouseMove={!isTouch ? showControlsTemporarily : undefined}
-          onDoubleClick={!isTouch ? toggleFullscreen : undefined}
-        >
+        <div className="netflix-player-overlay">
           <div className="player-video-container">
             <iframe
               id="netflix-yt-iframe"
@@ -1053,58 +625,18 @@
             ></iframe>
           </div>
 
-          {isTouch && (
-            <div className="player-tap-zones">
-              <div className="player-tap-zone" onClick={() => handleZoneTap("left")}></div>
-              <div className="player-tap-zone center" onClick={() => handleZoneTap("center")}></div>
-              <div className="player-tap-zone" onClick={() => handleZoneTap("right")}></div>
-            </div>
-          )}
-
-          {seekFlash && (
-            <div className={`seek-flash ${seekFlash.dir}`} key={seekFlash.key}>
-              <i className={`fas ${seekFlash.dir === "left" ? "fa-backward" : "fa-forward"}`}></i>
-              <span>{seekFlash.dir === "left" ? "-10s" : "+10s"}</span>
-            </div>
-          )}
-
-          {!isReady && (
-            <div className="player-loading"><i className="fas fa-circle-notch fa-spin"></i></div>
-          )}
-          {isReady && isBuffering && (
-            <div className="player-buffering"><i className="fas fa-circle-notch fa-spin"></i></div>
-          )}
-
-          <div className="kbd-hint" style={{ opacity: controlsVisible ? 1 : 0 }}>
-            <span><kbd>Espace</kbd>lecture</span>
-            <span><kbd>←→</kbd>avance/recule</span>
-            <span><kbd>F</kbd>plein écran</span>
-            <span><kbd>Échap</kbd>quitter</span>
-          </div>
-
-          <div className="player-top-bar" style={{ opacity: controlsVisible ? 1 : 0, pointerEvents: controlsVisible ? "auto" : "none" }}>
-            <button className="back-btn" onClick={onClose} title="Retour à l'accueil">
+          <div className="player-top-bar">
+            <button className="back-btn" onClick={onClose}>
               <i className="fas fa-arrow-left"></i>
             </button>
             <div className="player-title-block">
               <span className="player-movie-title">{movie.title}</span>
-              <div className="player-movie-meta">
-                <span>{formatViews(movie.views)}</span>
-                <span>{formatDate(movie.published)}</span>
-              </div>
             </div>
-            {nearEnd && (
-              <button className="player-next-btn" onClick={onNext}>
-                <i className="fas fa-step-forward"></i> <span>Lecture suivante</span>
-              </button>
-            )}
           </div>
 
-          <div className="player-controls-bottom" style={{ opacity: controlsVisible ? 1 : 0, pointerEvents: controlsVisible ? "auto" : "none" }}>
+          <div className="player-controls-bottom">
             <div className="progress-bar-container" onClick={handleSeek}>
-              <div className="progress-bar-fill" style={{ width: `${progressPercent}%` }}>
-                <div className="progress-bar-scrubber"></div>
-              </div>
+              <div className="progress-bar-fill" style={{ width: `${progressPercent}%` }}></div>
             </div>
 
             <div className="controls-row">
@@ -1112,28 +644,8 @@
                 <button className="control-btn" onClick={togglePlay}>
                   <i className={isPlaying ? "fas fa-pause" : "fas fa-play"}></i>
                 </button>
-                <button className="control-btn" onClick={() => flashSeek("left", -10)} title="Reculer 10s">
-                  <i className="fas fa-undo-alt"></i>
-                </button>
-                <button className="control-btn" onClick={() => flashSeek("right", 10)} title="Avancer 10s">
-                  <i className="fas fa-redo-alt"></i>
-                </button>
-                <button className="control-btn" onClick={onNext} title="Suivant">
+                <button className="control-btn" onClick={onNext}>
                   <i className="fas fa-step-forward"></i>
-                </button>
-                <div className="volume-container">
-                  <button className="control-btn" onClick={toggleMute}>
-                    <i className={isMuted || volume === 0 ? "fas fa-volume-mute" : volume < 50 ? "fas fa-volume-down" : "fas fa-volume-up"}></i>
-                  </button>
-                  <input type="range" min="0" max="100" value={isMuted ? 0 : volume} onChange={handleVolumeChange} className="volume-slider" />
-                </div>
-                <div className="time-display">{formatTime(currentTime)} / {formatTime(duration)}</div>
-              </div>
-
-              <div className="controls-right">
-                <button className="control-btn fa-list-ul-wrap" title="Épisodes suivants"><i className="fas fa-list-ul"></i></button>
-                <button className="control-btn" onClick={toggleFullscreen} title="Plein écran">
-                  <i className="fas fa-expand"></i>
                 </button>
               </div>
             </div>
@@ -1143,9 +655,8 @@
     }
 
     /* ===================== CARD ===================== */
-    function MovieCard({ movie, onPlay, onInfo, isFavorite, onToggleFavorite }) {
+    function MovieCard({ movie, onPlay, onInfo, isFavorite, onToggleFavorite, onDelete, isAdmin }) {
       const isTouch = useMediaQuery("(hover: none)");
-      const isNarrow = useMediaQuery("(max-width: 760px)");
       const [hovered, setHovered] = useState(false);
       const showExpanded = isTouch ? true : hovered;
       const previewSrc = `https://www.youtube.com/embed/${movie.id}?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&loop=1&playlist=${movie.id}`;
@@ -1160,33 +671,31 @@
           >
             <img src={movie.thumb} alt={movie.title} className="card-img" loading="lazy" />
 
-            {hovered && !isTouch && !isNarrow && (
+            {hovered && !isTouch && (
               <iframe src={previewSrc} className="card-preview" frameBorder="0" allow="autoplay"></iframe>
             )}
 
             <div className="card-body">
               <div className="card-actions">
                 <div className="card-actions-left">
-                  <button className="icon-btn icon-btn-play" onClick={(e) => { e.stopPropagation(); onPlay(movie); }} title="Regarder">
+                  <button className="icon-btn icon-btn-play" onClick={(e) => { e.stopPropagation(); onPlay(movie); }}>
                     <i className="fas fa-play"></i>
                   </button>
                   <button
                     className={`icon-btn ${isFavorite ? "active" : ""}`}
                     onClick={(e) => { e.stopPropagation(); onToggleFavorite(movie.id); }}
-                    title={isFavorite ? "Retirer de ma liste" : "Ajouter à ma liste"}
                   >
                     <i className={isFavorite ? "fas fa-check" : "fas fa-plus"}></i>
                   </button>
+                  {isAdmin && (
+                    <button className="icon-btn icon-btn-delete" onClick={(e) => { e.stopPropagation(); onDelete(movie.id); }}>
+                      <i className="fas fa-trash"></i>
+                    </button>
+                  )}
                 </div>
-                <button className="icon-btn" onClick={(e) => { e.stopPropagation(); onInfo(movie); }} title="Plus d'infos">
+                <button className="icon-btn" onClick={(e) => { e.stopPropagation(); onInfo(movie); }}>
                   <i className="fas fa-chevron-down"></i>
                 </button>
-              </div>
-
-              <div className="card-info">
-                <span>{formatViews(movie.views)}</span>
-                <span>•</span>
-                <span>{formatTimeAgo(movie.published)}</span>
               </div>
 
               <div className="card-title-text">{movie.title}</div>
@@ -1218,15 +727,110 @@
               </div>
             </div>
             <div className="modal-body">
-              <div className="modal-meta-row">
-                <span className="match">{formatViews(movie.views)}</span>
-                <span>{formatDate(movie.published)}</span>
-              </div>
               <p className="modal-desc">{movie.desc}</p>
-              <a className="modal-yt-link" href={movie.watchUrl} target="_blank" rel="noopener noreferrer">
-                <i className="fab fa-youtube"></i> Voir la fiche originale sur YouTube
-              </a>
             </div>
+          </div>
+        </div>
+      );
+    }
+
+    /* ===================== ADMIN / ADD VIDEO MODAL ===================== */
+    function AdminModal({ onClose, onAddVideo }) {
+      const [code, setCode] = useState("");
+      const [isAuthenticated, setIsAuthenticated] = useState(false);
+      const [title, setTitle] = useState("");
+      const [url, setUrl] = useState("");
+      const [desc, setDesc] = useState("");
+      const [error, setError] = useState("");
+
+      const handleAuth = (e) => {
+        e.preventDefault();
+        if (code === ADMIN_CODE) {
+          setIsAuthenticated(true);
+          setError("");
+        } else {
+          setError("Code incorrect !");
+        }
+      };
+
+      const handleSubmit = (e) => {
+        e.preventDefault();
+        const ytbId = extractYoutubeId(url);
+        if (!ytbId) {
+          setError("L'URL YouTube n'est pas valide.");
+          return;
+        }
+        if (!title.trim()) {
+          setError("Le titre est requis.");
+          return;
+        }
+
+        onAddVideo({
+          id: ytbId,
+          title: title.trim(),
+          desc: desc.trim() || "Aucune description.",
+          thumb: `https://i.ytimg.com/vi/${ytbId}/hqdefault.jpg`,
+          published: new Date().toISOString()
+        });
+        onClose();
+      };
+
+      return (
+        <div className="modal-overlay" onClick={onClose}>
+          <div className="modal-box" style={{ padding: 20 }} onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close" onClick={onClose}><i className="fas fa-times"></i></button>
+            <h2 style={{ marginBottom: 20, textAlign: 'center' }}>Zone d'Administration</h2>
+
+            {!isAuthenticated ? (
+              <form onSubmit={handleAuth} className="admin-form">
+                <label>
+                  Entrez le code d'accès :
+                  <input
+                    type="password"
+                    value={code}
+                    onChange={(e) => setCode(e.target.value)}
+                    placeholder="Code secret..."
+                    autoFocus
+                  />
+                </label>
+                {error && <div className="error-msg">{error}</div>}
+                <button type="submit" className="btn btn-main" style={{ justifyContent: 'center' }}>Valider</button>
+              </form>
+            ) : (
+              <form onSubmit={handleSubmit} className="admin-form">
+                <label>
+                  Titre de la vidéo :
+                  <input
+                    type="text"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    placeholder="Ex: Mon Film 1"
+                    required
+                  />
+                </label>
+                <label>
+                  Lien/URL YouTube :
+                  <input
+                    type="text"
+                    value={url}
+                    onChange={(e) => setUrl(e.target.value)}
+                    placeholder="https://www.youtube.com/watch?v=..."
+                    required
+                  />
+                </label>
+                <label>
+                  Description :
+                  <textarea
+                    rows="3"
+                    value={desc}
+                    onChange={(e) => setDesc(e.target.value)}
+                    placeholder="Courte résumé..."
+                  ></textarea>
+                </label>
+                {error && <div className="error-msg">{error}</div>}
+                <button type="submit" className="btn btn-main" style={{ justifyContent: 'center' }}>Ajouter la vidéo</button>
+              </form>
+            )}
           </div>
         </div>
       );
@@ -1245,45 +849,35 @@
       const [scrolled, setScrolled] = useState(false);
       const [navOpen, setNavOpen] = useState(false);
       const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+      const [showAdminModal, setShowAdminModal] = useState(false);
 
-      const [videos, setVideos] = useState([]);
-      const [status, setStatus] = useState("loading"); // loading | ready | error
-      const [errorMsg, setErrorMsg] = useState("");
-      const [isRefreshing, setIsRefreshing] = useState(false);
-      const [lastSync, setLastSync] = useState(null);
-
-      const syncVideos = useCallback(async (isBackground) => {
-        if (isBackground) setIsRefreshing(true); else setStatus("loading");
-        try {
-          const xml = await fetchChannelRSS();
-          const parsed = parseYoutubeRSS(xml);
-          // Fusion + dédoublonnage par id : chaque vidéo n'existe qu'une seule fois
-          setVideos((prev) => {
-            const map = new Map();
-            [...prev, ...parsed].forEach((v) => map.set(v.id, v));
-            const merged = Array.from(map.values());
-            merged.sort((a, b) => new Date(b.published || 0) - new Date(a.published || 0));
-            return merged;
-          });
-          setStatus("ready");
-          setLastSync(new Date());
-        } catch (err) {
-          if (!isBackground) {
-            setStatus("error");
-            setErrorMsg(err.message || "Erreur inconnue");
+      // Chargement depuis localStorage
+      const [videos, setVideos] = useState(() => {
+        const saved = localStorage.getItem("zigouflix_videos");
+        return saved ? JSON.parse(saved) : [
+          {
+            id: "dQw4w9WgXcQ",
+            title: "Vidéo Démo",
+            desc: "Description de la vidéo démo.",
+            thumb: "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
+            published: new Date().toISOString()
           }
-        } finally {
-          if (isBackground) setIsRefreshing(false);
-        }
-      }, []);
+        ];
+      });
 
-      useEffect(() => { syncVideos(false); }, [syncVideos]);
-
-      // Re-synchronisation automatique périodique avec la chaîne YouTube
       useEffect(() => {
-        const interval = setInterval(() => syncVideos(true), REFRESH_INTERVAL_MS);
-        return () => clearInterval(interval);
-      }, [syncVideos]);
+        localStorage.setItem("zigouflix_videos", JSON.stringify(videos));
+      }, [videos]);
+
+      const handleAddVideo = (newVideo) => {
+        setVideos((prev) => [newVideo, ...prev.filter(v => v.id !== newVideo.id)]);
+      };
+
+      const handleDeleteVideo = (id) => {
+        if(confirm("Voulez-vous vraiment supprimer cette vidéo ?")) {
+          setVideos((prev) => prev.filter(v => v.id !== id));
+        }
+      };
 
       const heroMovies = useMemo(() => videos.slice(0, 5), [videos]);
 
@@ -1321,29 +915,6 @@
 
       const goHome = () => { setCurrentTab("home"); setSearchTerm(""); setNavOpen(false); setMobileSearchOpen(false); };
 
-      if (status === "loading" && videos.length === 0) {
-        return (
-          <div className="full-state">
-            <i className="fas fa-circle-notch fa-spin"></i>
-            <h2>Synchronisation avec la chaîne YouTube…</h2>
-            <p>Zigouflix récupère les dernières vidéos publiées pour construire ton catalogue.</p>
-          </div>
-        );
-      }
-
-      if (status === "error" && videos.length === 0) {
-        return (
-          <div className="full-state">
-            <i className="fas fa-triangle-exclamation" style={{ color: "var(--zigou-red)", fontSize: "2.4rem" }}></i>
-            <h2>Impossible de charger la chaîne</h2>
-            <p>{errorMsg} — le flux RSS de YouTube passe par un relais externe (aucune clé API n'est utilisée), qui peut être temporairement indisponible. Réessaie dans un instant.</p>
-            <button className="btn btn-main" onClick={() => syncVideos(false)}>
-              <i className="fas fa-rotate-right"></i> Réessayer
-            </button>
-          </div>
-        );
-      }
-
       return (
         <div>
           <nav className={`navbar ${scrolled || currentTab !== "home" || searchTerm ? "scrolled" : ""}`}>
@@ -1359,16 +930,14 @@
             </div>
 
             <div className="nav-right">
-              <button className="refresh-btn" onClick={() => syncVideos(true)} disabled={isRefreshing} title="Resynchroniser avec YouTube">
-                <i className={`fas fa-rotate-right ${isRefreshing ? "spinning" : ""}`}></i>
-                <span>{isRefreshing ? "Synchronisation…" : "Actualiser"}</span>
-              </button>
               <div className="search-box">
                 <i className="fas fa-search" style={{ color: "#aaa" }}></i>
                 <input type="text" placeholder="Titres, mots-clés" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
               </div>
               <i className="fas fa-search nav-icon mobile-search-toggle" onClick={() => setMobileSearchOpen(true)}></i>
-              <div className="avatar">Z</div>
+              
+              {/* Profil : ouvre la boîte de dialogue demandant le code */}
+              <div className="avatar" title="Ajouter une vidéo (Admin)" onClick={() => setShowAdminModal(true)}>Z</div>
             </div>
           </nav>
 
@@ -1395,13 +964,9 @@
 
                   <div className="hero-content">
                     <div className="hero-badges">
-                      <span className="badge-top10"><span className="n-box">TOP</span> #{idx + 1} des dernières vidéos</span>
+                      <span className="badge-top10"><span className="n-box">TOP</span> #{idx + 1}</span>
                     </div>
                     <h1 className="hero-title">{movie.title}</h1>
-                    <div className="hero-meta">
-                      <span className="match">{formatViews(movie.views)}</span>
-                      <span className="age">{formatDate(movie.published)}</span>
-                    </div>
                     <p className="hero-desc">{movie.desc}</p>
                     <div className="hero-btns">
                       <button className="btn btn-main" onClick={() => setActiveMovie(movie)}>
@@ -1410,7 +975,7 @@
                       <button className="btn btn-sec" onClick={() => setInfoMovie(movie)}>
                         <i className="fas fa-info-circle"></i> Plus d'infos
                       </button>
-                      <button className="btn-icon-round" onClick={() => toggleFavorite(movie.id)} title={favorites.includes(movie.id) ? "Dans ma liste" : "Ajouter à ma liste"}>
+                      <button className="btn-icon-round" onClick={() => toggleFavorite(movie.id)}>
                         <i className={favorites.includes(movie.id) ? "fas fa-check" : "fas fa-plus"}></i>
                       </button>
                     </div>
@@ -1432,7 +997,7 @@
                 <h2 className="row-title">Résultats pour "{searchTerm}" <span className="row-count">({searchResults.length})</span></h2>
                 <div className="video-grid">
                   {searchResults.map((movie) => (
-                    <MovieCard key={movie.id} movie={movie} onPlay={setActiveMovie} onInfo={setInfoMovie} isFavorite={favorites.includes(movie.id)} onToggleFavorite={toggleFavorite} />
+                    <MovieCard key={movie.id} movie={movie} onPlay={setActiveMovie} onInfo={setInfoMovie} isFavorite={favorites.includes(movie.id)} onToggleFavorite={toggleFavorite} onDelete={handleDeleteVideo} isAdmin={true} />
                   ))}
                 </div>
                 {searchResults.length === 0 && <p className="empty-note">Aucun résultat trouvé.</p>}
@@ -1442,7 +1007,7 @@
                 <h2 className="row-title">Ma Liste Personnelle</h2>
                 <div className="video-grid">
                   {favoriteItems.map((movie) => (
-                    <MovieCard key={movie.id} movie={movie} onPlay={setActiveMovie} onInfo={setInfoMovie} isFavorite={true} onToggleFavorite={toggleFavorite} />
+                    <MovieCard key={movie.id} movie={movie} onPlay={setActiveMovie} onInfo={setInfoMovie} isFavorite={true} onToggleFavorite={toggleFavorite} onDelete={handleDeleteVideo} isAdmin={true} />
                   ))}
                 </div>
                 {favoriteItems.length === 0 && <p className="empty-note">Votre liste est vide pour le moment.</p>}
@@ -1450,18 +1015,13 @@
             ) : (
               <div>
                 <h2 className="row-title">
-                  Toutes les vidéos de la chaîne <span className="row-count">({videos.length})</span>
+                  Toutes les vidéos <span className="row-count">({videos.length})</span>
                 </h2>
                 <div className="video-grid">
                   {videos.map((movie) => (
-                    <MovieCard key={movie.id} movie={movie} onPlay={setActiveMovie} onInfo={setInfoMovie} isFavorite={favorites.includes(movie.id)} onToggleFavorite={toggleFavorite} />
+                    <MovieCard key={movie.id} movie={movie} onPlay={setActiveMovie} onInfo={setInfoMovie} isFavorite={favorites.includes(movie.id)} onToggleFavorite={toggleFavorite} onDelete={handleDeleteVideo} isAdmin={true} />
                   ))}
                 </div>
-                {lastSync && (
-                  <p className="empty-note" style={{ marginTop: 10 }}>
-                    Dernière synchronisation : {lastSync.toLocaleTimeString("fr-FR")} · mise à jour auto toutes les 15 min
-                  </p>
-                )}
               </div>
             )}
           </main>
@@ -1472,6 +1032,10 @@
 
           {activeMovie && (
             <NetflixPlayer movie={activeMovie} onClose={() => setActiveMovie(null)} onNext={playNext} />
+          )}
+
+          {showAdminModal && (
+            <AdminModal onClose={() => setShowAdminModal(false)} onAddVideo={handleAddVideo} />
           )}
         </div>
       );
