@@ -357,10 +357,6 @@
     .card-title-text { font-size: 0.95rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .card-tags { font-size: 0.78rem; color: var(--text-muted); overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.35; }
 
-    /* GOOGLE SHEET CONTAINER */
-    .sheet-container { width: 100%; height: 85vh; height: calc(var(--vh, 1vh) * 85); padding: 0 4.5%; }
-    .sheet-frame { width: 100%; height: 100%; border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 8px; background: #ffffff; }
-
     /* ZONE ADMIN / GESTION SECRÈTE */
     .admin-container { padding: 0 4.5%; max-width: 1000px; margin: 0 auto; }
     .admin-card { background: #141414; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 24px; margin-bottom: 24px; }
@@ -373,7 +369,7 @@
     .btn-delete:hover { background: var(--zigou-red); color: #fff; }
     
     .secret-modal { background: #181818; padding: 30px; border-radius: 8px; max-width: 400px; width: 100%; text-align: center; }
-    .secret-input { width: 100%; padding: 12px; background: #000; border: 1px solid #333; color: #fff; border-radius: 4px; margin: 16px 0; font-size: 1.2rem; text-align: center; letter-spacing: 4px; }
+    .secret-input { width: 100%; padding: 12px; background: #000; border: 1px solid #333; color: #fff; border-radius: 4px; margin: 16px 0; font-size: 1.1rem; text-align: center; }
 
     /* Tactile */
     @media (hover: none) {
@@ -594,9 +590,6 @@
   <script type="text/babel">
     const { useState, useEffect, useRef, useCallback, useMemo } = React;
 
-    /* ===================== CONFIG GOOGLE SHEET ===================== */
-    const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycby_VDvv0_6Q35F-Y6Fzne8digdYj5TP3TcsxmFPRvfqCZ-R1nCnk6qgBZR9cKAnw6yoTg/exec";
-
     /* ===================== CONFIG CHAINE ===================== */
     const CHANNEL_ID = "UCb14vXu5c-_c7VH7CJMNnXw";
     const RSS_URL = `https://www.youtube.com/feeds/videos.xml?channel_id=${CHANNEL_ID}`;
@@ -651,11 +644,23 @@
         const videoIdNode = entry.getElementsByTagNameNS(YT_NS, "videoId")[0];
         const videoId = videoIdNode ? videoIdNode.textContent.trim() : null;
         if (!videoId || seen.has(videoId)) continue;
-        seen.add(videoId);
 
         const titleNode = entry.getElementsByTagNameNS(ATOM_NS, "title")[0];
-        const publishedNode = entry.getElementsByTagNameNS(ATOM_NS, "published")[0];
+        const title = titleNode ? titleNode.textContent.trim() : "Sans titre";
         const linkNode = entry.getElementsByTagNameNS(ATOM_NS, "link")[0];
+        const watchUrl = linkNode ? linkNode.getAttribute("href") : `https://www.youtube.com/watch?v=${videoId}`;
+
+        // --- FILTRE ANTI-SHORTS ---
+        const isShortUrl = watchUrl.includes("/shorts/");
+        const isShortTitle = /#(shorts?)\b/i.test(title);
+
+        if (isShortUrl || isShortTitle) {
+          continue; // On ignore les shorts
+        }
+
+        seen.add(videoId);
+
+        const publishedNode = entry.getElementsByTagNameNS(ATOM_NS, "published")[0];
         const group = entry.getElementsByTagNameNS(MEDIA_NS, "group")[0];
 
         let desc = "";
@@ -676,12 +681,12 @@
 
         videos.push({
           id: videoId,
-          title: titleNode ? titleNode.textContent.trim() : "Sans titre",
+          title,
           desc: desc || "Aucune description fournie pour cette vidéo.",
           published: publishedNode ? publishedNode.textContent.trim() : null,
           views,
           thumb,
-          watchUrl: linkNode ? linkNode.getAttribute("href") : `https://www.youtube.com/watch?v=${videoId}`,
+          watchUrl,
         });
       }
 
@@ -1137,7 +1142,7 @@
       const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
       const [secretInput, setSecretInput] = useState("");
       const [passError, setPassError] = useState(false);
-      const SECRET_CODE = "1234";
+      const SECRET_CODE = "2009zigoune@";
 
       const [videos, setVideos] = useState([]);
       const [isRefreshing, setIsRefreshing] = useState(false);
@@ -1162,6 +1167,11 @@
           setIsRefreshing(false);
         }
       }, []);
+
+      // Synchronisation automatique et discrète au lancement du site
+      useEffect(() => {
+        syncVideos();
+      }, [syncVideos]);
 
       const deleteVideo = (id) => {
         setVideos((prev) => prev.filter((v) => v.id !== id));
@@ -1224,9 +1234,6 @@
                 <li className={`nav-item ${currentTab === "mylist" ? "active" : ""}`} onClick={() => { setCurrentTab("mylist"); setNavOpen(false); }}>
                   Ma Liste {favorites.length > 0 && `(${favorites.length})`}
                 </li>
-                <li className={`nav-item ${currentTab === "sheet" ? "active" : ""}`} onClick={() => { setCurrentTab("sheet"); setNavOpen(false); }}>
-                  Google Sheets
-                </li>
                 <li className={`nav-item ${currentTab === "admin" ? "active" : ""}`} onClick={() => { setCurrentTab("admin"); setNavOpen(false); }}>
                   <i className="fas fa-lock" style={{ fontSize: '0.8rem', marginRight: 4 }}></i> Admin
                 </li>
@@ -1282,9 +1289,6 @@
                       <button className="btn btn-main" onClick={() => setActiveMovie(movie)}>
                         <i className="fas fa-play"></i> Lecture
                       </button>
-                      <button className="btn btn-sec" onClick={() => setCurrentTab("sheet")}>
-                        <i className="fas fa-table"></i> Ouvrir Google Sheets
-                      </button>
                       <button className="btn-icon-round" onClick={() => toggleFavorite(movie.id)} title={favorites.includes(movie.id) ? "Dans ma liste" : "Ajouter à ma liste"}>
                         <i className={favorites.includes(movie.id) ? "fas fa-check" : "fas fa-plus"}></i>
                       </button>
@@ -1322,25 +1326,18 @@
                 </div>
                 {favoriteItems.length === 0 && <p className="empty-note">Votre liste est vide pour le moment.</p>}
               </div>
-            ) : currentTab === "sheet" ? (
-              <div>
-                <h2 className="row-title" style={{ marginBottom: '16px' }}>Catalogue Google Sheets</h2>
-                <div className="sheet-container">
-                  <iframe className="sheet-frame" src={GOOGLE_SHEET_URL}></iframe>
-                </div>
-              </div>
             ) : currentTab === "admin" ? (
               <div className="admin-container">
                 {!isAdminAuthenticated ? (
                   <div className="modal-overlay">
                     <form className="secret-modal" onSubmit={handlePassSubmit}>
                       <i className="fas fa-user-shield" style={{ fontSize: '2.5rem', color: 'var(--zigou-red)', marginBottom: 12 }}></i>
-                      <h2>Espace Secrét / Gestion</h2>
+                      <h2>Espace Secret / Gestion</h2>
                       <p style={{ color: '#aaa', fontSize: '0.85rem', marginTop: 6 }}>Entrez le code d'accès pour administrer les vidéos</p>
                       <input
                         type="password"
                         className="secret-input"
-                        placeholder="••••"
+                        placeholder="Mot de passe"
                         value={secretInput}
                         onChange={(e) => setSecretInput(e.target.value)}
                         autoFocus
@@ -1402,7 +1399,7 @@
                   </div>
                 ) : (
                   <p className="empty-note">
-                    Aucune vidéo YouTube chargée. Tu peux cliquer sur <b>Google Sheets</b> pour consulter ton catalogue complet, ou utiliser le bouton <b>Actualiser YouTube</b>.
+                    {isRefreshing ? "Chargement du catalogue en cours..." : "Aucune vidéo chargée."}
                   </p>
                 )}
                 {lastSync && (
