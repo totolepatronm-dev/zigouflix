@@ -318,10 +318,27 @@
       position: absolute;
       top: 0; left: 0; width: 100%; height: 168px;
       opacity: 0;
-      transition: opacity 0.4s 0.15s;
+      transition: opacity 0.5s;
       pointer-events: none;
     }
-    .card.expanded .card-preview { opacity: 1; }
+    .card-preview.loaded { opacity: 1; }
+
+    .card-preview-shimmer {
+      position: absolute; top: 0; left: 0; width: 100%; height: 168px; z-index: 1;
+      background: linear-gradient(100deg, #161616 30%, #232323 50%, #161616 70%);
+      background-size: 200% 100%;
+      animation: previewShimmer 1.3s ease-in-out infinite;
+    }
+    @keyframes previewShimmer { 0% { background-position: 150% 0; } 100% { background-position: -50% 0; } }
+
+    .card-preview-sound {
+      position: absolute; bottom: 10px; right: 10px; z-index: 3;
+      width: 30px; height: 30px; border-radius: 50%;
+      background: rgba(10,10,10,0.7); border: 1px solid rgba(255,255,255,0.35);
+      color: #fff; font-size: 0.78rem; display: flex; align-items: center; justify-content: center;
+      pointer-events: auto; transition: background 0.2s, border-color 0.2s;
+    }
+    .card-preview-sound:hover { background: rgba(0,0,0,0.9); border-color: #fff; }
 
     .card-body {
       padding: 14px;
@@ -369,16 +386,6 @@
     .secret-modal { background: #181818; padding: 30px; border-radius: 8px; max-width: 400px; width: 100%; text-align: center; }
     .secret-input { width: 100%; padding: 12px; background: #000; border: 1px solid #333; color: #fff; border-radius: 4px; margin: 16px 0; font-size: 1.1rem; text-align: center; }
 
-    /* SYNC BANNER */
-    .sync-banner {
-      display: flex; align-items: center; justify-content: space-between; gap: 12px;
-      padding: 12px 18px; border-radius: 6px; margin: 0 4.5% 18px;
-      font-size: 0.85rem; font-weight: 600;
-    }
-    .sync-banner.error { background: rgba(229, 9, 20, 0.12); border: 1px solid rgba(229, 9, 20, 0.5); color: #ffb3b6; }
-    .sync-banner.info { background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255,255,255,0.15); color: var(--text-muted); }
-    .sync-banner .sync-banner-close { font-size: 1rem; opacity: 0.7; }
-    .sync-banner .sync-banner-close:hover { opacity: 1; }
 
     /* ADMIN: API KEY + ADD VIDEO */
     .admin-field-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 6px; }
@@ -1326,21 +1333,58 @@
       const isTouch = useMediaQuery("(hover: none)");
       const isNarrow = useMediaQuery("(max-width: 760px)");
       const [hovered, setHovered] = useState(false);
+      const [showPreview, setShowPreview] = useState(false);
+      const [previewLoaded, setPreviewLoaded] = useState(false);
+      const [previewMuted, setPreviewMuted] = useState(true);
+      const previewTimeout = useRef(null);
       const showExpanded = isTouch ? true : hovered;
-      const previewSrc = `https://www.youtube.com/embed/${movie.id}?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&loop=1&playlist=${movie.id}`;
+      const previewSrc = `https://www.youtube.com/embed/${movie.id}?autoplay=1&mute=${previewMuted ? 1 : 0}&controls=0&modestbranding=1&rel=0&loop=1&playlist=${movie.id}`;
+
+      const handleEnter = () => {
+        if (isTouch) return;
+        setHovered(true);
+        clearTimeout(previewTimeout.current);
+        previewTimeout.current = setTimeout(() => setShowPreview(true), 500);
+      };
+
+      const handleLeave = () => {
+        if (isTouch) return;
+        setHovered(false);
+        clearTimeout(previewTimeout.current);
+        setShowPreview(false);
+        setPreviewLoaded(false);
+      };
+
+      useEffect(() => () => clearTimeout(previewTimeout.current), []);
 
       return (
         <div className="card-container">
           <div
             className={`card ${showExpanded ? "expanded" : ""}`}
-            onMouseEnter={() => !isTouch && setHovered(true)}
-            onMouseLeave={() => !isTouch && setHovered(false)}
+            onMouseEnter={handleEnter}
+            onMouseLeave={handleLeave}
             onClick={() => (isTouch || hovered) && onInfo(movie)}
           >
             <img src={movie.thumb} alt={movie.title} className="card-img" loading="lazy" />
 
-            {hovered && !isTouch && !isNarrow && (
-              <iframe src={previewSrc} className="card-preview" frameBorder="0" allow="autoplay"></iframe>
+            {showPreview && !isTouch && !isNarrow && (
+              <>
+                {!previewLoaded && <div className="card-preview-shimmer"></div>}
+                <iframe
+                  src={previewSrc}
+                  className={`card-preview ${previewLoaded ? "loaded" : ""}`}
+                  frameBorder="0"
+                  allow="autoplay"
+                  onLoad={() => setPreviewLoaded(true)}
+                ></iframe>
+                <button
+                  className="card-preview-sound"
+                  onClick={(e) => { e.stopPropagation(); setPreviewLoaded(false); setPreviewMuted((m) => !m); }}
+                  title={previewMuted ? "Activer le son" : "Couper le son"}
+                >
+                  <i className={`fas ${previewMuted ? "fa-volume-mute" : "fa-volume-up"}`}></i>
+                </button>
+              </>
             )}
 
             <div className="card-body">
@@ -1434,7 +1478,6 @@
       const [videos, setVideos] = useState([]);
       const [isRefreshing, setIsRefreshing] = useState(false);
       const [lastSync, setLastSync] = useState(null);
-      const [syncError, setSyncError] = useState(null);
       const [syncMode, setSyncMode] = useState(null); // "api" | "rss"
       const [apiKeyOverride, setApiKeyOverride] = useState("");
       const [addVideoInput, setAddVideoInput] = useState("");
@@ -1462,7 +1505,6 @@
 
       const syncVideos = useCallback(async () => {
         setIsRefreshing(true);
-        setSyncError(null);
         try {
           if (activeApiKey) {
             // Mode complet : catalogue entier + vraies statistiques via l'API officielle.
@@ -1492,11 +1534,6 @@
           setLastSync(new Date());
         } catch (err) {
           console.warn("Échec du chargement des vidéos YouTube:", err);
-          setSyncError(
-            activeApiKey
-              ? `Impossible de charger le catalogue via l'API YouTube (${err.message || "erreur inconnue"}). Les vidéos de secours restent affichées.`
-              : "Impossible de contacter YouTube pour le moment (tous les proxys ont échoué). Les vidéos de secours restent affichées."
-          );
         } finally {
           setIsRefreshing(false);
         }
@@ -1619,16 +1656,6 @@
             </div>
             <i className="fas fa-times nav-icon" onClick={() => setMobileSearchOpen(false)}></i>
           </div>
-
-          {syncError && currentTab !== "admin" && (
-            <div
-              className="sync-banner error"
-              style={{ marginTop: (currentTab !== "home" || searchTerm || heroMovies.length === 0) ? (isNarrow ? "80px" : "100px") : "90px" }}
-            >
-              <span><i className="fas fa-triangle-exclamation"></i> {syncError}</span>
-              <i className="fas fa-times sync-banner-close" onClick={() => setSyncError(null)}></i>
-            </div>
-          )}
 
           {currentTab === "home" && !searchTerm && heroMovies.length > 0 && (
             <div className="hero-carousel">
