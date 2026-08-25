@@ -1363,12 +1363,10 @@
       const syncVideos = useCallback(async () => {
         setIsRefreshing(true);
         setSyncError(null);
-        let gotAnyVideo = false;
         try {
           if (activeApiKey) {
             // Mode complet : catalogue entier + vraies statistiques via l'API officielle.
             const parsed = await fetchChannelViaApi(activeApiKey, CHANNEL_ID);
-            gotAnyVideo = parsed.length > 0;
             setVideos((prev) => {
               const manual = prev.filter((v) => v.source === "manual");
               const map = new Map();
@@ -1382,7 +1380,6 @@
             // Mode de secours : flux RSS public (15 dernières vidéos, via proxy CORS).
             const xml = await fetchChannelRSS();
             const parsed = parseYoutubeRSS(xml);
-            gotAnyVideo = parsed.length > 0;
             setVideos((prev) => {
               const map = new Map();
               [...prev, ...parsed.map((v) => ({ ...v, source: v.source || "rss" }))].forEach((v) => map.set(v.id, v));
@@ -1393,24 +1390,26 @@
             setSyncMode("rss");
           }
           setLastSync(new Date());
-          if (!gotAnyVideo) await loadFallbackVideos();
         } catch (err) {
           console.warn("Échec du chargement des vidéos YouTube:", err);
           setSyncError(
             activeApiKey
-              ? `Impossible de charger le catalogue via l'API YouTube (${err.message || "erreur inconnue"}).`
-              : "Impossible de contacter YouTube pour le moment (tous les proxys ont échoué). Affichage des vidéos de secours."
+              ? `Impossible de charger le catalogue via l'API YouTube (${err.message || "erreur inconnue"}). Les vidéos de secours restent affichées.`
+              : "Impossible de contacter YouTube pour le moment (tous les proxys ont échoué). Les vidéos de secours restent affichées."
           );
-          await loadFallbackVideos();
         } finally {
           setIsRefreshing(false);
         }
-      }, [activeApiKey, loadFallbackVideos]);
+      }, [activeApiKey]);
 
-      // Synchronisation automatique et discrète au lancement du site
+      // Au lancement : on affiche d'abord immédiatement les vidéos de secours pour que
+      // l'utilisateur ait toujours du contenu à voir sans attendre, puis on lance en
+      // parallèle la synchronisation avec YouTube (API ou RSS) qui viendra compléter /
+      // remplacer ce catalogue de secours dès que les vraies données sont disponibles.
       useEffect(() => {
+        loadFallbackVideos();
         syncVideos();
-      }, [syncVideos]);
+      }, [syncVideos, loadFallbackVideos]);
 
       const handleAddVideo = async (e) => {
         e.preventDefault();
