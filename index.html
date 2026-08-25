@@ -365,11 +365,40 @@
     .admin-table th, .admin-table td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.08); font-size: 0.9rem; }
     .admin-table th { color: var(--text-muted); font-weight: 600; }
     .admin-table tr:hover { background: rgba(255,255,255,0.02); }
-    .btn-delete { background: rgba(229, 9, 20, 0.2); color: var(--zigou-red-bright); border: 1px solid var(--zigou-red); padding: 6px 12px; border-radius: 4px; font-weight: 600; font-size: 0.8rem; transition: all 0.2s; }
-    .btn-delete:hover { background: var(--zigou-red); color: #fff; }
     
     .secret-modal { background: #181818; padding: 30px; border-radius: 8px; max-width: 400px; width: 100%; text-align: center; }
     .secret-input { width: 100%; padding: 12px; background: #000; border: 1px solid #333; color: #fff; border-radius: 4px; margin: 16px 0; font-size: 1.1rem; text-align: center; }
+
+    /* SYNC BANNER */
+    .sync-banner {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      padding: 12px 18px; border-radius: 6px; margin: 0 4.5% 18px;
+      font-size: 0.85rem; font-weight: 600;
+    }
+    .sync-banner.error { background: rgba(229, 9, 20, 0.12); border: 1px solid rgba(229, 9, 20, 0.5); color: #ffb3b6; }
+    .sync-banner.info { background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255,255,255,0.15); color: var(--text-muted); }
+    .sync-banner .sync-banner-close { font-size: 1rem; opacity: 0.7; }
+    .sync-banner .sync-banner-close:hover { opacity: 1; }
+
+    /* ADMIN: API KEY + ADD VIDEO */
+    .admin-field-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 6px; }
+    .admin-input {
+      flex: 1; min-width: 220px; padding: 11px 14px; background: #000; border: 1px solid #333;
+      color: #fff; border-radius: 4px; font-size: 0.9rem;
+    }
+    .admin-input:focus { border-color: var(--zigou-red); }
+    .admin-hint { color: var(--text-dim); font-size: 0.78rem; margin-top: 8px; line-height: 1.5; }
+    .btn-admin-action {
+      background: var(--zigou-red); color: #fff; padding: 11px 20px; border-radius: 4px;
+      font-weight: 700; font-size: 0.85rem; white-space: nowrap; transition: var(--transition-smooth);
+    }
+    .btn-admin-action:hover { background: var(--zigou-red-bright); }
+    .btn-admin-action:disabled { opacity: 0.5; cursor: default; }
+    .admin-tag { display: inline-block; font-size: 0.68rem; font-weight: 700; padding: 2px 7px; border-radius: 3px; margin-left: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .admin-tag.manual { background: rgba(255,255,255,0.1); color: var(--text-muted); }
+    .admin-tag.api { background: rgba(46, 204, 113, 0.15); color: #6ee7a4; }
+    .admin-tag.rss { background: rgba(255, 193, 7, 0.15); color: #ffd166; }
+    .admin-form-error { color: var(--zigou-red-bright); font-size: 0.8rem; margin-top: 8px; }
 
     /* Tactile */
     @media (hover: none) {
@@ -594,8 +623,19 @@
     const CHANNEL_ID = "UCb14vXu5c-_c7VH7CJMNnXw";
     const RSS_URL = `https://www.youtube.com/feeds/videos.xml?channel_id=${CHANNEL_ID}`;
 
+    // Clé optionnelle "YouTube Data API v3". Si renseignée ici (ou via le panneau Admin),
+    // le site charge TOUT le catalogue de la chaîne avec les vraies statistiques de vues,
+    // sans passer par un proxy CORS tiers (bien plus fiable que le flux RSS ci-dessous).
+    // -> Google Cloud Console > APIs & Services > créer une clé > activer "YouTube Data API v3"
+    //    > restreindre la clé à votre nom de domaine (référents HTTP).
+    const YOUTUBE_API_KEY = "";
+
+    // Proxys CORS utilisés uniquement en secours (mode RSS), si aucune clé API n'est fournie.
+    // Le flux RSS public de YouTube ne renvoie que les ~15 dernières vidéos et ne fournit
+    // presque jamais de compteur de vues : c'est une solution de repli, pas la solution idéale.
     const CORS_PROXIES = [
       (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+      (url) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
       (url) => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
       (url) => `https://thingproxy.freeboard.io/fetch/${url}`,
     ];
@@ -692,6 +732,128 @@
 
       videos.sort((a, b) => new Date(b.published || 0) - new Date(a.published || 0));
       return videos;
+    }
+
+    /* ===================== CHARGEMENT VIA YOUTUBE DATA API (mode complet) ===================== */
+    // Convertit une durée ISO 8601 (ex : "PT1M32S") en secondes.
+    function isoDurationToSeconds(iso) {
+      if (!iso) return 0;
+      const m = /^PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$/.exec(iso);
+      if (!m) return 0;
+      const h = parseInt(m[1] || "0", 10);
+      const min = parseInt(m[2] || "0", 10);
+      const s = parseInt(m[3] || "0", 10);
+      return h * 3600 + min * 60 + s;
+    }
+
+    async function fetchChannelViaApi(apiKey, channelId) {
+      const base = "https://www.googleapis.com/youtube/v3";
+
+      const chRes = await fetchWithTimeout(`${base}/channels?part=contentDetails&id=${channelId}&key=${apiKey}`, 9000);
+      const chJson = await chRes.json();
+      if (chJson.error) throw new Error(chJson.error.message || "Erreur API YouTube (channels)");
+      const uploadsPlaylistId = chJson.items && chJson.items[0] && chJson.items[0].contentDetails
+        ? chJson.items[0].contentDetails.relatedPlaylists.uploads
+        : null;
+      if (!uploadsPlaylistId) throw new Error("Chaîne introuvable avec cette clé API");
+
+      // 1. Pagination sur la playlist "uploads" pour récupérer TOUTES les vidéos.
+      let items = [];
+      let pageToken = "";
+      let safety = 0;
+      do {
+        const url = `${base}/playlistItems?part=snippet,contentDetails&maxResults=50&playlistId=${uploadsPlaylistId}&key=${apiKey}${pageToken ? `&pageToken=${pageToken}` : ""}`;
+        const res = await fetchWithTimeout(url, 9000);
+        const json = await res.json();
+        if (json.error) throw new Error(json.error.message || "Erreur API YouTube (playlistItems)");
+        items = items.concat(json.items || []);
+        pageToken = json.nextPageToken || "";
+        safety += 1;
+      } while (pageToken && safety < 40);
+
+      const ids = items
+        .map((it) => it.contentDetails && it.contentDetails.videoId)
+        .filter(Boolean);
+
+      // 2. Récupération des statistiques + durée réelle (par lots de 50 = limite de l'API).
+      const statsById = new Map();
+      for (let i = 0; i < ids.length; i += 50) {
+        const batch = ids.slice(i, i + 50).join(",");
+        const res = await fetchWithTimeout(`${base}/videos?part=statistics,contentDetails&id=${batch}&key=${apiKey}`, 9000);
+        const json = await res.json();
+        if (json.error) throw new Error(json.error.message || "Erreur API YouTube (videos)");
+        (json.items || []).forEach((v) => statsById.set(v.id, v));
+      }
+
+      const seen = new Set();
+      const videos = [];
+      for (const it of items) {
+        const videoId = it.contentDetails && it.contentDetails.videoId;
+        if (!videoId || seen.has(videoId)) continue;
+
+        const stats = statsById.get(videoId);
+        const durationSec = stats ? isoDurationToSeconds(stats.contentDetails.duration) : 0;
+        const title = (it.snippet && it.snippet.title) || "Sans titre";
+
+        // Filtre anti-Shorts fiable : durée <= 60s ou hashtag #shorts dans le titre.
+        if ((durationSec > 0 && durationSec <= 60) || /#(shorts?)\b/i.test(title)) continue;
+        // YouTube place parfois des vidéos "privées"/"supprimées" en playlist : on les ignore.
+        if (title === "Private video" || title === "Deleted video") continue;
+
+        seen.add(videoId);
+        const snippet = it.snippet || {};
+        const thumbs = snippet.thumbnails || {};
+        const thumb = (thumbs.maxres || thumbs.standard || thumbs.high || thumbs.medium || thumbs.default || {}).url
+          || `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
+
+        videos.push({
+          id: videoId,
+          title,
+          desc: (snippet.description && snippet.description.trim()) || "Aucune description fournie pour cette vidéo.",
+          published: snippet.publishedAt || null,
+          views: stats ? parseInt(stats.statistics.viewCount || "0", 10) || 0 : 0,
+          thumb,
+          watchUrl: `https://www.youtube.com/watch?v=${videoId}`,
+          source: "api",
+        });
+      }
+
+      videos.sort((a, b) => new Date(b.published || 0) - new Date(a.published || 0));
+      return videos;
+    }
+
+    // Récupère les infos publiques (titre + miniature) d'une vidéo via oEmbed, sans clé API.
+    // Utilisé pour l'ajout manuel d'une vidéo dans le panneau Admin.
+    async function fetchVideoOEmbed(videoId) {
+      const url = `https://www.youtube.com/oembed?url=${encodeURIComponent(`https://www.youtube.com/watch?v=${videoId}`)}&format=json`;
+      const res = await fetchWithTimeout(url, 8000);
+      if (!res.ok) throw new Error("Vidéo introuvable ou privée");
+      const json = await res.json();
+      return {
+        id: videoId,
+        title: json.title || "Sans titre",
+        desc: "Vidéo ajoutée manuellement.",
+        published: new Date().toISOString(),
+        views: 0,
+        thumb: `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
+        watchUrl: `https://www.youtube.com/watch?v=${videoId}`,
+        source: "manual",
+      };
+    }
+
+    // Extrait un ID de vidéo YouTube (11 caractères) depuis une URL ou un ID brut.
+    function extractYoutubeId(input) {
+      if (!input) return null;
+      const trimmed = input.trim();
+      const patterns = [
+        /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/shorts\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+      ];
+      for (const p of patterns) {
+        const m = p.exec(trimmed);
+        if (m) return m[1];
+      }
+      if (/^[a-zA-Z0-9_-]{11}$/.test(trimmed)) return trimmed;
+      return null;
     }
 
     /* ===================== FORMATAGE ===================== */
@@ -1147,34 +1309,84 @@
       const [videos, setVideos] = useState([]);
       const [isRefreshing, setIsRefreshing] = useState(false);
       const [lastSync, setLastSync] = useState(null);
+      const [syncError, setSyncError] = useState(null);
+      const [syncMode, setSyncMode] = useState(null); // "api" | "rss"
+      const [apiKeyOverride, setApiKeyOverride] = useState("");
+      const [addVideoInput, setAddVideoInput] = useState("");
+      const [addVideoError, setAddVideoError] = useState("");
+      const [isAddingVideo, setIsAddingVideo] = useState(false);
+
+      const activeApiKey = (apiKeyOverride || YOUTUBE_API_KEY || "").trim();
 
       const syncVideos = useCallback(async () => {
         setIsRefreshing(true);
+        setSyncError(null);
         try {
-          const xml = await fetchChannelRSS();
-          const parsed = parseYoutubeRSS(xml);
-          setVideos((prev) => {
-            const map = new Map();
-            [...prev, ...parsed].forEach((v) => map.set(v.id, v));
-            const merged = Array.from(map.values());
-            merged.sort((a, b) => new Date(b.published || 0) - new Date(a.published || 0));
-            return merged;
-          });
+          if (activeApiKey) {
+            // Mode complet : catalogue entier + vraies statistiques via l'API officielle.
+            const parsed = await fetchChannelViaApi(activeApiKey, CHANNEL_ID);
+            setVideos((prev) => {
+              const manual = prev.filter((v) => v.source === "manual");
+              const map = new Map();
+              [...parsed, ...manual].forEach((v) => map.set(v.id, v));
+              const merged = Array.from(map.values());
+              merged.sort((a, b) => new Date(b.published || 0) - new Date(a.published || 0));
+              return merged;
+            });
+            setSyncMode("api");
+          } else {
+            // Mode de secours : flux RSS public (15 dernières vidéos, via proxy CORS).
+            const xml = await fetchChannelRSS();
+            const parsed = parseYoutubeRSS(xml);
+            setVideos((prev) => {
+              const map = new Map();
+              [...prev, ...parsed.map((v) => ({ ...v, source: v.source || "rss" }))].forEach((v) => map.set(v.id, v));
+              const merged = Array.from(map.values());
+              merged.sort((a, b) => new Date(b.published || 0) - new Date(a.published || 0));
+              return merged;
+            });
+            setSyncMode("rss");
+          }
           setLastSync(new Date());
         } catch (err) {
-          console.warn("Échec du chargement du flux YouTube:", err);
+          console.warn("Échec du chargement des vidéos YouTube:", err);
+          setSyncError(
+            activeApiKey
+              ? `Impossible de charger le catalogue via l'API YouTube (${err.message || "erreur inconnue"}).`
+              : "Impossible de contacter YouTube pour le moment (tous les proxys ont échoué). Réessayez dans quelques instants."
+          );
         } finally {
           setIsRefreshing(false);
         }
-      }, []);
+      }, [activeApiKey]);
 
       // Synchronisation automatique et discrète au lancement du site
       useEffect(() => {
         syncVideos();
       }, [syncVideos]);
 
-      const deleteVideo = (id) => {
-        setVideos((prev) => prev.filter((v) => v.id !== id));
+      const handleAddVideo = async (e) => {
+        e.preventDefault();
+        setAddVideoError("");
+        const videoId = extractYoutubeId(addVideoInput);
+        if (!videoId) {
+          setAddVideoError("Lien ou identifiant YouTube invalide. Exemple : https://www.youtube.com/watch?v=XXXXXXXXXXX");
+          return;
+        }
+        if (videos.some((v) => v.id === videoId)) {
+          setAddVideoError("Cette vidéo est déjà dans le catalogue.");
+          return;
+        }
+        setIsAddingVideo(true);
+        try {
+          const video = await fetchVideoOEmbed(videoId);
+          setVideos((prev) => [video, ...prev]);
+          setAddVideoInput("");
+        } catch (err) {
+          setAddVideoError(err.message || "Impossible de récupérer cette vidéo.");
+        } finally {
+          setIsAddingVideo(false);
+        }
       };
 
       const handlePassSubmit = (e) => {
@@ -1261,6 +1473,16 @@
             </div>
             <i className="fas fa-times nav-icon" onClick={() => setMobileSearchOpen(false)}></i>
           </div>
+
+          {syncError && currentTab !== "admin" && (
+            <div
+              className="sync-banner error"
+              style={{ marginTop: (currentTab !== "home" || searchTerm || heroMovies.length === 0) ? (isNarrow ? "80px" : "100px") : "90px" }}
+            >
+              <span><i className="fas fa-triangle-exclamation"></i> {syncError}</span>
+              <i className="fas fa-times sync-banner-close" onClick={() => setSyncError(null)}></i>
+            </div>
+          )}
 
           {currentTab === "home" && !searchTerm && heroMovies.length > 0 && (
             <div className="hero-carousel">
@@ -1351,6 +1573,47 @@
                     <h2 className="row-title" style={{ marginLeft: 0, marginBottom: 20 }}>
                       <i className="fas fa-cog"></i> Zone d'administration des vidéos
                     </h2>
+
+                    <div className="admin-card">
+                      <div className="admin-title"><i className="fas fa-key"></i> Source du catalogue</div>
+                      <div className="admin-field-row">
+                        <input
+                          type="text"
+                          className="admin-input"
+                          placeholder="Clé API YouTube Data v3 (optionnel, pour le catalogue complet)"
+                          value={apiKeyOverride}
+                          onChange={(e) => setApiKeyOverride(e.target.value)}
+                        />
+                        <button className="btn-admin-action" onClick={syncVideos} disabled={isRefreshing}>
+                          <i className={`fas fa-rotate-right ${isRefreshing ? "spinning" : ""}`}></i> Resynchroniser
+                        </button>
+                      </div>
+                      <p className="admin-hint">
+                        {syncMode === "api"
+                          ? <>Mode actif : <strong style={{ color: '#6ee7a4' }}>API YouTube</strong> — catalogue complet ({videos.filter(v => v.source !== 'manual').length} vidéos) avec vraies statistiques de vues.</>
+                          : <>Mode actif : <strong style={{ color: '#ffd166' }}>flux RSS</strong> — limité aux ~15 dernières vidéos publiques, sans compteur de vues fiable. Renseignez une clé API ci-dessus (gratuite sur Google Cloud Console, service "YouTube Data API v3") pour charger tout le catalogue avec de vraies statistiques.</>
+                        }
+                        {lastSync && <> Dernière synchro : {lastSync.toLocaleTimeString("fr-FR")}.</>}
+                      </p>
+                    </div>
+
+                    <div className="admin-card">
+                      <div className="admin-title"><i className="fas fa-plus-circle"></i> Ajouter une vidéo manuellement</div>
+                      <form className="admin-field-row" onSubmit={handleAddVideo}>
+                        <input
+                          type="text"
+                          className="admin-input"
+                          placeholder="URL YouTube ou identifiant (ex : https://www.youtube.com/watch?v=XXXXXXXXXXX)"
+                          value={addVideoInput}
+                          onChange={(e) => setAddVideoInput(e.target.value)}
+                        />
+                        <button className="btn-admin-action" type="submit" disabled={isAddingVideo || !addVideoInput.trim()}>
+                          {isAddingVideo ? <><i className="fas fa-circle-notch fa-spin"></i> Ajout…</> : <><i className="fas fa-plus"></i> Ajouter</>}
+                        </button>
+                      </form>
+                      {addVideoError && <p className="admin-form-error">{addVideoError}</p>}
+                      <p className="admin-hint">Utile pour ajouter une vidéo qui n'apparaît pas encore dans le flux RSS, ou une vidéo hors chaîne.</p>
+                    </div>
                     
                     <div className="admin-card">
                       <div className="admin-title"><i className="fas fa-list"></i> Gestion des contenus ({videos.length})</div>
@@ -1363,20 +1626,19 @@
                               <th>Aperçu</th>
                               <th>Titre</th>
                               <th>Date</th>
-                              <th>Actions</th>
                             </tr>
                           </thead>
                           <tbody>
                             {videos.map((vid) => (
                               <tr key={vid.id}>
                                 <td style={{ width: 80 }}><img src={vid.thumb} style={{ width: 60, height: 35, objectFit: 'cover', borderRadius: 3 }} /></td>
-                                <td>{vid.title}</td>
-                                <td>{formatDate(vid.published)}</td>
-                                <td style={{ width: 110 }}>
-                                  <button className="btn-delete" onClick={() => deleteVideo(vid.id)}>
-                                    <i className="fas fa-trash-alt"></i> Supprimer
-                                  </button>
+                                <td>
+                                  {vid.title}
+                                  {vid.source === "manual" && <span className="admin-tag manual">Manuel</span>}
+                                  {vid.source === "api" && <span className="admin-tag api">API</span>}
+                                  {vid.source === "rss" && <span className="admin-tag rss">RSS</span>}
                                 </td>
+                                <td>{formatDate(vid.published)}</td>
                               </tr>
                             ))}
                           </tbody>
