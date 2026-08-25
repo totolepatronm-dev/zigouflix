@@ -2,7 +2,10 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+  <meta name="theme-color" content="#0b0b0d">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Zigouflix - Streaming Ultra HD Gold</title>
 
   <!-- CDN React, ReactDOM, Babel & FontAwesome -->
@@ -38,6 +41,8 @@
       font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       overflow-x: hidden;
       -webkit-font-smoothing: antialiased;
+      overscroll-behavior-y: none;
+      -webkit-text-size-adjust: 100%;
     }
 
     button { cursor: pointer; border: none; background: none; color: inherit; font-family: inherit; }
@@ -92,27 +97,49 @@
     .search-box {
       display: flex;
       align-items: center;
-      background: rgba(0, 0, 0, 0.55);
-      border: 1px solid rgba(255, 255, 255, 0.35);
-      padding: 8px 14px;
-      border-radius: 3px;
+      gap: 10px;
+      background: rgba(18, 18, 20, 0.65);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      padding: 9px 14px;
+      border-radius: 24px;
       transition: var(--transition-smooth);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+    }
+    .search-box:hover {
+      border-color: rgba(255,255,255,0.32);
     }
     .search-box:focus-within {
-      border-color: rgba(255,255,255,0.9);
-      background: rgba(0, 0, 0, 0.85);
+      border-color: var(--zigou-red-bright);
+      background: rgba(10, 10, 11, 0.92);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5), 0 0 0 3px rgba(229, 9, 20, 0.16);
     }
+    .search-box .fa-search {
+      font-size: 0.85rem;
+      transition: color 0.25s;
+      flex-shrink: 0;
+    }
+    .search-box:focus-within .fa-search { color: var(--zigou-red-bright) !important; }
     .search-box input {
       background: transparent;
       border: none;
       color: #fff;
-      margin-left: 10px;
       font-size: 0.9rem;
-      width: 150px;
-      transition: width 0.3s ease;
+      width: 140px;
+      letter-spacing: 0.1px;
+      transition: width 0.35s cubic-bezier(0.2,0.8,0.2,1);
     }
-    .search-box input:focus { width: 220px; }
-    .search-box input::placeholder { color: #aaa; }
+    .search-box input:focus { width: 230px; }
+    .search-box input::placeholder { color: #999; font-weight: 400; }
+    .search-clear {
+      display: flex; align-items: center; justify-content: center;
+      width: 20px; height: 20px; border-radius: 50%;
+      color: #bbb; font-size: 0.7rem; flex-shrink: 0;
+      background: rgba(255,255,255,0.1);
+      transition: background 0.2s, color 0.2s, transform 0.15s;
+    }
+    .search-clear:hover { background: rgba(255,255,255,0.22); color: #fff; transform: scale(1.08); }
 
     .nav-icon { font-size: 1.15rem; opacity: 0.9; transition: opacity 0.2s; cursor: pointer; }
     .nav-icon:hover { opacity: 1; }
@@ -140,8 +167,21 @@
     .refresh-btn i.spinning { animation: spin 1s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    .nav-hamburger, .mobile-search-toggle { display: none; font-size: 1.25rem; }
+    .nav-hamburger, .mobile-search-toggle { display: none; font-size: 1.1rem; }
+    .nav-hamburger, .mobile-search-toggle {
+      width: 38px; height: 38px; border-radius: 50%;
+      align-items: center; justify-content: center;
+      background: rgba(255,255,255,0.08);
+      transition: background 0.2s;
+    }
+    .nav-hamburger:hover, .mobile-search-toggle:hover { background: rgba(255,255,255,0.16); }
     .mobile-search-overlay { display: none; }
+    .mobile-search-cancel {
+      font-size: 0.88rem; color: var(--text-muted); font-weight: 600;
+      white-space: nowrap; padding: 6px 4px; flex-shrink: 0;
+      transition: color 0.2s;
+    }
+    .mobile-search-cancel:hover { color: #fff; }
 
     /* HERO */
     .hero-carousel {
@@ -415,11 +455,13 @@
     /* Tactile */
     @media (hover: none) {
       .card-container { height: auto; }
-      .card, .card.expanded { position: relative; width: 100%; height: auto; top: 0; left: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-      .card-img, .card.expanded .card-img { height: 150px; }
+      .card, .card.expanded { position: relative; width: 100%; height: auto; top: 0; left: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.5); border-radius: 6px; }
+      .card-img, .card.expanded .card-img { height: 150px; border-radius: 6px 6px 0 0; }
       .card-preview { display: none; }
-      .card-body, .card.expanded .card-body { position: relative; opacity: 1; transform: none; height: auto; padding: 10px 4px 4px 4px; }
+      .card-body, .card.expanded .card-body { position: relative; opacity: 1; transform: none; height: auto; padding: 10px 6px 8px 6px; }
       .card-tags { -webkit-line-clamp: 2; }
+      .icon-btn { width: 36px; height: 36px; font-size: 0.85rem; }
+      .icon-btn-play { width: 40px; height: 40px; }
     }
 
     /* INFO MODAL */
@@ -507,99 +549,132 @@
 
     .player-loading, .player-buffering {
       position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); z-index: 4;
-      width: 56px; height: 56px; border-radius: 50%;
-      border: 3px solid rgba(255,255,255,0.15); border-top-color: var(--zigou-red-bright);
-      animation: playerSpin 0.85s linear infinite;
+      width: 54px; height: 54px; border-radius: 50%;
+      border: 3px solid rgba(255,255,255,0.12); border-top-color: var(--zigou-red-bright);
+      border-right-color: var(--zigou-red-bright);
+      animation: playerSpin 0.8s cubic-bezier(0.5,0.15,0.5,0.85) infinite;
+      box-shadow: 0 0 24px rgba(229,9,20,0.25);
     }
     @keyframes playerSpin { to { transform: translate(-50%,-50%) rotate(360deg); } }
 
     .player-top-bar {
-      position: relative; z-index: 10; display: flex; align-items: center; gap: 20px;
-      padding: 24px 40px 60px; background: linear-gradient(180deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.5) 45%, transparent 100%);
-      transition: opacity 0.35s;
+      position: relative; z-index: 10; display: flex; align-items: center; gap: 18px;
+      padding: calc(22px + env(safe-area-inset-top)) 40px 70px 40px;
+      background: linear-gradient(180deg, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.55) 50%, transparent 100%);
+      transition: opacity 0.35s, transform 0.35s;
     }
     .back-btn {
-      font-size: 1.25rem; color: #fff; transition: background 0.2s, transform 0.15s;
-      flex-shrink: 0; width: 42px; height: 42px; border-radius: 50%;
+      font-size: 1.15rem; color: #fff; transition: background 0.2s, transform 0.15s, border-color 0.2s;
+      flex-shrink: 0; width: 44px; height: 44px; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
       background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.1);
+      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
     }
-    .back-btn:hover { background: rgba(255,255,255,0.18); transform: scale(1.06); }
+    .back-btn:hover { background: rgba(255,255,255,0.2); transform: scale(1.06); border-color: rgba(255,255,255,0.3); }
+    .back-btn:active { transform: scale(0.94); }
 
-    .player-title-block { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
-    .player-movie-title { font-size: 1.35rem; font-weight: 700; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; letter-spacing: 0.2px; text-shadow: 0 2px 8px rgba(0,0,0,0.5); }
-    .player-movie-meta { display: flex; gap: 10px; align-items: center; font-size: 0.78rem; color: #c2c2c2; flex-wrap: wrap; }
+    .player-title-block { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+    .player-movie-title { font-size: 1.3rem; font-weight: 800; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; letter-spacing: 0.1px; text-shadow: 0 2px 10px rgba(0,0,0,0.6); }
+    .player-movie-meta { display: flex; gap: 10px; align-items: center; font-size: 0.78rem; color: #c9c9c9; flex-wrap: wrap; }
     .player-movie-meta span:not(:last-child)::after { content: "•"; margin-left: 10px; color: #666; }
 
     .player-next-btn {
       margin-left: auto; display: flex; align-items: center; gap: 10px;
-      background: rgba(255,255,255,0.1); padding: 11px 20px; border-radius: 24px;
-      font-size: 0.88rem; font-weight: 600; transition: background 0.2s, transform 0.15s; flex-shrink: 0;
-      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.1); padding: 12px 22px; border-radius: 24px;
+      font-size: 0.86rem; font-weight: 700; transition: background 0.2s, transform 0.15s, border-color 0.2s; flex-shrink: 0;
+      border: 1px solid rgba(255,255,255,0.16);
+      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
     }
-    .player-next-btn:hover { background: rgba(255,255,255,0.2); transform: translateY(-1px); }
+    .player-next-btn:hover { background: var(--zigou-red); border-color: var(--zigou-red); transform: translateY(-1px); box-shadow: 0 6px 18px rgba(229,9,20,0.35); }
+    .player-next-btn:active { transform: translateY(0) scale(0.97); }
 
     .player-controls-bottom {
-      position: relative; z-index: 10; padding: 50px 40px 30px 40px;
-      background: linear-gradient(0deg, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.6) 55%, transparent 100%);
-      display: flex; flex-direction: column; gap: 14px; transition: opacity 0.35s;
+      position: relative; z-index: 10;
+      padding: 70px 40px calc(26px + env(safe-area-inset-bottom)) 40px;
+      background: linear-gradient(0deg, rgba(0,0,0,0.94) 0%, rgba(0,0,0,0.65) 60%, transparent 100%);
+      display: flex; flex-direction: column; gap: 16px; transition: opacity 0.35s, transform 0.35s;
     }
 
     .progress-bar-container {
-      width: 100%; height: 4px; background: rgba(255, 255, 255, 0.22); border-radius: 3px;
-      cursor: pointer; position: relative; transition: height 0.14s; padding: 12px 0; margin: -12px 0; background-clip: content-box;
+      width: 100%; height: 5px; background: rgba(255, 255, 255, 0.18); border-radius: 3px;
+      cursor: pointer; position: relative; transition: height 0.14s; padding: 14px 0; margin: -14px 0; background-clip: content-box;
     }
-    .progress-bar-container:hover { height: 6px; }
+    .progress-bar-container:hover, .progress-bar-container.scrubbing { height: 7px; }
 
     .progress-bar-buffered {
-      position: absolute; left: 0; top: 12px; height: 4px; background: rgba(255,255,255,0.35); border-radius: 3px;
+      position: absolute; left: 0; top: 14px; height: 5px; background: rgba(255,255,255,0.3); border-radius: 3px;
       transition: width 0.25s, height 0.14s; pointer-events: none;
     }
-    .progress-bar-container:hover .progress-bar-buffered { height: 6px; }
+    .progress-bar-container:hover .progress-bar-buffered { height: 7px; }
 
     .progress-bar-fill {
-      height: 100%; background: var(--zigou-red-bright); border-radius: 3px; position: relative;
-      box-shadow: 0 0 8px rgba(255, 31, 46, 0.5);
+      height: 100%; border-radius: 3px; position: relative;
+      background: linear-gradient(90deg, var(--zigou-red) 0%, var(--zigou-red-bright) 100%);
+      box-shadow: 0 0 10px rgba(255, 31, 46, 0.55);
     }
 
     .progress-bar-scrubber {
-      position: absolute; right: -6px; top: 50%; transform: translateY(-50%) scale(0);
-      width: 14px; height: 14px; background: #fff; border-radius: 50%;
-      box-shadow: 0 0 0 4px rgba(255, 31, 46, 0.25), 0 2px 6px rgba(0,0,0,0.5); transition: transform 0.14s;
+      position: absolute; right: -7px; top: 50%; transform: translateY(-50%) scale(0);
+      width: 15px; height: 15px; background: #fff; border-radius: 50%;
+      box-shadow: 0 0 0 5px rgba(255, 31, 46, 0.22), 0 2px 8px rgba(0,0,0,0.5); transition: transform 0.14s;
     }
-    .progress-bar-container:hover .progress-bar-scrubber { transform: translateY(-50%) scale(1); }
+    .progress-bar-container:hover .progress-bar-scrubber,
+    .progress-bar-container.scrubbing .progress-bar-scrubber { transform: translateY(-50%) scale(1); }
 
     .progress-hover-preview {
-      position: absolute; bottom: 100%; transform: translateX(-50%); margin-bottom: 14px;
-      background: rgba(20,20,20,0.95); color: #fff; font-size: 0.75rem; font-weight: 600;
-      padding: 4px 9px; border-radius: 4px; pointer-events: none; white-space: nowrap;
-      border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      position: absolute; bottom: 100%; transform: translateX(-50%); margin-bottom: 16px;
+      background: rgba(15,15,15,0.96); color: #fff; font-size: 0.75rem; font-weight: 700;
+      padding: 5px 10px; border-radius: 6px; pointer-events: none; white-space: nowrap;
+      border: 1px solid rgba(255,255,255,0.14); box-shadow: 0 6px 16px rgba(0,0,0,0.5);
+      font-variant-numeric: tabular-nums;
+    }
+    .progress-hover-preview::after {
+      content: ""; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+      border: 5px solid transparent; border-top-color: rgba(15,15,15,0.96);
     }
 
     .controls-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-    .controls-left, .controls-right { display: flex; align-items: center; gap: 6px; }
+    .controls-left, .controls-right { display: flex; align-items: center; gap: 4px; }
 
     .control-btn {
-      color: #fff; font-size: 1.15rem; transition: background 0.15s, transform 0.15s;
-      width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 1.1rem; transition: background 0.15s, transform 0.15s, color 0.15s;
+      width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
     }
-    .control-btn:hover { background: rgba(255,255,255,0.12); transform: scale(1.05); }
-    .control-btn.control-btn-play { font-size: 1.35rem; }
+    .control-btn:hover { background: rgba(255,255,255,0.14); transform: scale(1.08); }
+    .control-btn:active { transform: scale(0.94); background: rgba(255,255,255,0.2); }
 
-    .volume-container { display: flex; align-items: center; gap: 4px; padding: 0 4px 0 0; }
-    .volume-container:hover .volume-slider { width: 84px; opacity: 1; margin-left: 6px; }
+    .control-btn-play {
+      font-size: 1.15rem; width: 48px; height: 48px;
+      background: #fff; color: #000; margin-right: 4px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+    }
+    .control-btn-play:hover { background: #fff; color: #000; transform: scale(1.06); box-shadow: 0 6px 18px rgba(0,0,0,0.45); }
+    .control-btn-play:active { transform: scale(0.95); }
+    .control-btn-play i { margin-left: 1px; }
+
+    .speed-btn {
+      font-size: 0.78rem; font-weight: 800; width: auto; padding: 0 11px;
+      border-radius: 18px; letter-spacing: 0.2px;
+      border: 1px solid rgba(255,255,255,0.16);
+    }
+    .speed-btn:hover { border-color: rgba(255,255,255,0.4); }
+
+    .volume-container { display: flex; align-items: center; gap: 2px; padding: 0 4px 0 0; }
+    .volume-container:hover .volume-slider,
+    .volume-container.volume-active .volume-slider { width: 90px; opacity: 1; margin-left: 8px; }
     .volume-slider {
       width: 0; opacity: 0; cursor: pointer; -webkit-appearance: none; appearance: none;
-      height: 4px; background: rgba(255,255,255,0.25); border-radius: 3px; transition: width 0.25s, opacity 0.25s, margin-left 0.25s;
+      height: 4px; border-radius: 3px; transition: width 0.25s, opacity 0.25s, margin-left 0.25s;
     }
     .volume-slider::-webkit-slider-thumb {
-      -webkit-appearance: none; width: 12px; height: 12px; border-radius: 50%;
-      background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.5); cursor: pointer;
+      -webkit-appearance: none; width: 13px; height: 13px; border-radius: 50%;
+      background: #fff; box-shadow: 0 1px 5px rgba(0,0,0,0.5); cursor: pointer; margin-top: 0;
     }
     .volume-slider::-moz-range-thumb {
-      width: 12px; height: 12px; border-radius: 50%; background: #fff; border: none;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.5); cursor: pointer;
+      width: 13px; height: 13px; border-radius: 50%; background: #fff; border: none;
+      box-shadow: 0 1px 5px rgba(0,0,0,0.5); cursor: pointer;
     }
     .volume-slider::-webkit-slider-runnable-track { background: transparent; }
     .volume-slider::-moz-range-track { background: transparent; }
@@ -623,36 +698,44 @@
     }
 
     @media (max-width: 760px) {
-      .navbar { padding: 12px 4.5%; }
+      .navbar { padding: calc(12px + env(safe-area-inset-top)) 4.5% 12px 4.5%; }
       .nav-left { gap: 16px; }
       .logo { font-size: 1.7rem; }
-      .nav-hamburger { display: block; }
+      .nav-hamburger { display: flex; }
       .search-box { display: none; }
-      .mobile-search-toggle { display: block; }
+      .mobile-search-toggle { display: flex; }
       .refresh-btn span { display: none; }
-      .refresh-btn { padding: 8px; border-radius: 50%; }
+      .refresh-btn { padding: 9px; border-radius: 50%; }
+      .nav-right { gap: 10px; }
 
       .nav-links.mobile-open {
         display: flex; flex-direction: column; gap: 0;
-        position: fixed; top: 58px; left: 0; width: 100%;
+        position: fixed; top: calc(58px + env(safe-area-inset-top)); left: 0; width: 100%;
         background: rgba(11,11,13,0.98);
-        padding: 6px 6% 14px 6%;
+        padding: 6px 6% calc(14px + env(safe-area-inset-bottom)) 6%;
         border-bottom: 1px solid rgba(255,255,255,0.08);
+        animation: navDropIn 0.2s ease;
+        box-shadow: 0 12px 24px rgba(0,0,0,0.4);
       }
-      .nav-links.mobile-open .nav-item { padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.06); opacity: 1; }
+      @keyframes navDropIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+      .nav-links.mobile-open .nav-item { padding: 14px 2px; border-bottom: 1px solid rgba(255,255,255,0.06); opacity: 1; font-size: 0.98rem; }
 
       .mobile-search-overlay.open {
         display: flex; position: fixed; top: 0; left: 0; width: 100%; z-index: 1001;
-        background: rgba(11,11,13,0.98); padding: 14px 4.5%; align-items: center; gap: 12px;
+        background: rgba(11,11,13,0.98); padding: calc(14px + env(safe-area-inset-top)) 4.5% 14px 4.5%;
+        align-items: center; gap: 10px;
+        animation: searchOverlayIn 0.22s ease;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
       }
-      .mobile-search-overlay .search-box { display: flex; flex: 1; }
-      .mobile-search-overlay .search-box input { width: 100%; }
+      @keyframes searchOverlayIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+      .mobile-search-overlay .search-box { display: flex; flex: 1; border-radius: 12px; padding: 11px 14px; }
+      .mobile-search-overlay .search-box input { width: 100%; font-size: 0.95rem; }
       .mobile-search-overlay .search-box input:focus { width: 100%; }
 
-      .hero-carousel { height: 78vh; height: calc(var(--vh, 1vh) * 78); }
+      .hero-carousel { height: 82vh; height: calc(var(--vh, 1vh) * 82); min-height: 480px; }
       .hero-title { font-size: 2.1rem; }
-      .hero-desc { font-size: 0.95rem; -webkit-line-clamp: 2; margin-bottom: 20px; }
-      .hero-content { max-width: 100%; padding: 0 5.5%; padding-bottom: 12%; }
+      .hero-desc { font-size: 0.92rem; line-height: 1.45; -webkit-line-clamp: 3; margin-bottom: 20px; }
+      .hero-content { max-width: 100%; padding: 0 5.5%; padding-bottom: calc(12% + env(safe-area-inset-bottom)); }
       .hero-badges { margin-bottom: 10px; }
       .hero-meta { font-size: 0.82rem; gap: 8px; margin-bottom: 10px; }
       .hero-btns { gap: 10px; }
@@ -667,25 +750,34 @@
       .card-title-text { font-size: 0.85rem; }
       .card-tags { font-size: 0.72rem; }
       .card-info { font-size: 0.68rem; }
-      .icon-btn { width: 30px; height: 30px; font-size: 0.8rem; }
+      .icon-btn { width: 34px; height: 34px; font-size: 0.82rem; }
 
-      .modal-body { padding: 18px 20px 30px 20px; }
-      .modal-hero-title { font-size: 1.3rem; left: 20px; right: 70px; bottom: 16px; }
-      .modal-hero-btns { right: 20px; bottom: 16px; gap: 8px; }
+      .modal-overlay { padding: 0; align-items: flex-end; }
+      .modal-box { max-width: 100%; border-radius: 14px 14px 0 0; max-height: 92vh; overflow-y: auto; animation: modalSheetIn 0.28s cubic-bezier(0.2,0.8,0.2,1); }
+      @keyframes modalSheetIn { from { transform: translateY(24px); opacity: 0.6; } to { transform: translateY(0); opacity: 1; } }
+      .modal-body { padding: 18px 20px calc(30px + env(safe-area-inset-bottom)) 20px; }
+      .modal-hero-title { font-size: 1.25rem; left: 18px; right: 64px; bottom: 16px; }
+      .modal-hero-btns { right: 18px; bottom: 16px; gap: 8px; }
       .modal-close { top: 10px; right: 10px; }
 
-      .player-top-bar { padding: 16px 16px 40px; gap: 12px; }
-      .back-btn { width: 36px; height: 36px; font-size: 1.1rem; }
-      .player-movie-title { font-size: 1rem; }
-      .player-movie-meta { font-size: 0.7rem; }
+      .player-top-bar { padding: calc(14px + env(safe-area-inset-top)) 14px 44px 14px; gap: 10px; }
+      .back-btn { width: 40px; height: 40px; font-size: 1.05rem; }
+      .player-movie-title { font-size: 0.98rem; }
+      .player-movie-meta { font-size: 0.68rem; }
       .player-next-btn span { display: none; }
-      .player-next-btn { padding: 10px 12px; }
-      .player-controls-bottom { padding: 30px 16px 22px 16px; gap: 12px; }
-      .control-btn { width: 36px; height: 36px; font-size: 1.35rem; }
-      .control-btn.control-btn-play { font-size: 1.5rem; }
-      .controls-left, .controls-right { gap: 2px; }
-      .volume-container .volume-slider { width: 50px; opacity: 1; margin-left: 4px; }
-      .time-display { font-size: 0.72rem; min-width: 78px; }
+      .player-next-btn { padding: 11px; width: 40px; height: 40px; border-radius: 50%; justify-content: center; }
+      .player-controls-bottom { padding: 36px 14px calc(18px + env(safe-area-inset-bottom)) 14px; gap: 14px; }
+      .control-btn { width: 40px; height: 40px; font-size: 1.2rem; }
+      .control-btn-play { width: 46px; height: 46px; font-size: 1.05rem; }
+      .controls-left, .controls-right { gap: 0; }
+      .volume-container .volume-slider { width: 0; }
+      .volume-container.volume-active .volume-slider { width: 64px; opacity: 1; margin-left: 6px; }
+      .speed-btn { font-size: 0.72rem; padding: 0 9px; }
+      .time-display { font-size: 0.72rem; min-width: 74px; }
+      .progress-bar-container { padding: 16px 0; margin: -16px 0; }
+      .seek-flash { width: 62px; height: 62px; }
+      .seek-flash i { font-size: 1.05rem; }
+      .center-flash { width: 68px; height: 68px; font-size: 1.5rem; }
     }
 
     @media (max-width: 420px) {
@@ -1036,8 +1128,11 @@
       const [centerFlash, setCenterFlash] = useState(null);
       const [buffered, setBuffered] = useState(0);
       const [hoverPreview, setHoverPreview] = useState(null);
+      const [isScrubbing, setIsScrubbing] = useState(false);
+      const [playbackRate, setPlaybackRate] = useState(1);
       const hideControlsTimeout = useRef(null);
       const lastTapRef = useRef({ time: 0, zone: null });
+      const progressRef = useRef(null);
       const isTouch = useMediaQuery("(hover: none)");
 
       useEffect(() => {
@@ -1099,14 +1194,20 @@
         setTimeout(() => setCenterFlash(null), 550);
       }, []);
 
-      const handleSeek = (e) => {
-        const rect = e.currentTarget.getBoundingClientRect();
-        const clickPosition = (e.clientX - rect.left) / rect.width;
-        const targetTime = Math.max(0, Math.min(1, clickPosition)) * duration;
-        if (playerRef.current) {
-          playerRef.current.seekTo(targetTime, true);
-          setCurrentTime(targetTime);
-        }
+      const seekToClientX = useCallback((clientX) => {
+        if (!progressRef.current || !duration) return null;
+        const rect = progressRef.current.getBoundingClientRect();
+        const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+        const targetTime = ratio * duration;
+        if (playerRef.current) playerRef.current.seekTo(targetTime, true);
+        setCurrentTime(targetTime);
+        return ratio;
+      }, [duration]);
+
+      const handleProgressPointerDown = (e) => {
+        setIsScrubbing(true);
+        seekToClientX(e.clientX);
+        showControlsTemporarily();
       };
 
       const handleProgressHover = (e) => {
@@ -1115,6 +1216,26 @@
         const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
         setHoverPreview({ percent: ratio * 100, time: ratio * duration });
       };
+
+      useEffect(() => {
+        if (!isScrubbing) return;
+        const handleMove = (e) => {
+          const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+          const ratio = seekToClientX(clientX);
+          if (ratio != null && duration) setHoverPreview({ percent: ratio * 100, time: ratio * duration });
+        };
+        const handleUp = () => { setIsScrubbing(false); setHoverPreview(null); };
+        window.addEventListener("pointermove", handleMove);
+        window.addEventListener("pointerup", handleUp);
+        window.addEventListener("touchmove", handleMove, { passive: true });
+        window.addEventListener("touchend", handleUp);
+        return () => {
+          window.removeEventListener("pointermove", handleMove);
+          window.removeEventListener("pointerup", handleUp);
+          window.removeEventListener("touchmove", handleMove);
+          window.removeEventListener("touchend", handleUp);
+        };
+      }, [isScrubbing, seekToClientX, duration]);
 
       const handleSkip = useCallback((seconds) => {
         if (playerRef.current) {
@@ -1150,6 +1271,14 @@
         if (!document.fullscreenElement) elem.requestFullscreen().catch(() => {});
         else document.exitFullscreen();
       }, []);
+
+      const cyclePlaybackRate = useCallback(() => {
+        const speeds = [0.5, 0.75, 1, 1.25, 1.5, 2];
+        const idx = speeds.indexOf(playbackRate);
+        const next = speeds[(idx + 1) % speeds.length];
+        setPlaybackRate(next);
+        if (playerRef.current && playerRef.current.setPlaybackRate) playerRef.current.setPlaybackRate(next);
+      }, [playbackRate]);
 
       const changeVolume = useCallback((delta) => {
         if (!playerRef.current) return;
@@ -1283,10 +1412,11 @@
 
           <div className="player-controls-bottom" style={{ opacity: controlsVisible ? 1 : 0, pointerEvents: controlsVisible ? "auto" : "none" }}>
             <div
-              className="progress-bar-container"
-              onClick={handleSeek}
-              onMouseMove={handleProgressHover}
-              onMouseLeave={() => setHoverPreview(null)}
+              ref={progressRef}
+              className={`progress-bar-container ${isScrubbing ? "scrubbing" : ""}`}
+              onPointerDown={handleProgressPointerDown}
+              onMouseMove={!isTouch ? handleProgressHover : undefined}
+              onMouseLeave={() => !isScrubbing && setHoverPreview(null)}
             >
               <div className="progress-bar-buffered" style={{ width: `${Math.max(buffered * 100, progressPercent)}%` }}></div>
               <div className="progress-bar-fill" style={{ width: `${progressPercent}%` }}>
@@ -1313,16 +1443,32 @@
                 <button className="control-btn" onClick={onNext} title="Suivant">
                   <i className="fas fa-step-forward"></i>
                 </button>
-                <div className="volume-container">
-                  <button className="control-btn" onClick={toggleMute}>
+                {!isTouch && (
+                  <div className="volume-container">
+                    <button className="control-btn" onClick={toggleMute} title={isMuted ? "Activer le son" : "Couper le son"}>
+                      <i className={isMuted || volume === 0 ? "fas fa-volume-mute" : volume < 50 ? "fas fa-volume-down" : "fas fa-volume-up"}></i>
+                    </button>
+                    <input
+                      type="range" min="0" max="100"
+                      value={isMuted ? 0 : volume}
+                      onChange={handleVolumeChange}
+                      className="volume-slider"
+                      style={{ background: `linear-gradient(to right, var(--zigou-red-bright) ${isMuted ? 0 : volume}%, rgba(255,255,255,0.28) ${isMuted ? 0 : volume}%)` }}
+                    />
+                  </div>
+                )}
+                {isTouch && (
+                  <button className="control-btn" onClick={toggleMute} title={isMuted ? "Activer le son" : "Couper le son"}>
                     <i className={isMuted || volume === 0 ? "fas fa-volume-mute" : volume < 50 ? "fas fa-volume-down" : "fas fa-volume-up"}></i>
                   </button>
-                  <input type="range" min="0" max="100" value={isMuted ? 0 : volume} onChange={handleVolumeChange} className="volume-slider" />
-                </div>
+                )}
                 <div className="time-display">{formatTime(currentTime)} / {formatTime(duration)}</div>
               </div>
 
               <div className="controls-right">
+                <button className="control-btn speed-btn" onClick={cyclePlaybackRate} title="Vitesse de lecture">
+                  {playbackRate}x
+                </button>
                 <button className="control-btn" onClick={toggleFullscreen} title="Plein écran">
                   <i className="fas fa-expand"></i>
                 </button>
@@ -1648,6 +1794,11 @@
               <div className="search-box">
                 <i className="fas fa-search" style={{ color: "#aaa" }}></i>
                 <input type="text" placeholder="Titres, mots-clés" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+                {searchTerm && (
+                  <button className="search-clear" onClick={() => setSearchTerm("")} title="Effacer la recherche">
+                    <i className="fas fa-times"></i>
+                  </button>
+                )}
               </div>
               <i className="fas fa-search nav-icon mobile-search-toggle" onClick={() => setMobileSearchOpen(true)}></i>
               <div className="avatar">Z</div>
@@ -1657,9 +1808,14 @@
           <div className={`mobile-search-overlay ${mobileSearchOpen ? "open" : ""}`}>
             <div className="search-box">
               <i className="fas fa-search" style={{ color: "#aaa" }}></i>
-              <input autoFocus type="text" placeholder="Titres, mots-clés" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+              <input autoFocus={mobileSearchOpen} type="text" placeholder="Titres, mots-clés" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+              {searchTerm && (
+                <button className="search-clear" onClick={() => setSearchTerm("")} title="Effacer la recherche">
+                  <i className="fas fa-times"></i>
+                </button>
+              )}
             </div>
-            <i className="fas fa-times nav-icon" onClick={() => setMobileSearchOpen(false)}></i>
+            <span className="mobile-search-cancel" onClick={() => { setMobileSearchOpen(false); setSearchTerm(""); }}>Annuler</span>
           </div>
 
           {currentTab === "home" && !searchTerm && heroMovies.length > 0 && (
