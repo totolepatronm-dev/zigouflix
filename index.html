@@ -630,6 +630,17 @@
     //    > restreindre la clé à votre nom de domaine (référents HTTP).
     const YOUTUBE_API_KEY = "";
 
+    // Vidéos de secours : si la synchronisation (API ou RSS) échoue ou ne renvoie rien,
+    // ces vidéos sont chargées automatiquement pour que le catalogue ne reste jamais vide.
+    const FALLBACK_VIDEO_URLS = [
+      "https://www.youtube.com/watch?v=WQrmiOMZrRk",
+      "https://www.youtube.com/watch?v=XpdAJHyo_PU",
+      "https://www.youtube.com/watch?v=3imnQO1MM_k",
+      "https://www.youtube.com/watch?v=F5ffp2CP8rk",
+      "https://www.youtube.com/watch?v=0dcY-benLkU",
+      "https://www.youtube.com/watch?v=NlNzSz9iNrM",
+    ];
+
     // Proxys CORS utilisés uniquement en secours (mode RSS), si aucune clé API n'est fournie.
     // Le flux RSS public de YouTube ne renvoie que les ~15 dernières vidéos et ne fournit
     // presque jamais de compteur de vues : c'est une solution de repli, pas la solution idéale.
@@ -854,6 +865,20 @@
       }
       if (/^[a-zA-Z0-9_-]{11}$/.test(trimmed)) return trimmed;
       return null;
+    }
+
+    // Charge les vidéos de secours (FALLBACK_VIDEO_URLS) via oEmbed, une par une,
+    // en ignorant celles qui échouent (privée/supprimée) sans bloquer les autres.
+    async function fetchFallbackVideos() {
+      const ids = FALLBACK_VIDEO_URLS.map(extractYoutubeId).filter(Boolean);
+      const results = await Promise.all(
+        ids.map((id) =>
+          fetchVideoOEmbed(id)
+            .then((v) => ({ ...v, source: "fallback" }))
+            .catch(() => null)
+        )
+      );
+      return results.filter(Boolean);
     }
 
     /* ===================== FORMATAGE ===================== */
@@ -1318,13 +1343,32 @@
 
       const activeApiKey = (apiKeyOverride || YOUTUBE_API_KEY || "").trim();
 
+      const loadFallbackVideos = useCallback(async () => {
+        try {
+          const fallback = await fetchFallbackVideos();
+          if (fallback.length === 0) return;
+          setVideos((prev) => {
+            const map = new Map();
+            [...fallback, ...prev].forEach((v) => map.set(v.id, v));
+            const merged = Array.from(map.values());
+            merged.sort((a, b) => new Date(b.published || 0) - new Date(a.published || 0));
+            return merged;
+          });
+          setSyncMode((prevMode) => prevMode || "fallback");
+        } catch (fallbackErr) {
+          console.warn("Échec du chargement des vidéos de secours:", fallbackErr);
+        }
+      }, []);
+
       const syncVideos = useCallback(async () => {
         setIsRefreshing(true);
         setSyncError(null);
+        let gotAnyVideo = false;
         try {
           if (activeApiKey) {
             // Mode complet : catalogue entier + vraies statistiques via l'API officielle.
             const parsed = await fetchChannelViaApi(activeApiKey, CHANNEL_ID);
+            gotAnyVideo = parsed.length > 0;
             setVideos((prev) => {
               const manual = prev.filter((v) => v.source === "manual");
               const map = new Map();
@@ -1338,6 +1382,7 @@
             // Mode de secours : flux RSS public (15 dernières vidéos, via proxy CORS).
             const xml = await fetchChannelRSS();
             const parsed = parseYoutubeRSS(xml);
+            gotAnyVideo = parsed.length > 0;
             setVideos((prev) => {
               const map = new Map();
               [...prev, ...parsed.map((v) => ({ ...v, source: v.source || "rss" }))].forEach((v) => map.set(v.id, v));
@@ -1348,17 +1393,19 @@
             setSyncMode("rss");
           }
           setLastSync(new Date());
+          if (!gotAnyVideo) await loadFallbackVideos();
         } catch (err) {
           console.warn("Échec du chargement des vidéos YouTube:", err);
           setSyncError(
             activeApiKey
               ? `Impossible de charger le catalogue via l'API YouTube (${err.message || "erreur inconnue"}).`
-              : "Impossible de contacter YouTube pour le moment (tous les proxys ont échoué). Réessayez dans quelques instants."
+              : "Impossible de contacter YouTube pour le moment (tous les proxys ont échoué). Affichage des vidéos de secours."
           );
+          await loadFallbackVideos();
         } finally {
           setIsRefreshing(false);
         }
-      }, [activeApiKey]);
+      }, [activeApiKey, loadFallbackVideos]);
 
       // Synchronisation automatique et discrète au lancement du site
       useEffect(() => {
@@ -1637,6 +1684,7 @@
                                   {vid.source === "manual" && <span className="admin-tag manual">Manuel</span>}
                                   {vid.source === "api" && <span className="admin-tag api">API</span>}
                                   {vid.source === "rss" && <span className="admin-tag rss">RSS</span>}
+                                  {vid.source === "fallback" && <span className="admin-tag manual">Secours</span>}
                                 </td>
                                 <td>{formatDate(vid.published)}</td>
                               </tr>
