@@ -460,77 +460,146 @@
 
     .seek-flash {
       position: absolute; top: 50%; transform: translateY(-50%);
-      background: rgba(0,0,0,0.55); color: #fff; border-radius: 50%;
-      width: 70px; height: 70px; display: flex; align-items: center; justify-content: center;
-      flex-direction: column; font-size: 0.85rem; font-weight: 700; gap: 2px;
+      background: rgba(15,15,15,0.6); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+      color: #fff; border-radius: 50%; border: 1px solid rgba(255,255,255,0.12);
+      width: 76px; height: 76px; display: flex; align-items: center; justify-content: center;
+      flex-direction: column; font-size: 0.85rem; font-weight: 700; gap: 3px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
       z-index: 3; pointer-events: none; animation: seekFlashPop 0.6s ease forwards;
     }
     .seek-flash.left { left: 12%; }
     .seek-flash.right { right: 12%; }
-    .seek-flash i { font-size: 1.2rem; }
+    .seek-flash i { font-size: 1.25rem; }
     @keyframes seekFlashPop {
-      0% { opacity: 0; transform: translateY(-50%) scale(0.6); }
+      0% { opacity: 0; transform: translateY(-50%) scale(0.55); }
       20% { opacity: 1; transform: translateY(-50%) scale(1); }
       80% { opacity: 1; }
       100% { opacity: 0; transform: translateY(-50%) scale(1); }
     }
 
-    .player-loading, .player-buffering { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); z-index: 4; color: var(--zigou-red); font-size: 2.5rem; }
+    .center-flash {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.6);
+      background: rgba(15,15,15,0.55); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+      border: 1px solid rgba(255,255,255,0.12); border-radius: 50%;
+      width: 84px; height: 84px; display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 1.9rem; z-index: 3; pointer-events: none;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+      animation: centerFlashPop 0.55s ease forwards;
+    }
+    @keyframes centerFlashPop {
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+      25% { opacity: 1; transform: translate(-50%, -50%) scale(1.08); }
+      45% { transform: translate(-50%, -50%) scale(1); }
+      100% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
+    }
+
+    .player-loading, .player-buffering {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); z-index: 4;
+      width: 56px; height: 56px; border-radius: 50%;
+      border: 3px solid rgba(255,255,255,0.15); border-top-color: var(--zigou-red-bright);
+      animation: playerSpin 0.85s linear infinite;
+    }
+    @keyframes playerSpin { to { transform: translate(-50%,-50%) rotate(360deg); } }
 
     .player-top-bar {
       position: relative; z-index: 10; display: flex; align-items: center; gap: 20px;
-      padding: 26px 40px; background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, transparent 100%);
+      padding: 24px 40px 60px; background: linear-gradient(180deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.5) 45%, transparent 100%);
       transition: opacity 0.35s;
     }
-    .back-btn { font-size: 1.6rem; color: #fff; transition: transform 0.2s; flex-shrink: 0; }
-    .back-btn:hover { transform: scale(1.15); }
+    .back-btn {
+      font-size: 1.25rem; color: #fff; transition: background 0.2s, transform 0.15s;
+      flex-shrink: 0; width: 42px; height: 42px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(255,255,255,0.08);
+    }
+    .back-btn:hover { background: rgba(255,255,255,0.18); transform: scale(1.06); }
 
-    .player-title-block { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-    .player-movie-title { font-size: 1.3rem; font-weight: 700; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .player-movie-meta { display: flex; gap: 8px; align-items: center; font-size: 0.78rem; color: #b3b3b3; flex-wrap: wrap; }
+    .player-title-block { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+    .player-movie-title { font-size: 1.35rem; font-weight: 700; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; letter-spacing: 0.2px; text-shadow: 0 2px 8px rgba(0,0,0,0.5); }
+    .player-movie-meta { display: flex; gap: 10px; align-items: center; font-size: 0.78rem; color: #c2c2c2; flex-wrap: wrap; }
+    .player-movie-meta span:not(:last-child)::after { content: "•"; margin-left: 10px; color: #666; }
 
     .player-next-btn {
       margin-left: auto; display: flex; align-items: center; gap: 10px;
-      background: rgba(51,51,51,0.9); padding: 10px 18px; border-radius: 3px;
-      font-size: 0.9rem; font-weight: 600; transition: background 0.2s; flex-shrink: 0;
+      background: rgba(255,255,255,0.1); padding: 11px 20px; border-radius: 24px;
+      font-size: 0.88rem; font-weight: 600; transition: background 0.2s, transform 0.15s; flex-shrink: 0;
+      border: 1px solid rgba(255,255,255,0.14);
     }
-    .player-next-btn:hover { background: rgba(80,80,80,0.95); }
+    .player-next-btn:hover { background: rgba(255,255,255,0.2); transform: translateY(-1px); }
 
     .player-controls-bottom {
-      position: relative; z-index: 10; padding: 15px 40px 34px 40px;
-      background: linear-gradient(0deg, rgba(0,0,0,0.9) 0%, transparent 100%);
-      display: flex; flex-direction: column; gap: 12px; transition: opacity 0.35s;
+      position: relative; z-index: 10; padding: 50px 40px 30px 40px;
+      background: linear-gradient(0deg, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.6) 55%, transparent 100%);
+      display: flex; flex-direction: column; gap: 14px; transition: opacity 0.35s;
     }
 
     .progress-bar-container {
-      width: 100%; height: 4px; background: rgba(255, 255, 255, 0.3); border-radius: 3px;
-      cursor: pointer; position: relative; transition: height 0.12s; padding: 12px 0; margin: -12px 0; background-clip: content-box;
+      width: 100%; height: 4px; background: rgba(255, 255, 255, 0.22); border-radius: 3px;
+      cursor: pointer; position: relative; transition: height 0.14s; padding: 12px 0; margin: -12px 0; background-clip: content-box;
     }
-    .progress-bar-container:hover { height: 7px; }
+    .progress-bar-container:hover { height: 6px; }
 
-    .progress-bar-fill { height: 100%; background: var(--zigou-red); border-radius: 3px; position: relative; }
+    .progress-bar-buffered {
+      position: absolute; left: 0; top: 12px; height: 4px; background: rgba(255,255,255,0.35); border-radius: 3px;
+      transition: width 0.25s, height 0.14s; pointer-events: none;
+    }
+    .progress-bar-container:hover .progress-bar-buffered { height: 6px; }
+
+    .progress-bar-fill {
+      height: 100%; background: var(--zigou-red-bright); border-radius: 3px; position: relative;
+      box-shadow: 0 0 8px rgba(255, 31, 46, 0.5);
+    }
 
     .progress-bar-scrubber {
       position: absolute; right: -6px; top: 50%; transform: translateY(-50%) scale(0);
-      width: 13px; height: 13px; background: var(--zigou-red); border-radius: 50%;
-      box-shadow: 0 0 4px rgba(0,0,0,0.6); transition: transform 0.12s;
+      width: 14px; height: 14px; background: #fff; border-radius: 50%;
+      box-shadow: 0 0 0 4px rgba(255, 31, 46, 0.25), 0 2px 6px rgba(0,0,0,0.5); transition: transform 0.14s;
     }
     .progress-bar-container:hover .progress-bar-scrubber { transform: translateY(-50%) scale(1); }
 
+    .progress-hover-preview {
+      position: absolute; bottom: 100%; transform: translateX(-50%); margin-bottom: 14px;
+      background: rgba(20,20,20,0.95); color: #fff; font-size: 0.75rem; font-weight: 600;
+      padding: 4px 9px; border-radius: 4px; pointer-events: none; white-space: nowrap;
+      border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    }
+
     .controls-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-    .controls-left, .controls-right { display: flex; align-items: center; gap: 22px; }
+    .controls-left, .controls-right { display: flex; align-items: center; gap: 6px; }
 
-    .control-btn { color: #fff; font-size: 1.4rem; transition: color 0.15s, transform 0.15s; }
-    .control-btn:hover { color: #d2d2d2; transform: scale(1.08); }
+    .control-btn {
+      color: #fff; font-size: 1.15rem; transition: background 0.15s, transform 0.15s;
+      width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .control-btn:hover { background: rgba(255,255,255,0.12); transform: scale(1.05); }
+    .control-btn.control-btn-play { font-size: 1.35rem; }
 
-    .volume-container { display: flex; align-items: center; gap: 8px; }
-    .volume-container:hover .volume-slider { width: 90px; opacity: 1; }
-    .volume-slider { width: 0; opacity: 0; accent-color: #fff; cursor: pointer; transition: width 0.25s, opacity 0.25s; }
+    .volume-container { display: flex; align-items: center; gap: 4px; padding: 0 4px 0 0; }
+    .volume-container:hover .volume-slider { width: 84px; opacity: 1; margin-left: 6px; }
+    .volume-slider {
+      width: 0; opacity: 0; cursor: pointer; -webkit-appearance: none; appearance: none;
+      height: 4px; background: rgba(255,255,255,0.25); border-radius: 3px; transition: width 0.25s, opacity 0.25s, margin-left 0.25s;
+    }
+    .volume-slider::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 12px; height: 12px; border-radius: 50%;
+      background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.5); cursor: pointer;
+    }
+    .volume-slider::-moz-range-thumb {
+      width: 12px; height: 12px; border-radius: 50%; background: #fff; border: none;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.5); cursor: pointer;
+    }
+    .volume-slider::-webkit-slider-runnable-track { background: transparent; }
+    .volume-slider::-moz-range-track { background: transparent; }
 
-    .time-display { font-size: 0.85rem; color: #e0e0e0; font-weight: 400; min-width: 100px; }
+    .time-display { font-size: 0.82rem; color: #d8d8d8; font-weight: 500; min-width: 100px; font-variant-numeric: tabular-nums; letter-spacing: 0.2px; }
 
-    .kbd-hint { position: absolute; top: 26px; right: 40px; z-index: 10; font-size: 0.7rem; color: #8a8a8a; display: flex; gap: 10px; transition: opacity 0.35s; }
-    .kbd-hint kbd { border: 1px solid #555; border-radius: 3px; padding: 1px 5px; margin-right: 4px; }
+    .kbd-hint {
+      position: absolute; top: 26px; right: 40px; z-index: 10; font-size: 0.7rem; color: #9a9a9a;
+      display: flex; gap: 8px; transition: opacity 0.35s;
+    }
+    .kbd-hint span { display: flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); padding: 4px 10px; border-radius: 20px; }
+    .kbd-hint kbd { border: 1px solid rgba(255,255,255,0.3); border-radius: 3px; padding: 1px 5px; font-size: 0.68rem; }
 
     .empty-note { color: var(--text-dim); padding: 0 4.5%; font-size: 0.9rem; }
 
@@ -593,15 +662,17 @@
       .modal-hero-btns { right: 20px; bottom: 16px; gap: 8px; }
       .modal-close { top: 10px; right: 10px; }
 
-      .player-top-bar { padding: 16px 16px; gap: 12px; }
+      .player-top-bar { padding: 16px 16px 40px; gap: 12px; }
+      .back-btn { width: 36px; height: 36px; font-size: 1.1rem; }
       .player-movie-title { font-size: 1rem; }
       .player-movie-meta { font-size: 0.7rem; }
       .player-next-btn span { display: none; }
       .player-next-btn { padding: 10px 12px; }
-      .player-controls-bottom { padding: 10px 16px 22px 16px; gap: 14px; }
-      .control-btn { font-size: 1.6rem; }
-      .controls-left, .controls-right { gap: 16px; }
-      .volume-container .volume-slider { width: 60px; opacity: 1; }
+      .player-controls-bottom { padding: 30px 16px 22px 16px; gap: 12px; }
+      .control-btn { width: 36px; height: 36px; font-size: 1.35rem; }
+      .control-btn.control-btn-play { font-size: 1.5rem; }
+      .controls-left, .controls-right { gap: 2px; }
+      .volume-container .volume-slider { width: 50px; opacity: 1; margin-left: 4px; }
       .time-display { font-size: 0.72rem; min-width: 78px; }
     }
 
@@ -950,6 +1021,9 @@
       const [isMuted, setIsMuted] = useState(false);
       const [controlsVisible, setControlsVisible] = useState(true);
       const [seekFlash, setSeekFlash] = useState(null);
+      const [centerFlash, setCenterFlash] = useState(null);
+      const [buffered, setBuffered] = useState(0);
+      const [hoverPreview, setHoverPreview] = useState(null);
       const hideControlsTimeout = useRef(null);
       const lastTapRef = useRef({ time: 0, zone: null });
       const isTouch = useMediaQuery("(hover: none)");
@@ -991,6 +1065,9 @@
           if (playerRef.current && playerRef.current.getCurrentTime) {
             setCurrentTime(playerRef.current.getCurrentTime());
             setDuration(playerRef.current.getDuration() || 0);
+            if (playerRef.current.getVideoLoadedFraction) {
+              setBuffered(playerRef.current.getVideoLoadedFraction() || 0);
+            }
           }
         }, 500);
 
@@ -1003,8 +1080,11 @@
 
       const togglePlay = useCallback(() => {
         if (!playerRef.current) return;
-        if (playerRef.current.getPlayerState() === 1) playerRef.current.pauseVideo();
+        const playing = playerRef.current.getPlayerState() === 1;
+        if (playing) playerRef.current.pauseVideo();
         else playerRef.current.playVideo();
+        setCenterFlash({ icon: playing ? "pause" : "play", key: Date.now() });
+        setTimeout(() => setCenterFlash(null), 550);
       }, []);
 
       const handleSeek = (e) => {
@@ -1015,6 +1095,13 @@
           playerRef.current.seekTo(targetTime, true);
           setCurrentTime(targetTime);
         }
+      };
+
+      const handleProgressHover = (e) => {
+        if (!duration) return;
+        const rect = e.currentTarget.getBoundingClientRect();
+        const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+        setHoverPreview({ percent: ratio * 100, time: ratio * duration });
       };
 
       const handleSkip = useCallback((seconds) => {
@@ -1148,12 +1235,14 @@
             </div>
           )}
 
-          {!isReady && (
-            <div className="player-loading"><i className="fas fa-circle-notch fa-spin"></i></div>
+          {centerFlash && (
+            <div className="center-flash" key={centerFlash.key}>
+              <i className={`fas ${centerFlash.icon === "play" ? "fa-play" : "fa-pause"}`}></i>
+            </div>
           )}
-          {isReady && isBuffering && (
-            <div className="player-buffering"><i className="fas fa-circle-notch fa-spin"></i></div>
-          )}
+
+          {!isReady && <div className="player-loading"></div>}
+          {isReady && isBuffering && <div className="player-buffering"></div>}
 
           <div className="kbd-hint" style={{ opacity: controlsVisible ? 1 : 0 }}>
             <span><kbd>Espace</kbd>lecture</span>
@@ -1181,15 +1270,26 @@
           </div>
 
           <div className="player-controls-bottom" style={{ opacity: controlsVisible ? 1 : 0, pointerEvents: controlsVisible ? "auto" : "none" }}>
-            <div className="progress-bar-container" onClick={handleSeek}>
+            <div
+              className="progress-bar-container"
+              onClick={handleSeek}
+              onMouseMove={handleProgressHover}
+              onMouseLeave={() => setHoverPreview(null)}
+            >
+              <div className="progress-bar-buffered" style={{ width: `${Math.max(buffered * 100, progressPercent)}%` }}></div>
               <div className="progress-bar-fill" style={{ width: `${progressPercent}%` }}>
                 <div className="progress-bar-scrubber"></div>
               </div>
+              {hoverPreview && (
+                <div className="progress-hover-preview" style={{ left: `${hoverPreview.percent}%` }}>
+                  {formatTime(hoverPreview.time)}
+                </div>
+              )}
             </div>
 
             <div className="controls-row">
               <div className="controls-left">
-                <button className="control-btn" onClick={togglePlay}>
+                <button className="control-btn control-btn-play" onClick={togglePlay}>
                   <i className={isPlaying ? "fas fa-pause" : "fas fa-play"}></i>
                 </button>
                 <button className="control-btn" onClick={() => flashSeek("left", -10)} title="Reculer 10s">
