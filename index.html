@@ -1578,7 +1578,19 @@
       }
     }
 
-  </style>
+  
+/* ANDROID SCROLL HARD FIX */
+html, body { height: auto !important; min-height: 100% !important; overflow-x: hidden !important; overflow-y: auto !important; touch-action: pan-y !important; overscroll-behavior-y: auto !important; }
+#root { min-height: 100vh !important; height: auto !important; overflow: visible !important; touch-action: pan-y !important; }
+@media (max-width: 900px) {
+  body { position: relative !important; -webkit-overflow-scrolling: touch !important; }
+  .hero-carousel, .hero-slide, .hero-content, .main-container, .video-grid, .card-container, .card { touch-action: pan-y !important; }
+  .hero-slide:not(.active) { display: none !important; }
+  .hero-video-wrapper, .hero-video-wrapper iframe { pointer-events: none !important; }
+  .netflix-player-overlay { touch-action: none !important; }
+}
+
+</style>
 </head>
 <body>
 
