@@ -40,7 +40,7 @@
       font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       overflow-x: hidden;
       -webkit-font-smoothing: antialiased;
-      overscroll-behavior-y: none;
+      overscroll-behavior-y: auto;
       -webkit-text-size-adjust: 100%;
     }
 
@@ -1523,6 +1523,56 @@
         animation-duration: .01ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: .01ms !important;
+      }
+    }
+
+  
+
+    /* =========================================================
+       ANDROID / CHROME — correctif défilement vertical
+       ========================================================= */
+    @media (max-width: 760px) {
+      html {
+        height: auto !important;
+        min-height: 100%;
+        overflow-y: auto !important;
+        overscroll-behavior-y: auto !important;
+        touch-action: pan-y pinch-zoom;
+      }
+
+      body, #root {
+        height: auto !important;
+        min-height: 100%;
+        overflow-y: visible !important;
+        overflow-x: hidden !important;
+        overscroll-behavior: auto !important;
+        -webkit-overflow-scrolling: touch;
+        touch-action: pan-y pinch-zoom !important;
+      }
+
+      /* Le hero ne doit jamais capturer le geste vertical Android. */
+      .hero-carousel,
+      .hero-slide,
+      .hero-content,
+      .main-container,
+      .video-grid,
+      .card-container,
+      .card {
+        touch-action: pan-y pinch-zoom !important;
+      }
+
+      /* Les iframes vidéo décoratives restent transparentes aux gestes. */
+      .hero-video-wrapper,
+      .hero-video-wrapper iframe {
+        pointer-events: none !important;
+      }
+
+      /* Évite qu'une couche absolue/fixe invisible bloque le scroll. */
+      .hero-slide:not(.active) {
+        visibility: hidden;
+      }
+      .hero-slide.active {
+        visibility: visible;
       }
     }
 
