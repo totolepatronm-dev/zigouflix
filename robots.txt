@@ -4,5 +4,4 @@
 User-agent: *
 Allow: /
 
-# Sitemap (à conserver uniquement si ce fichier existe)
-Sitemap: /sitemap.xml
+Sitemap: https://zigouflix.com/sitemap.xml
