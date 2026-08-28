@@ -1,0 +1,8 @@
+# robots.txt
+# Autorise l'exploration publique du site
+
+User-agent: *
+Allow: /
+
+# Sitemap (à conserver uniquement si ce fichier existe)
+Sitemap: /sitemap.xml
