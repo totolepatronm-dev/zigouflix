@@ -785,6 +785,749 @@
       .hero-title { font-size: 1.7rem; }
       .logo { font-size: 1.45rem; }
     }
+  
+    /* =========================================================
+       MOBILE / TABLET — refonte responsive
+       ========================================================= */
+
+    /* Empêche les débordements horizontaux sur petits écrans */
+    html, body, #root {
+      width: 100%;
+      max-width: 100%;
+      overflow-x: hidden;
+    }
+
+    img, iframe, video {
+      max-width: 100%;
+    }
+
+    @media (max-width: 760px) {
+      :root {
+        --mobile-gutter: 16px;
+        --mobile-nav-height: 58px;
+      }
+
+      body {
+        min-width: 0;
+        overflow-x: hidden;
+        overscroll-behavior-x: none;
+      }
+
+      /* ---------- NAVBAR ---------- */
+      .navbar {
+        height: var(--mobile-nav-height);
+        padding:
+          max(8px, env(safe-area-inset-top))
+          var(--mobile-gutter)
+          8px
+          var(--mobile-gutter);
+        gap: 8px;
+      }
+
+      .nav-left {
+        min-width: 0;
+        flex: 1;
+        gap: 10px;
+      }
+
+      .logo {
+        font-size: clamp(1.35rem, 6vw, 1.7rem);
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .nav-hamburger,
+      .mobile-search-toggle {
+        width: 38px;
+        min-width: 38px;
+        height: 38px;
+      }
+
+      .nav-right {
+        flex-shrink: 0;
+        gap: 7px;
+      }
+
+      .refresh-btn {
+        width: 38px;
+        min-width: 38px;
+        height: 38px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .avatar {
+        width: 34px;
+        height: 34px;
+      }
+
+      .nav-links.mobile-open {
+        top: calc(var(--mobile-nav-height) + env(safe-area-inset-top));
+        padding-left: var(--mobile-gutter);
+        padding-right: var(--mobile-gutter);
+        max-height: calc(100dvh - var(--mobile-nav-height));
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      /* Recherche mobile réellement pleine largeur */
+      .mobile-search-overlay.open {
+        min-height: calc(var(--mobile-nav-height) + env(safe-area-inset-top));
+        padding-left: var(--mobile-gutter);
+        padding-right: var(--mobile-gutter);
+      }
+
+      /* ---------- HERO ---------- */
+      .hero-carousel {
+        height: min(82dvh, 720px);
+        min-height: 520px;
+      }
+
+      .hero-video-wrapper {
+        width: 100%;
+        height: 100%;
+        transform: translate(-50%, -50%);
+      }
+
+      .hero-overlay {
+        background:
+          linear-gradient(90deg, rgba(11,11,13,.92) 0%, rgba(11,11,13,.52) 58%, rgba(11,11,13,.18) 100%),
+          linear-gradient(180deg, rgba(11,11,13,.20) 0%, transparent 42%, rgba(11,11,13,.20) 62%, var(--bg-color) 100%);
+      }
+
+      .hero-content {
+        padding-left: var(--mobile-gutter);
+        padding-right: var(--mobile-gutter);
+        padding-bottom: max(76px, calc(8% + env(safe-area-inset-bottom)));
+        max-width: 100%;
+      }
+
+      .hero-title {
+        font-size: clamp(1.75rem, 8vw, 2.45rem);
+        line-height: 1.04;
+        letter-spacing: -.5px;
+        margin-bottom: 12px;
+      }
+
+      .hero-desc {
+        max-width: 100%;
+        font-size: .9rem;
+        line-height: 1.45;
+        margin-bottom: 17px;
+      }
+
+      .hero-btns {
+        gap: 8px;
+      }
+
+      .btn {
+        min-height: 42px;
+        padding: 10px 16px;
+        font-size: .9rem;
+      }
+
+      .btn-icon-round {
+        width: 42px;
+        height: 42px;
+      }
+
+      .carousel-indicators {
+        left: var(--mobile-gutter);
+        bottom: max(22px, env(safe-area-inset-bottom));
+      }
+
+      /* ---------- CONTENU ---------- */
+      .main-container {
+        margin-top: -42px;
+        padding-bottom: calc(50px + env(safe-area-inset-bottom));
+        width: 100%;
+        overflow: visible;
+      }
+
+      /* Le contenu vidéo doit rester scrollable verticalement sur mobile.
+         Les cartes ne capturent pas le geste de swipe. */
+      .video-grid {
+        overflow: visible !important;
+        touch-action: pan-y;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .card-container, .card {
+        touch-action: pan-y;
+      }
+
+      body {
+        touch-action: pan-y;
+      }
+
+      .row-title {
+        margin-left: var(--mobile-gutter);
+        margin-right: var(--mobile-gutter);
+        font-size: 1.08rem;
+        line-height: 1.25;
+      }
+
+      .video-grid {
+        width: 100%;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+        padding-left: var(--mobile-gutter);
+        padding-right: var(--mobile-gutter);
+      }
+
+      /* Sur tactile : pas de carte qui déborde / s'agrandit */
+      .card-container {
+        min-width: 0;
+        width: 100%;
+        height: auto;
+      }
+
+      .card,
+      .card.expanded {
+        position: relative;
+        inset: auto;
+        width: 100%;
+        height: auto;
+        min-width: 0;
+        transform: none !important;
+        border-radius: 7px;
+        overflow: hidden;
+      }
+
+      .card-img,
+      .card.expanded .card-img {
+        width: 100%;
+        height: auto;
+        aspect-ratio: 16 / 9;
+        object-fit: cover;
+        border-radius: 7px 7px 0 0;
+      }
+
+      .card-body,
+      .card.expanded .card-body {
+        height: auto;
+        min-height: 108px;
+        padding: 9px;
+        gap: 7px;
+      }
+
+      .card-actions {
+        min-height: 36px;
+      }
+
+      .card-actions-left {
+        gap: 6px;
+      }
+
+      .icon-btn {
+        width: 34px;
+        min-width: 34px;
+        height: 34px;
+      }
+
+      .icon-btn-play {
+        width: 38px;
+        min-width: 38px;
+        height: 38px;
+      }
+
+      .card-info {
+        gap: 5px;
+        font-size: .66rem;
+      }
+
+      .card-title-text {
+        font-size: .8rem;
+        line-height: 1.25;
+      }
+
+      .card-tags {
+        font-size: .68rem;
+        line-height: 1.3;
+        -webkit-line-clamp: 2;
+      }
+
+      .empty-note {
+        padding-left: var(--mobile-gutter);
+        padding-right: var(--mobile-gutter);
+      }
+
+      /* ---------- MODALE ---------- */
+      .modal-overlay {
+        align-items: flex-end;
+        padding: 0;
+        overscroll-behavior: contain;
+      }
+
+      .modal-box {
+        width: 100%;
+        max-width: 100%;
+        max-height: 94dvh;
+        border-radius: 16px 16px 0 0;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .modal-hero {
+        aspect-ratio: 16 / 10;
+      }
+
+      .modal-hero-title {
+        left: 16px;
+        right: 82px;
+        bottom: 14px;
+        font-size: clamp(1.05rem, 5vw, 1.35rem);
+        line-height: 1.15;
+      }
+
+      .modal-hero-btns {
+        right: 14px;
+        bottom: 13px;
+        gap: 6px;
+      }
+
+      .modal-hero-btns .btn-icon-round {
+        width: 40px !important;
+        height: 40px !important;
+      }
+
+      .modal-body {
+        padding: 16px 16px calc(24px + env(safe-area-inset-bottom));
+      }
+
+      .modal-desc {
+        font-size: .9rem;
+        line-height: 1.55;
+      }
+
+      .modal-yt-link {
+        max-width: 100%;
+        line-height: 1.35;
+      }
+
+      /* ---------- LECTEUR ---------- */
+      .netflix-player-overlay {
+        width: 100%;
+        height: 100dvh;
+        min-height: 100dvh;
+        touch-action: manipulation;
+      }
+
+      .player-video-container {
+        width: 100%;
+        height: 100%;
+      }
+
+      .player-video-container iframe {
+        width: 100%;
+        height: 100%;
+      }
+
+      .player-top-bar {
+        width: 100%;
+        padding:
+          max(10px, env(safe-area-inset-top))
+          var(--mobile-gutter)
+          52px
+          var(--mobile-gutter);
+        gap: 9px;
+      }
+
+      .back-btn {
+        width: 40px;
+        min-width: 40px;
+        height: 40px;
+      }
+
+      .player-title-block {
+        min-width: 0;
+        max-width: calc(100vw - 130px);
+      }
+
+      .player-movie-title {
+        font-size: .92rem;
+        line-height: 1.15;
+      }
+
+      .player-movie-meta {
+        font-size: .64rem;
+        gap: 7px;
+        overflow: hidden;
+      }
+
+      .player-next-btn {
+        margin-left: auto;
+        width: 40px;
+        min-width: 40px;
+        height: 40px;
+        padding: 0;
+      }
+
+      .player-controls-bottom {
+        width: 100%;
+        padding:
+          48px
+          var(--mobile-gutter)
+          max(14px, calc(10px + env(safe-area-inset-bottom)))
+          var(--mobile-gutter);
+        gap: 10px;
+      }
+
+      .progress-bar-container {
+        height: 5px;
+        padding: 15px 0;
+        margin: -15px 0;
+        touch-action: none;
+      }
+
+      .progress-bar-container.scrubbing {
+        height: 7px;
+      }
+
+      .controls-row {
+        width: 100%;
+        gap: 4px;
+        align-items: center;
+      }
+
+      .controls-left,
+      .controls-right {
+        min-width: 0;
+        gap: 0;
+      }
+
+      .controls-left {
+        flex: 1;
+        overflow: hidden;
+      }
+
+      .controls-right {
+        flex-shrink: 0;
+      }
+
+      .control-btn {
+        width: 38px;
+        min-width: 38px;
+        height: 38px;
+        font-size: 1rem;
+      }
+
+      .control-btn-play {
+        width: 44px;
+        min-width: 44px;
+        height: 44px;
+      }
+
+      .time-display {
+        min-width: 0;
+        margin-left: 2px;
+        font-size: .64rem;
+        white-space: nowrap;
+      }
+
+      .speed-btn {
+        width: auto;
+        min-width: 44px;
+        padding: 0 8px;
+        font-size: .68rem;
+      }
+
+      .seek-flash {
+        width: 58px;
+        height: 58px;
+      }
+
+      .center-flash {
+        width: 66px;
+        height: 66px;
+      }
+
+      /* ---------- ADMIN ---------- */
+      .admin-container {
+        width: 100%;
+        max-width: 100%;
+        padding: 0 var(--mobile-gutter);
+      }
+
+      .admin-card {
+        padding: 16px;
+        margin-bottom: 16px;
+        overflow: hidden;
+      }
+
+      .admin-title {
+        font-size: 1rem;
+        line-height: 1.3;
+      }
+
+      .admin-field-row {
+        width: 100%;
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .admin-input {
+        width: 100%;
+        min-width: 0;
+        font-size: .85rem;
+      }
+
+      .btn-admin-action {
+        width: 100%;
+        min-height: 44px;
+      }
+
+      .admin-table-wrap,
+      .admin-table {
+        max-width: 100%;
+      }
+
+      .admin-table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .secret-modal {
+        width: calc(100% - 32px);
+        max-width: 420px;
+        padding: 22px 18px;
+      }
+
+      .secret-input {
+        min-height: 46px;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .video-grid {
+        gap: 9px;
+      }
+
+      .card-body,
+      .card.expanded .card-body {
+        min-height: 104px;
+        padding: 8px;
+      }
+
+      .card-actions {
+        min-height: 34px;
+      }
+
+      .icon-btn {
+        width: 32px;
+        min-width: 32px;
+        height: 32px;
+        font-size: .76rem;
+      }
+
+      .icon-btn-play {
+        width: 36px;
+        min-width: 36px;
+        height: 36px;
+      }
+
+      .card-title-text {
+        font-size: .76rem;
+      }
+
+      .card-tags {
+        font-size: .64rem;
+      }
+
+      .player-controls-bottom {
+        padding-left: 10px;
+        padding-right: 10px;
+      }
+
+      .control-btn {
+        width: 35px;
+        min-width: 35px;
+        height: 35px;
+      }
+
+      .control-btn-play {
+        width: 41px;
+        min-width: 41px;
+        height: 41px;
+      }
+
+      .time-display {
+        font-size: .59rem;
+      }
+
+      .controls-right .control-btn:not(.speed-btn) {
+        width: 35px;
+        min-width: 35px;
+      }
+    }
+
+    @media (max-width: 380px) {
+      .navbar {
+        padding-left: 10px;
+        padding-right: 10px;
+      }
+
+      .nav-left {
+        gap: 6px;
+      }
+
+      .nav-right {
+        gap: 4px;
+      }
+
+      .logo {
+        font-size: 1.28rem;
+      }
+
+      .nav-hamburger,
+      .mobile-search-toggle,
+      .refresh-btn {
+        width: 34px;
+        min-width: 34px;
+        height: 34px;
+      }
+
+      .avatar {
+        width: 32px;
+        height: 32px;
+      }
+
+      .hero-carousel {
+        min-height: 500px;
+      }
+
+      .hero-content {
+        padding-bottom: 72px;
+      }
+
+      .hero-title {
+        font-size: 1.62rem;
+      }
+
+      .hero-desc {
+        font-size: .82rem;
+        -webkit-line-clamp: 2;
+      }
+
+      .btn {
+        padding: 9px 13px;
+        font-size: .82rem;
+      }
+
+      .video-grid {
+        gap: 7px;
+        padding-left: 10px;
+        padding-right: 10px;
+      }
+
+      .row-title {
+        margin-left: 10px;
+        margin-right: 10px;
+        font-size: 1rem;
+      }
+
+      .card-body,
+      .card.expanded .card-body {
+        min-height: 96px;
+        padding: 7px;
+      }
+
+      .card-title-text {
+        font-size: .7rem;
+      }
+
+      .card-tags {
+        font-size: .59rem;
+      }
+
+      .card-info {
+        font-size: .59rem;
+      }
+
+      .player-movie-title {
+        font-size: .82rem;
+      }
+
+      .player-movie-meta {
+        font-size: .58rem;
+      }
+
+      .control-btn {
+        width: 32px;
+        min-width: 32px;
+        height: 32px;
+      }
+
+      .control-btn-play {
+        width: 38px;
+        min-width: 38px;
+        height: 38px;
+      }
+
+      .time-display {
+        font-size: .54rem;
+      }
+
+      .speed-btn {
+        min-width: 40px;
+        padding: 0 6px;
+      }
+    }
+
+    /* Téléphone en paysage : conserver une interface compacte */
+    @media (max-width: 900px) and (orientation: landscape) {
+      .hero-carousel {
+        height: 100dvh;
+        min-height: 360px;
+      }
+
+      .hero-content {
+        padding-bottom: 52px;
+        max-width: 58%;
+      }
+
+      .hero-title {
+        font-size: 1.65rem;
+      }
+
+      .hero-desc {
+        -webkit-line-clamp: 2;
+        margin-bottom: 10px;
+      }
+
+      .main-container {
+        margin-top: -28px;
+      }
+
+      .netflix-player-overlay {
+        height: 100dvh;
+      }
+
+      .player-top-bar {
+        padding-top: max(7px, env(safe-area-inset-top));
+        padding-bottom: 30px;
+      }
+
+      .player-controls-bottom {
+        padding-top: 28px;
+        padding-bottom: max(8px, env(safe-area-inset-bottom));
+      }
+    }
+
+    /* Respecte les appareils qui réduisent les animations */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+      }
+    }
+
   </style>
 </head>
 <body>
