@@ -28,7 +28,6 @@
       --zigou-red-glow: rgba(229, 9, 20, 0.7);
       --nav-bg: #0b0b0d;
       --transition-smooth: all 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
-      --vh: 1vh;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; outline: none; -webkit-tap-highlight-color: transparent; }
@@ -187,8 +186,7 @@
     .hero-carousel {
       position: relative;
       width: 100%;
-      height: 90vh;
-      height: calc(var(--vh, 1vh) * 90);
+      height: 90dvh;
       overflow: hidden;
     }
 
@@ -500,7 +498,7 @@
     /* LECTEUR STYLE NETFLIX */
     .netflix-player-overlay {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-      height: calc(var(--vh, 1vh) * 100); background: #000;
+      height: 100dvh; background: #000;
       z-index: 9999; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden;
     }
     .netflix-player-overlay.hide-cursor { cursor: none; }
@@ -732,7 +730,7 @@
       .mobile-search-overlay .search-box input { width: 100%; font-size: 0.95rem; }
       .mobile-search-overlay .search-box input:focus { width: 100%; }
 
-      .hero-carousel { height: 82vh; height: calc(var(--vh, 1vh) * 82); min-height: 480px; }
+      .hero-carousel { height: 82dvh; min-height: 480px; }
       .hero-title { font-size: 2.1rem; }
       .hero-desc { font-size: 0.92rem; line-height: 1.45; -webkit-line-clamp: 3; margin-bottom: 20px; }
       .hero-content { max-width: 100%; padding: 0 5.5%; padding-bottom: calc(12% + env(safe-area-inset-bottom)); }
@@ -1847,10 +1845,11 @@
       useEffect(() => {
         const setVh = () => document.documentElement.style.setProperty("--vh", `${window.innerHeight * 0.01}px`);
         setVh();
-        window.addEventListener("resize", setVh);
+        // Ne pas écouter "resize" : Chrome Android le déclenche quand la barre
+        // d'adresse apparaît/disparaît pendant le scroll, ce qui provoquait un jump.
+        // On recalcule uniquement lors d'un vrai changement d'orientation.
         window.addEventListener("orientationchange", setVh);
         return () => {
-          window.removeEventListener("resize", setVh);
           window.removeEventListener("orientationchange", setVh);
         };
       }, []);
