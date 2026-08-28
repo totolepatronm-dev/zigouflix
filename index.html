@@ -506,7 +506,9 @@
     .player-video-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; background: #000; }
     .player-video-container iframe { width: 100%; height: 100%; border: none; }
 
-    .player-tap-zones { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; display: flex; }
+    .player-tap-zones { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; display: flex; touch-action: manipulation; }
+    .player-tap-zone { -webkit-tap-highlight-color: transparent; user-select: none; }
+    .player-tap-zone.center { cursor: pointer; }
     .player-tap-zone { flex: 1; height: 100%; }
     .player-tap-zone.center { flex: 1.6; }
 
@@ -1937,6 +1939,11 @@
               onReady: (event) => {
                 if (destroyed) return;
                 playerRef.current = event.target;
+                // Démarrage fiable sur mobile : YouTube autorise beaucoup plus facilement
+                // l'autoplay muet. La vidéo démarre donc immédiatement, sans écran bloqué.
+                event.target.mute();
+                setIsMuted(true);
+                setVolume(event.target.getVolume ? event.target.getVolume() : 100);
                 event.target.playVideo();
                 setDuration(event.target.getDuration());
                 setIsReady(true);
@@ -2113,9 +2120,10 @@
         lastTapRef.current = { time: now, zone };
 
         if (zone === "center") {
-          if (!controlsVisible) { showControlsTemporarily(); return; }
-          if (isDoubleTap) togglePlay();
-          else showControlsTemporarily();
+          // Un simple appui au centre fait immédiatement Lecture / Pause.
+          // C'est volontairement plus naturel que l'ancien double-appui.
+          togglePlay();
+          showControlsTemporarily();
           return;
         }
 
@@ -2148,18 +2156,17 @@
           <div className="player-video-container">
             <iframe
               id="netflix-yt-iframe"
-              src={`https://www.youtube.com/embed/${movie.id}?enablejsapi=1&controls=0&autoplay=1&modestbranding=1&rel=0&iv_load_policy=3&playsinline=1`}
-              allow="autoplay; fullscreen"
+              src={`https://www.youtube.com/embed/${movie.id}?enablejsapi=1&controls=0&autoplay=1&mute=1&modestbranding=1&rel=0&iv_load_policy=3&playsinline=1&fs=1`}
+              allow="autoplay; fullscreen; picture-in-picture"
+              allowFullScreen
             ></iframe>
           </div>
 
-          {isTouch && (
-            <div className="player-tap-zones">
-              <div className="player-tap-zone" onClick={() => handleZoneTap("left")}></div>
-              <div className="player-tap-zone center" onClick={() => handleZoneTap("center")}></div>
-              <div className="player-tap-zone" onClick={() => handleZoneTap("right")}></div>
-            </div>
-          )}
+          <div className="player-tap-zones" aria-label="Zone de contrôle vidéo">
+            <div className="player-tap-zone" onClick={() => handleZoneTap("left")}></div>
+            <div className="player-tap-zone center" onClick={() => handleZoneTap("center")} role="button" aria-label={isPlaying ? "Mettre en pause" : "Lire"}></div>
+            <div className="player-tap-zone" onClick={() => handleZoneTap("right")}></div>
+          </div>
 
           {seekFlash && (
             <div className={`seek-flash ${seekFlash.dir}`} key={seekFlash.key}>
