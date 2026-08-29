@@ -377,7 +377,7 @@
     .card.expanded {
       position: absolute;
       width: 130%;
-      height: 320px;
+      height: 350px;
       top: -95px;
       left: -15%;
       z-index: 50;
@@ -421,7 +421,8 @@
       display: flex;
       flex-direction: column;
       gap: 10px;
-      height: 152px;
+      height: 182px;
+      min-height: 182px;
     }
 
     .card.expanded .card-body { opacity: 1; transform: translateY(0); }
@@ -446,6 +447,20 @@
     .card-info { display: flex; align-items: center; gap: 8px; font-size: 0.78rem; flex-wrap: wrap; color: var(--text-muted); }
     .card-title-text { font-size: 0.95rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .card-tags { font-size: 0.78rem; color: var(--text-muted); overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.35; }
+
+
+    /* HOVER FIX — conserve le zoom de la carte sans couper les actions, le titre ou la description. */
+    @media (hover: hover) and (min-width: 761px) {
+      .card.expanded {
+        height: 350px;
+        overflow: hidden;
+      }
+      .card.expanded .card-body {
+        height: 182px;
+        min-height: 182px;
+        overflow: visible;
+      }
+    }
 
     /* ZONE ADMIN / GESTION SECRÈTE */
     .admin-container { padding: 0 4.5%; max-width: 1000px; margin: 0 auto; }
