@@ -350,6 +350,8 @@
     .row-title .row-count { font-size: 0.8rem; font-weight: 400; color: var(--text-dim); }
 
     .video-grid {
+      content-visibility: auto;
+      contain-intrinsic-size: 0 900px;
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
       gap: 20px;
@@ -2897,7 +2899,9 @@
                   src={previewSrc}
                   className={`card-preview ${previewLoaded ? "loaded" : ""}`}
                   frameBorder="0"
-                  allow="autoplay"
+                  loading="lazy"
+                  title={movie.title}
+                  allow="autoplay; encrypted-media; picture-in-picture"
                   onLoad={() => setPreviewLoaded(true)}
                 ></iframe>
                 <button
@@ -2979,6 +2983,22 @@
     }
 
     /* ===================== APP ===================== */
+    const VIDEO_CACHE_KEY = "zigouflix:videos:v2";
+    const VIDEO_CACHE_TTL = 30 * 60 * 1000;
+
+    function getCachedVideos() {
+      try {
+        const raw = localStorage.getItem(VIDEO_CACHE_KEY);
+        if (!raw) return [];
+        const cached = JSON.parse(raw);
+        if (!cached || !Array.isArray(cached.videos)) return [];
+        if (Date.now() - Number(cached.time || 0) > VIDEO_CACHE_TTL) return [];
+        return cached.videos;
+      } catch (_) {
+        return [];
+      }
+    }
+
     function App() {
       useRealViewportHeight();
       const isNarrow = useMediaQuery("(max-width: 760px)");
@@ -2999,7 +3019,10 @@
       const [passError, setPassError] = useState(false);
       const SECRET_CODE = "2009zigoune@";
 
-      const [videos, setVideos] = useState([]);
+      // Cache local : au retour sur le site, le Hero et les premières cartes
+      // peuvent être peints immédiatement sans attendre YouTube. La synchro
+      // réseau continue ensuite en arrière-plan pour rafraîchir les données.
+      const [videos, setVideos] = useState(getCachedVideos);
       const [isRefreshing, setIsRefreshing] = useState(false);
       const [lastSync, setLastSync] = useState(null);
       const [syncMode, setSyncMode] = useState(null); // "api" | "rss"
@@ -3009,6 +3032,17 @@
       const [isAddingVideo, setIsAddingVideo] = useState(false);
 
       const activeApiKey = (apiKeyOverride || YOUTUBE_API_KEY || "").trim();
+
+      // Persiste uniquement les métadonnées légères : aucune vidéo/iframe n'est stockée.
+      useEffect(() => {
+        if (!videos.length) return;
+        try {
+          localStorage.setItem(VIDEO_CACHE_KEY, JSON.stringify({
+            time: Date.now(),
+            videos: videos.slice(0, 60)
+          }));
+        } catch (_) {}
+      }, [videos]);
 
       const loadFallbackVideos = useCallback(async () => {
         try {
@@ -3070,9 +3104,10 @@
       useEffect(() => {
         let cancelled = false;
 
-        // Lancer les requêtes après le premier paint afin de laisser l'image LCP
-        // et le CSS critique passer avant les appels YouTube/oEmbed.
-        const fallbackTimer = window.setTimeout(loadFallbackVideos, 80);
+        // Si un cache valide existe, React a déjà de quoi peindre le Hero.
+        // Dans ce cas on laisse YouTube tranquille pendant quelques instants et
+        // on ne recharge les fallbacks qu'en arrière-plan. Premier passage : 80 ms.
+        const fallbackTimer = window.setTimeout(loadFallbackVideos, videos.length ? 1800 : 80);
 
         // Le catalogue de secours s'affiche immédiatement. La synchronisation
         // réseau démarre après le premier rendu pour ne pas concurrencer le scroll.
@@ -3149,17 +3184,29 @@
 
       const heroMovies = useMemo(() => videos.slice(0, 5), [videos]);
 
-      // L'iframe YouTube ne doit jamais être le LCP : on l'initialise après le rendu initial.
+      // Le Hero affiche d'abord sa miniature (rapide et stable), puis remplace
+      // cette miniature par l'aperçu YouTube juste après le premier rendu.
+      // On conserve donc l'esthétique vidéo sans faire de l'iframe le LCP.
       const [heroVideoReady, setHeroVideoReady] = useState(false);
       useEffect(() => {
         if (isNarrow || heroMovies.length === 0) return;
-        const start = () => setHeroVideoReady(true);
-        const idle = window.requestIdleCallback
-          ? window.requestIdleCallback(start, { timeout: 3000 })
-          : window.setTimeout(start, 2500);
+        let cancelled = false;
+        const start = () => {
+          if (!cancelled) setHeroVideoReady(true);
+        };
+        // 2 frames laissent le navigateur peindre le Hero avant d'ouvrir la
+        // connexion lourde vers YouTube. Puis une limite à 900 ms garantit
+        // que l'aperçu vidéo arrive rapidement sur les connexions normales.
+        let timer = null;
+        const raf = requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            timer = window.setTimeout(start, 650);
+          });
+        });
         return () => {
-          if (window.cancelIdleCallback && typeof idle === "number") window.cancelIdleCallback(idle);
-          else window.clearTimeout(idle);
+          cancelled = true;
+          cancelAnimationFrame(raf);
+          if (timer) clearTimeout(timer);
         };
       }, [isNarrow, heroMovies.length]);
 
@@ -3280,7 +3327,12 @@
                 <div key={movie.id} className={`hero-slide ${idx === heroIndex ? "active" : ""}`}>
                   <div className="hero-video-wrapper">
                     {idx === heroIndex && !isNarrow && heroVideoReady ? (
-                      <iframe loading="lazy" src={`https://www.youtube.com/embed/${movie.id}?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&loop=1&playlist=${movie.id}`} allow="autoplay"></iframe>
+                      <iframe
+                        src={`https://www.youtube-nocookie.com/embed/${movie.id}?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&loop=1&playlist=${movie.id}&playsinline=1`}
+                        title={movie.title}
+                        allow="autoplay; encrypted-media; picture-in-picture"
+                        allowFullScreen
+                      ></iframe>
                     ) : (
                       <img
                         src={movie.thumb}
