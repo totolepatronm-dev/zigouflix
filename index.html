@@ -22,6 +22,10 @@
   <link rel="preconnect" href="https://www.youtube.com" crossorigin>
   <link rel="preconnect" href="https://i.ytimg.com" crossorigin>
   <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="dns-prefetch" href="//unpkg.com">
+  <link rel="dns-prefetch" href="//www.youtube-nocookie.com">
+  <link rel="dns-prefetch" href="//i.ytimg.com">
   <link rel="preload" as="image" href="https://i.ytimg.com/vi/WQrmiOMZrRk/hqdefault.jpg" fetchpriority="high">
 
   <!-- CDN React, ReactDOM & Babel : defer pour ne pas bloquer le parsing HTML -->
@@ -53,6 +57,8 @@
     * { box-sizing: border-box; margin: 0; padding: 0; outline: none; -webkit-tap-highlight-color: transparent; }
 
     html { scroll-behavior: auto; }
+
+    #root { min-height: 100dvh; }
 
     body {
       background-color: var(--bg-color);
@@ -350,8 +356,9 @@
     .row-title .row-count { font-size: 0.8rem; font-weight: 400; color: var(--text-dim); }
 
     .video-grid {
-      content-visibility: auto;
-      contain-intrinsic-size: 0 900px;
+      /* La grille garde sa géométrie complète : évite les expansions tardives
+         de contain-intrinsic-size qui peuvent provoquer du CLS pendant le scroll. */
+      contain: layout style;
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
       gap: 20px;
@@ -364,10 +371,9 @@
       flex: 0 0 auto;
       width: 100%;
       height: 135px;
-      /* IMPORTANT : ne pas utiliser contain: paint ici.
-         Une carte agrandie doit pouvoir dépasser de sa cellule CSS. */
-      contain: layout;
-      z-index: 1;
+      /* Rend les cartes hors écran à la demande sans changer leur empreinte. */
+      content-visibility: auto;
+      contain-intrinsic-size: 135px;
     }
 
     .card {
@@ -378,36 +384,23 @@
       overflow: hidden;
       cursor: pointer;
       box-shadow: 0 4px 12px rgba(0,0,0,0.6);
-      transition:
-        width 0.28s cubic-bezier(0.2,0.8,0.2,1),
-        height 0.28s cubic-bezier(0.2,0.8,0.2,1),
-        top 0.28s cubic-bezier(0.2,0.8,0.2,1),
-        left 0.28s cubic-bezier(0.2,0.8,0.2,1),
-        box-shadow 0.28s ease;
+      transition: var(--transition-smooth);
       z-index: 1;
       flex: 0 0 auto;
     }
 
-    /* Hover desktop : agrandissement modéré, sans perdre le texte ni les boutons. */
     .card.expanded {
       position: absolute;
-      width: 118%;
-      height: 310px;
-      top: -55px;
-      left: -9%;
-      z-index: 100;
+      width: 130%;
+      height: 320px;
+      top: -95px;
+      left: -15%;
+      z-index: 50;
       box-shadow: 0 25px 50px rgba(0,0,0,0.95);
     }
 
-    .card-img {
-      width: 100%;
-      height: 135px;
-      object-fit: cover;
-      display: block;
-      background: #111;
-    }
-
-    .card.expanded .card-img { height: 164px; }
+    .card-img { width: 100%; height: 135px; object-fit: cover; display: block; background: #111; }
+    .card.expanded .card-img { height: 168px; }
 
     .card-preview {
       position: absolute;
@@ -443,8 +436,7 @@
       display: flex;
       flex-direction: column;
       gap: 10px;
-      height: 146px;
-      min-height: 0;
+      height: 152px;
     }
 
     .card.expanded .card-body { opacity: 1; transform: translateY(0); }
@@ -505,7 +497,7 @@
 
     /* Tactile */
     @media (hover: none) {
-      .card-container { height: auto; contain: none; overflow: visible; }
+      .card-container { height: auto; }
       .card, .card.expanded { position: relative; width: 100%; height: auto; top: 0; left: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.5); border-radius: 6px; }
       .card-img, .card.expanded .card-img { height: 150px; border-radius: 6px 6px 0 0; }
       .card-preview { display: none; }
@@ -1289,8 +1281,7 @@
     }
 
     .card-container {
-      contain: layout;
-      overflow: visible;
+      contain: layout paint;
     }
 
     .card-img {
@@ -1307,6 +1298,7 @@
         contain: layout paint;
         /* Hauteur stable : aucune reconstruction visuelle en arrivant en bas. */
         min-height: 180px;
+        contain-intrinsic-size: 180px;
       }
 
       /* Évite les recalculs de layout pendant le geste de scroll. */
@@ -2169,7 +2161,7 @@
     <div class="boot-shell" aria-hidden="true">
       <div class="boot-nav"><span class="boot-logo">ZIGOUFLIX</span></div>
       <div class="boot-hero">
-        <img src="https://i.ytimg.com/vi/WQrmiOMZrRk/hqdefault.jpg" alt="" fetchpriority="high" decoding="async">
+        <img src="https://i.ytimg.com/vi/WQrmiOMZrRk/hqdefault.jpg" alt="" fetchpriority="high" decoding="async" width="480" height="360">
         <div class="boot-overlay"></div>
       </div>
     </div>
@@ -2978,7 +2970,7 @@
         <div className="modal-overlay" onClick={onClose}>
           <div className="modal-box" onClick={(e) => e.stopPropagation()}>
             <div className="modal-hero">
-              <iframe src={previewSrc} allow="autoplay"></iframe>
+              <iframe src={previewSrc} loading="lazy" allow="autoplay"></iframe>
               <div className="modal-hero-overlay"></div>
               <button className="modal-close" onClick={onClose}><i className="fas fa-times"></i></button>
               <div className="modal-hero-title">{movie.title}</div>
@@ -3506,7 +3498,7 @@
                           <tbody>
                             {videos.map((vid) => (
                               <tr key={vid.id}>
-                                <td style={{ width: 80 }}><img src={vid.thumb} style={{ width: 60, height: 35, objectFit: 'cover', borderRadius: 3 }} /></td>
+                                <td style={{ width: 80 }}><img src={vid.thumb} alt="" width="60" height="35" loading="lazy" decoding="async" style={{ width: 60, height: 35, objectFit: 'cover', borderRadius: 3 }} /></td>
                                 <td>
                                   {vid.title}
                                   {vid.source === "manual" && <span className="admin-tag manual">Manuel</span>}
