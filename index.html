@@ -1026,68 +1026,6 @@
       }
     }
 
-
-    /* =========================================================
-       IPHONE 16 PRO — navbar descendue sous la Dynamic Island
-       ========================================================= */
-    @media only screen
-      and (max-width: 430px)
-      and (orientation: portrait) {
-
-      .navbar {
-        top: calc(env(safe-area-inset-top) + 18px) !important;
-        padding-top: 8px !important;
-        height: var(--mobile-nav-height) !important;
-        background: rgba(11,11,13,0.92) !important;
-        backdrop-filter: blur(18px);
-        -webkit-backdrop-filter: blur(18px);
-      }
-
-      /* Le menu déroulant commence sous la nouvelle barre. */
-      .nav-links.mobile-open {
-        top: calc(
-          env(safe-area-inset-top) + 18px + var(--mobile-nav-height)
-        ) !important;
-      }
-
-      /* Évite que le hero/contenu passe sous la navbar abaissée. */
-      main {
-        padding-top: 18px;
-      }
-
-      /* La recherche plein écran suit également le déplacement. */
-      .mobile-search-overlay.open {
-        top: calc(env(safe-area-inset-top) + 18px) !important;
-      }
-    }
-
-    /* Cible encore plus précisément les iPhone Pro récents */
-    @supports (padding: max(0px)) {
-      @media only screen
-        and (max-width: 430px)
-        and (min-height: 800px)
-        and (orientation: portrait) {
-
-        .navbar {
-          top: calc(env(safe-area-inset-top) + 22px) !important;
-        }
-
-        .nav-links.mobile-open {
-          top: calc(
-            env(safe-area-inset-top) + 22px + var(--mobile-nav-height)
-          ) !important;
-        }
-
-        .mobile-search-overlay.open {
-          top: calc(env(safe-area-inset-top) + 22px) !important;
-        }
-
-        main {
-          padding-top: 22px;
-        }
-      }
-    }
-
     /* RESPONSIVE */
     @media (max-width: 900px) {
       .hero-title { font-size: 2.6rem; }
