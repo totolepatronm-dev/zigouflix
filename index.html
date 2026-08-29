@@ -751,14 +751,11 @@
       .player-video-container {
         inset: 0;
         height: 100%;
-        transform: translateZ(0);
-        backface-visibility: hidden;
       }
 
       .player-video-container iframe {
         width: 100%;
         height: 100%;
-        transform: scale(1.001);
       }
 
       .player-tap-zones {
@@ -997,7 +994,7 @@
       }
 
       .time-display {
-        font-size: .64rem;
+        font-size: .54rem;
       }
     }
 
@@ -1988,7 +1985,7 @@
       }
     }
 
-    /* Téléphone en paysage : conserver une interface compacte */
+    /* Téléphone en paysage : conserver une interface compacte, vidéo toujours centrée */
     @media (max-width: 900px) and (orientation: landscape) {
       .hero-carousel {
         height: 100dvh;
@@ -2013,18 +2010,53 @@
         margin-top: -28px;
       }
 
+      /* Le lecteur doit rester ancré aux 4 bords du viewport réel en paysage,
+         y compris derrière l'encoche / Dynamic Island, sans dépendre de vw/vh
+         qui peuvent être mal calculés par Safari iOS pendant la rotation. */
       .netflix-player-overlay {
+        position: fixed;
+        inset: 0;
+        width: 100%;
+        height: 100%;
         height: 100dvh;
+        left: 0;
+        right: 0;
+        margin: 0;
+      }
+
+      .player-video-container {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .player-video-container iframe {
+        width: 100%;
+        height: 100%;
+      }
+
+      .player-tap-zones {
+        inset: 0;
+        width: 100%;
+        height: 100%;
       }
 
       .player-top-bar {
         padding-top: max(7px, env(safe-area-inset-top));
         padding-bottom: 30px;
+        padding-left: max(16px, env(safe-area-inset-left));
+        padding-right: max(16px, env(safe-area-inset-right));
       }
 
       .player-controls-bottom {
         padding-top: 28px;
         padding-bottom: max(8px, env(safe-area-inset-bottom));
+        padding-left: max(14px, env(safe-area-inset-left));
+        padding-right: max(14px, env(safe-area-inset-right));
       }
     }
 
@@ -2154,6 +2186,18 @@
         overscroll-behavior: contain;
         -webkit-overflow-scrolling: touch;
       }
+    }
+
+    /* Verrouillage du scroll du body pendant que le lecteur plein écran est ouvert.
+       Empêche tout décalage horizontal résiduel de la page en arrière-plan de
+       "fuiter" visuellement dans l'overlay fixe pendant/après une rotation. */
+    body.player-open {
+      overflow: hidden !important;
+      position: fixed;
+      left: 0;
+      right: 0;
+      width: 100%;
+      touch-action: none !important;
     }
 
 </style>
@@ -2494,6 +2538,36 @@
       }, []);
     }
 
+    // Verrouille le scroll du body pendant qu'un overlay plein écran (lecteur) est ouvert,
+    // et remet le scroll horizontal à zéro. Sur iPhone, une rotation portrait -> paysage
+    // pendant que la page de fond a un scrollLeft résiduel peut donner l'impression que
+    // le lecteur "fixed" est décalé sur le côté : ce hook élimine cette cause.
+    function useLockBodyScroll(locked) {
+      useEffect(() => {
+        if (!locked) return;
+        const scrollY = window.scrollY || window.pageYOffset || 0;
+        document.documentElement.scrollLeft = 0;
+        document.body.scrollLeft = 0;
+        document.body.classList.add("player-open");
+        document.body.style.top = `-${scrollY}px`;
+
+        const resetHorizontal = () => {
+          window.scrollTo(window.scrollX ? -window.scrollX : 0, 0);
+          document.documentElement.scrollLeft = 0;
+          document.body.scrollLeft = 0;
+        };
+        window.addEventListener("orientationchange", resetHorizontal);
+
+        return () => {
+          document.body.classList.remove("player-open");
+          const top = document.body.style.top;
+          document.body.style.top = "";
+          window.scrollTo(0, top ? -parseInt(top, 10) : 0);
+          window.removeEventListener("orientationchange", resetHorizontal);
+        };
+      }, [locked]);
+    }
+
     /* ===================== PLAYER ===================== */
     function NetflixPlayer({ movie, onClose, onNext }) {
       const playerRef = useRef(null);
@@ -2511,10 +2585,15 @@
       const [hoverPreview, setHoverPreview] = useState(null);
       const [isScrubbing, setIsScrubbing] = useState(false);
       const [playbackRate, setPlaybackRate] = useState(1);
+      const [needsSoundTap, setNeedsSoundTap] = useState(false);
       const hideControlsTimeout = useRef(null);
       const lastTapRef = useRef({ time: 0, zone: null });
       const progressRef = useRef(null);
       const isTouch = useMediaQuery("(hover: none)");
+
+      // Empêche la page derrière le lecteur de scroller / dériver horizontalement
+      // pendant que l'overlay plein écran est affiché (utile en rotation paysage).
+      useLockBodyScroll(true);
 
       useEffect(() => {
         let ytPlayer;
@@ -2526,25 +2605,39 @@
               onReady: (event) => {
                 if (destroyed) return;
                 playerRef.current = event.target;
-                // Le son est mis au maximum dès le départ : dès que l'utilisateur
-                // active le son (ou sur les navigateurs autorisant l'autoplay avec
-                // son), la vidéo démarre directement à volume 100.
+                // Son actif au maximum dès le lancement. La plupart des navigateurs
+                // autorisent l'autoplay avec le son car l'ouverture du lecteur est
+                // elle-même déclenchée par un clic/tap de l'utilisateur (bouton
+                // Lecture, carte, etc.) : ce geste "débloque" l'audio pour le reste
+                // de la page. Si le navigateur bloque quand même l'autoplay avec
+                // son (Safari iOS peut le faire), on détecte l'échec ci-dessous et
+                // on propose un simple tap pour démarrer avec le son au max.
                 event.target.setVolume(100);
-                // Démarrage fiable sur mobile : YouTube autorise beaucoup plus facilement
-                // l'autoplay muet. La vidéo démarre donc immédiatement, sans écran bloqué,
-                // mais le volume réel reste calé sur 100 pour quand le son est activé.
-                event.target.mute();
-                setIsMuted(true);
+                event.target.unMute();
+                setIsMuted(false);
                 setVolume(100);
                 event.target.setPlaybackQuality("hd1080");
                 event.target.playVideo();
                 setDuration(event.target.getDuration());
                 setIsReady(true);
+
+                // Filet de sécurité : si l'autoplay avec son est bloqué par le
+                // navigateur, la vidéo reste en pause. On le détecte et on affiche
+                // une invite claire pour démarrer en un tap, toujours avec le son
+                // au maximum (jamais de démarrage muet silencieux).
+                setTimeout(() => {
+                  if (destroyed || !playerRef.current) return;
+                  const state = playerRef.current.getPlayerState && playerRef.current.getPlayerState();
+                  if (state !== 1 /* playing */) {
+                    setNeedsSoundTap(true);
+                  }
+                }, 900);
               },
               onStateChange: (event) => {
                 if (event.data === window.YT.PlayerState.PLAYING) {
                   setIsPlaying(true);
                   setIsBuffering(false);
+                  setNeedsSoundTap(false);
                   if (playerRef.current && playerRef.current.getPlaybackQuality && playerRef.current.getPlaybackQuality() !== "hd1080") {
                     playerRef.current.setPlaybackQuality("hd1080");
                   }
@@ -2583,14 +2676,27 @@
         };
       }, [movie.id]);
 
+      // Démarre (ou relance) la lecture avec le son au maximum. Utilisé pour le
+      // tap-zone central ET pour l'invite "activer le son" si l'autoplay a été bloqué.
+      const startWithSound = useCallback(() => {
+        if (!playerRef.current) return;
+        playerRef.current.unMute();
+        playerRef.current.setVolume(100);
+        setVolume(100);
+        setIsMuted(false);
+        playerRef.current.playVideo();
+        setNeedsSoundTap(false);
+      }, []);
+
       const togglePlay = useCallback(() => {
         if (!playerRef.current) return;
+        if (needsSoundTap) { startWithSound(); return; }
         const playing = playerRef.current.getPlayerState() === 1;
         if (playing) playerRef.current.pauseVideo();
         else playerRef.current.playVideo();
         setCenterFlash({ icon: playing ? "pause" : "play", key: Date.now() });
         setTimeout(() => setCenterFlash(null), 550);
-      }, []);
+      }, [needsSoundTap, startWithSound]);
 
       const seekToClientX = useCallback((clientX) => {
         if (!progressRef.current || !duration) return null;
@@ -2738,8 +2844,8 @@
         lastTapRef.current = { time: now, zone };
 
         if (zone === "center") {
-          // Un simple appui au centre fait immédiatement Lecture / Pause.
-          // C'est volontairement plus naturel que l'ancien double-appui.
+          // Un simple appui au centre fait immédiatement Lecture / Pause
+          // (ou démarre le son au max si l'autoplay avait été bloqué).
           togglePlay();
           showControlsTemporarily();
           return;
@@ -2774,7 +2880,7 @@
           <div className="player-video-container">
             <iframe
               id="netflix-yt-iframe"
-              src={`https://www.youtube.com/embed/${movie.id}?enablejsapi=1&controls=0&autoplay=1&mute=1&modestbranding=1&rel=0&iv_load_policy=3&playsinline=1&fs=1&vq=hd1080`}
+              src={`https://www.youtube.com/embed/${movie.id}?enablejsapi=1&controls=0&autoplay=1&mute=0&modestbranding=1&rel=0&iv_load_policy=3&playsinline=1&fs=1&vq=hd1080`}
               allow="autoplay; fullscreen; picture-in-picture"
               allowFullScreen
             ></iframe>
@@ -2801,6 +2907,12 @@
 
           {!isReady && <div className="player-loading"></div>}
           {isReady && isBuffering && <div className="player-buffering"></div>}
+
+          {needsSoundTap && isReady && (
+            <div className="center-flash" style={{ animation: "none", opacity: 1, cursor: "pointer" }} onClick={startWithSound} role="button" aria-label="Activer le son et lancer la lecture">
+              <i className="fas fa-volume-up"></i>
+            </div>
+          )}
 
           <div className="kbd-hint" style={{ opacity: controlsVisible ? 1 : 0 }}>
             <span><kbd>Espace</kbd>lecture</span>
