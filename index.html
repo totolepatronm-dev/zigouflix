@@ -992,6 +992,40 @@
       }
     }
 
+
+    /* =========================================================
+       MOBILE BOTTOM MENU — position abaissée / lisible
+       ========================================================= */
+    @media (max-width: 760px) {
+      .bottom-nav,
+      .mobile-bottom-nav,
+      nav.bottom-nav {
+        bottom: max(6px, env(safe-area-inset-bottom));
+        z-index: 100;
+        transform: translateZ(0);
+      }
+
+      body {
+        padding-bottom: calc(78px + env(safe-area-inset-bottom));
+      }
+
+      #root {
+        padding-bottom: calc(10px + env(safe-area-inset-bottom));
+      }
+    }
+
+    @media (max-width: 390px) {
+      .bottom-nav,
+      .mobile-bottom-nav,
+      nav.bottom-nav {
+        bottom: max(3px, env(safe-area-inset-bottom));
+      }
+
+      body {
+        padding-bottom: calc(74px + env(safe-area-inset-bottom));
+      }
+    }
+
     /* RESPONSIVE */
     @media (max-width: 900px) {
       .hero-title { font-size: 2.6rem; }
