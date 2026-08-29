@@ -964,6 +964,34 @@
       }
     }
 
+
+    /* =========================================================
+       SCROLL STABILITY — mobile
+       ========================================================= */
+    @media (max-width: 760px) {
+      html {
+        scroll-behavior: auto;
+        overscroll-behavior-y: auto;
+      }
+
+      body {
+        overflow-x: hidden;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      img {
+        /* Stable decoding avoids visible card reconstruction. */
+        content-visibility: visible;
+      }
+
+      .video-grid,
+      .card-container,
+      .card {
+        transform: translateZ(0);
+      }
+    }
+
     /* RESPONSIVE */
     @media (max-width: 900px) {
       .hero-title { font-size: 2.6rem; }
@@ -1084,8 +1112,6 @@
 
     .card-container {
       contain: layout paint;
-      content-visibility: auto;
-      contain-intrinsic-size: 0 260px;
     }
 
     .card-img {
@@ -1099,9 +1125,9 @@
       }
 
       .card-container {
-        content-visibility: auto;
         contain: layout paint;
-        contain-intrinsic-size: 0 225px;
+        /* Hauteur stable : aucune reconstruction visuelle en arrivant en bas. */
+        min-height: 180px;
       }
 
       /* Évite les recalculs de layout pendant le geste de scroll. */
@@ -2887,7 +2913,25 @@
         // Le catalogue de secours s'affiche immédiatement. La synchronisation
         // réseau démarre après le premier rendu pour ne pas concurrencer le scroll.
         const startSync = () => {
-          if (!cancelled) syncVideos();
+          if (cancelled) return;
+
+          // Sur mobile, attendre la fin d'un éventuel geste de scroll.
+          // Cela évite qu'un setVideos massif arrive exactement au moment
+          // où l'utilisateur atteint la fin de la page.
+          if (window.matchMedia("(max-width: 760px)").matches) {
+            let timer = null;
+            const waitForScrollEnd = () => {
+              clearTimeout(timer);
+              timer = setTimeout(() => {
+                window.removeEventListener("scroll", waitForScrollEnd);
+                if (!cancelled) syncVideos();
+              }, 650);
+            };
+            window.addEventListener("scroll", waitForScrollEnd, { passive: true });
+            waitForScrollEnd();
+          } else {
+            syncVideos();
+          }
         };
 
         const idleId = window.requestIdleCallback
