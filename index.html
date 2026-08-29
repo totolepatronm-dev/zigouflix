@@ -359,7 +359,16 @@
     }
 
     /* CARTE NETFLIX HOVER */
-    .card-container { position: relative; flex: 0 0 auto; width: 100%; height: 135px; }
+    .card-container {
+      position: relative;
+      flex: 0 0 auto;
+      width: 100%;
+      height: 135px;
+      /* IMPORTANT : ne pas utiliser contain: paint ici.
+         Une carte agrandie doit pouvoir dépasser de sa cellule CSS. */
+      contain: layout;
+      z-index: 1;
+    }
 
     .card {
       position: relative;
@@ -369,23 +378,36 @@
       overflow: hidden;
       cursor: pointer;
       box-shadow: 0 4px 12px rgba(0,0,0,0.6);
-      transition: var(--transition-smooth);
+      transition:
+        width 0.28s cubic-bezier(0.2,0.8,0.2,1),
+        height 0.28s cubic-bezier(0.2,0.8,0.2,1),
+        top 0.28s cubic-bezier(0.2,0.8,0.2,1),
+        left 0.28s cubic-bezier(0.2,0.8,0.2,1),
+        box-shadow 0.28s ease;
       z-index: 1;
       flex: 0 0 auto;
     }
 
+    /* Hover desktop : agrandissement modéré, sans perdre le texte ni les boutons. */
     .card.expanded {
       position: absolute;
-      width: 130%;
-      height: 320px;
-      top: -95px;
-      left: -15%;
-      z-index: 50;
+      width: 118%;
+      height: 310px;
+      top: -55px;
+      left: -9%;
+      z-index: 100;
       box-shadow: 0 25px 50px rgba(0,0,0,0.95);
     }
 
-    .card-img { width: 100%; height: 135px; object-fit: cover; display: block; background: #111; }
-    .card.expanded .card-img { height: 168px; }
+    .card-img {
+      width: 100%;
+      height: 135px;
+      object-fit: cover;
+      display: block;
+      background: #111;
+    }
+
+    .card.expanded .card-img { height: 164px; }
 
     .card-preview {
       position: absolute;
@@ -421,7 +443,8 @@
       display: flex;
       flex-direction: column;
       gap: 10px;
-      height: 152px;
+      height: 146px;
+      min-height: 0;
     }
 
     .card.expanded .card-body { opacity: 1; transform: translateY(0); }
@@ -482,7 +505,7 @@
 
     /* Tactile */
     @media (hover: none) {
-      .card-container { height: auto; }
+      .card-container { height: auto; contain: none; overflow: visible; }
       .card, .card.expanded { position: relative; width: 100%; height: auto; top: 0; left: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.5); border-radius: 6px; }
       .card-img, .card.expanded .card-img { height: 150px; border-radius: 6px 6px 0 0; }
       .card-preview { display: none; }
@@ -1266,7 +1289,8 @@
     }
 
     .card-container {
-      contain: layout paint;
+      contain: layout;
+      overflow: visible;
     }
 
     .card-img {
