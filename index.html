@@ -810,6 +810,41 @@
       max-width: 100%;
     }
 
+    /* =========================================================
+       PERFORMANCE — catalogue long / scroll mobile
+       ========================================================= */
+    .video-grid {
+      contain: layout style;
+    }
+
+    .card-container {
+      contain: layout paint;
+      content-visibility: auto;
+      contain-intrinsic-size: 0 260px;
+    }
+
+    .card-img {
+      aspect-ratio: 16 / 9;
+      background: #111;
+    }
+
+    @media (max-width: 760px) {
+      .video-grid {
+        contain: none;
+      }
+
+      .card-container {
+        content-visibility: auto;
+        contain: layout paint;
+        contain-intrinsic-size: 0 225px;
+      }
+
+      /* Évite les recalculs de layout pendant le geste de scroll. */
+      .card {
+        contain: layout paint;
+      }
+    }
+
     @media (max-width: 760px) {
       :root {
         --mobile-gutter: 16px;
@@ -1598,7 +1633,7 @@
         overflow-x: hidden !important;
         overflow-y: auto !important;
         scroll-behavior: auto !important;
-        overscroll-behavior-y: contain;
+        overscroll-behavior-y: auto;
         touch-action: pan-y pinch-zoom;
         -webkit-overflow-scrolling: touch;
       }
@@ -1609,7 +1644,7 @@
         height: auto !important;
         overflow-x: hidden !important;
         overflow-y: visible !important;
-        overscroll-behavior-y: contain;
+        overscroll-behavior-y: auto;
         touch-action: pan-y pinch-zoom;
         -webkit-overflow-scrolling: touch;
       }
@@ -2356,9 +2391,7 @@
     }
 
     /* ===================== CARD ===================== */
-    function MovieCard({ movie, onPlay, onInfo, isFavorite, onToggleFavorite }) {
-      const isTouch = useMediaQuery("(hover: none)");
-      const isNarrow = useMediaQuery("(max-width: 760px)");
+    function MovieCard({ movie, onPlay, onInfo, isFavorite, onToggleFavorite, isTouch, isNarrow }) {
       const [hovered, setHovered] = useState(false);
       const [showPreview, setShowPreview] = useState(false);
       const [previewLoaded, setPreviewLoaded] = useState(false);
@@ -2486,6 +2519,7 @@
     function App() {
       useRealViewportHeight();
       const isNarrow = useMediaQuery("(max-width: 760px)");
+      const isTouch = useMediaQuery("(hover: none)");
 
       const [currentTab, setCurrentTab] = useState("home");
       const [searchTerm, setSearchTerm] = useState("");
@@ -2571,8 +2605,28 @@
       // parallèle la synchronisation avec YouTube (API ou RSS) qui viendra compléter /
       // remplacer ce catalogue de secours dès que les vraies données sont disponibles.
       useEffect(() => {
+        let cancelled = false;
+
         loadFallbackVideos();
-        syncVideos();
+
+        // Le catalogue de secours s'affiche immédiatement. La synchronisation
+        // réseau démarre après le premier rendu pour ne pas concurrencer le scroll.
+        const startSync = () => {
+          if (!cancelled) syncVideos();
+        };
+
+        const idleId = window.requestIdleCallback
+          ? window.requestIdleCallback(startSync, { timeout: 1800 })
+          : window.setTimeout(startSync, 700);
+
+        return () => {
+          cancelled = true;
+          if (window.cancelIdleCallback && typeof idleId === "number") {
+            window.cancelIdleCallback(idleId);
+          } else {
+            window.clearTimeout(idleId);
+          }
+        };
       }, [syncVideos, loadFallbackVideos]);
 
       const handleAddVideo = async (e) => {
@@ -2618,8 +2672,28 @@
       }, [currentTab, searchTerm, heroMovies.length, activeMovie]);
 
       useEffect(() => {
-        const onScroll = () => setScrolled(window.scrollY > 20);
-        window.addEventListener("scroll", onScroll);
+        let ticking = false;
+        let lastScrolled = false;
+
+        const update = () => {
+          ticking = false;
+          const next = window.scrollY > 20;
+          if (next !== lastScrolled) {
+            lastScrolled = next;
+            setScrolled(next);
+          }
+        };
+
+        const onScroll = () => {
+          if (!ticking) {
+            ticking = true;
+            requestAnimationFrame(update);
+          }
+        };
+
+        window.addEventListener("scroll", onScroll, { passive: true });
+        update();
+
         return () => window.removeEventListener("scroll", onScroll);
       }, []);
 
@@ -2743,7 +2817,7 @@
                 <h2 className="row-title">Résultats pour "{searchTerm}" <span className="row-count">({searchResults.length})</span></h2>
                 <div className="video-grid">
                   {searchResults.map((movie) => (
-                    <MovieCard key={movie.id} movie={movie} onPlay={setActiveMovie} onInfo={setInfoMovie} isFavorite={favorites.includes(movie.id)} onToggleFavorite={toggleFavorite} />
+                    <MovieCard key={movie.id} movie={movie} onPlay={setActiveMovie} onInfo={setInfoMovie} isFavorite={favorites.includes(movie.id)} onToggleFavorite={toggleFavorite} isTouch={isTouch} isNarrow={isNarrow} />
                   ))}
                 </div>
                 {searchResults.length === 0 && <p className="empty-note">Aucun résultat trouvé.</p>}
@@ -2753,7 +2827,7 @@
                 <h2 className="row-title">Ma Liste Personnelle</h2>
                 <div className="video-grid">
                   {favoriteItems.map((movie) => (
-                    <MovieCard key={movie.id} movie={movie} onPlay={setActiveMovie} onInfo={setInfoMovie} isFavorite={true} onToggleFavorite={toggleFavorite} />
+                    <MovieCard key={movie.id} movie={movie} onPlay={setActiveMovie} onInfo={setInfoMovie} isFavorite={true} onToggleFavorite={toggleFavorite} isTouch={isTouch} isNarrow={isNarrow} />
                   ))}
                 </div>
                 {favoriteItems.length === 0 && <p className="empty-note">Votre liste est vide pour le moment.</p>}
@@ -2867,7 +2941,7 @@
                 {videos.length > 0 ? (
                   <div className="video-grid">
                     {videos.map((movie) => (
-                      <MovieCard key={movie.id} movie={movie} onPlay={setActiveMovie} onInfo={setInfoMovie} isFavorite={favorites.includes(movie.id)} onToggleFavorite={toggleFavorite} />
+                      <MovieCard key={movie.id} movie={movie} onPlay={setActiveMovie} onInfo={setInfoMovie} isFavorite={favorites.includes(movie.id)} onToggleFavorite={toggleFavorite} isTouch={isTouch} isNarrow={isNarrow} />
                     ))}
                   </div>
                 ) : (
