@@ -22,10 +22,6 @@
   <link rel="preconnect" href="https://www.youtube.com" crossorigin>
   <link rel="preconnect" href="https://i.ytimg.com" crossorigin>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="dns-prefetch" href="//unpkg.com">
-  <link rel="dns-prefetch" href="//www.youtube-nocookie.com">
-  <link rel="dns-prefetch" href="//i.ytimg.com">
   <link rel="preload" as="image" href="https://i.ytimg.com/vi/WQrmiOMZrRk/hqdefault.jpg" fetchpriority="high">
 
   <!-- CDN React, ReactDOM & Babel : defer pour ne pas bloquer le parsing HTML -->
@@ -57,8 +53,6 @@
     * { box-sizing: border-box; margin: 0; padding: 0; outline: none; -webkit-tap-highlight-color: transparent; }
 
     html { scroll-behavior: auto; }
-
-    #root { min-height: 100dvh; }
 
     body {
       background-color: var(--bg-color);
@@ -356,9 +350,8 @@
     .row-title .row-count { font-size: 0.8rem; font-weight: 400; color: var(--text-dim); }
 
     .video-grid {
-      /* La grille garde sa géométrie complète : évite les expansions tardives
-         de contain-intrinsic-size qui peuvent provoquer du CLS pendant le scroll. */
-      contain: layout style;
+      content-visibility: auto;
+      contain-intrinsic-size: 0 900px;
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
       gap: 20px;
@@ -366,15 +359,7 @@
     }
 
     /* CARTE NETFLIX HOVER */
-    .card-container {
-      position: relative;
-      flex: 0 0 auto;
-      width: 100%;
-      height: 135px;
-      /* Rend les cartes hors écran à la demande sans changer leur empreinte. */
-      content-visibility: auto;
-      contain-intrinsic-size: 135px;
-    }
+    .card-container { position: relative; flex: 0 0 auto; width: 100%; height: 135px; }
 
     .card {
       position: relative;
@@ -1298,7 +1283,6 @@
         contain: layout paint;
         /* Hauteur stable : aucune reconstruction visuelle en arrivant en bas. */
         min-height: 180px;
-        contain-intrinsic-size: 180px;
       }
 
       /* Évite les recalculs de layout pendant le geste de scroll. */
@@ -2161,7 +2145,7 @@
     <div class="boot-shell" aria-hidden="true">
       <div class="boot-nav"><span class="boot-logo">ZIGOUFLIX</span></div>
       <div class="boot-hero">
-        <img src="https://i.ytimg.com/vi/WQrmiOMZrRk/hqdefault.jpg" alt="" fetchpriority="high" decoding="async" width="480" height="360">
+        <img src="https://i.ytimg.com/vi/WQrmiOMZrRk/hqdefault.jpg" alt="" fetchpriority="high" decoding="async">
         <div class="boot-overlay"></div>
       </div>
     </div>
@@ -2970,7 +2954,7 @@
         <div className="modal-overlay" onClick={onClose}>
           <div className="modal-box" onClick={(e) => e.stopPropagation()}>
             <div className="modal-hero">
-              <iframe src={previewSrc} loading="lazy" allow="autoplay"></iframe>
+              <iframe src={previewSrc} allow="autoplay"></iframe>
               <div className="modal-hero-overlay"></div>
               <button className="modal-close" onClick={onClose}><i className="fas fa-times"></i></button>
               <div className="modal-hero-title">{movie.title}</div>
@@ -3344,7 +3328,7 @@
                   <div className="hero-video-wrapper">
                     {idx === heroIndex && !isNarrow && heroVideoReady ? (
                       <iframe
-                        src={`https://www.youtube-nocookie.com/embed/${movie.id}?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&loop=1&playlist=${movie.id}&playsinline=1`}
+                        src={`https://www.youtube-nocookie.com/embed/${movie.id}?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&loop=1&playlist=${movie.id}&playsinline=1&vq=hd720`}
                         title={movie.title}
                         allow="autoplay; encrypted-media; picture-in-picture"
                         allowFullScreen
@@ -3498,7 +3482,7 @@
                           <tbody>
                             {videos.map((vid) => (
                               <tr key={vid.id}>
-                                <td style={{ width: 80 }}><img src={vid.thumb} alt="" width="60" height="35" loading="lazy" decoding="async" style={{ width: 60, height: 35, objectFit: 'cover', borderRadius: 3 }} /></td>
+                                <td style={{ width: 80 }}><img src={vid.thumb} style={{ width: 60, height: 35, objectFit: 'cover', borderRadius: 3 }} /></td>
                                 <td>
                                   {vid.title}
                                   {vid.source === "manual" && <span className="admin-tag manual">Manuel</span>}
