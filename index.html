@@ -984,13 +984,7 @@
         /* Stable decoding avoids visible card reconstruction. */
         content-visibility: visible;
       }
-
-      .video-grid,
-      .card-container,
-      .card {
-        transform: translateZ(0);
-      }
-    }
+}
 
 
     /* =========================================================
@@ -1023,6 +1017,74 @@
 
       body {
         padding-bottom: calc(74px + env(safe-area-inset-bottom));
+      }
+    }
+
+
+    /* =========================================================
+       ANDROID TOUCH — défilement continu, sans perte du tactile
+       ========================================================= */
+    @media (max-width: 760px) {
+      html, body, #root {
+        transform: none !important;
+        perspective: none !important;
+        filter: none !important;
+        contain: none !important;
+      }
+
+      html {
+        overflow-y: auto !important;
+        overscroll-behavior-y: auto !important;
+        -webkit-overflow-scrolling: touch;
+        touch-action: pan-y pinch-zoom !important;
+      }
+
+      body {
+        overflow-y: visible !important;
+        touch-action: pan-y pinch-zoom !important;
+      }
+
+      #root {
+        overflow: visible !important;
+        touch-action: pan-y pinch-zoom !important;
+      }
+
+      /* Les couches décoratives ne doivent jamais prendre le geste. */
+      .hero-overlay,
+      .hero-gradient,
+      .hero-video-wrapper,
+      .hero-video-wrapper iframe,
+      .main-container::before,
+      .main-container::after {
+        pointer-events: none !important;
+      }
+
+      /* Pas de scroll imbriqué sur le catalogue. */
+      .video-grid,
+      .row,
+      .row-content {
+        overflow: visible !important;
+        touch-action: pan-y pinch-zoom !important;
+      }
+
+      /* Les cartes restent tactiles sans transformer le conteneur en
+         scroll-area concurrente. */
+      .card-container,
+      .card {
+        touch-action: pan-y pinch-zoom !important;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      /* Les images n'interceptent pas les gestes de défilement. */
+      .card-img,
+      .card-img img,
+      .card-poster {
+        touch-action: pan-y pinch-zoom !important;
+      }
+
+      /* La navbar ne doit pas capturer les mouvements verticaux. */
+      .navbar {
+        touch-action: pan-y !important;
       }
     }
 
