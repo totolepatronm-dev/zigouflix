@@ -17,13 +17,24 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Zigouflix - Streaming Ultra HD Gold</title>
 
-  <!-- CDN React, ReactDOM, Babel & FontAwesome -->
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- PERFORMANCE: ressources critiques non bloquantes -->
+  <link rel="preconnect" href="https://unpkg.com" crossorigin>
+  <link rel="preconnect" href="https://www.youtube.com" crossorigin>
+  <link rel="preconnect" href="https://i.ytimg.com" crossorigin>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="preload" as="image" href="https://i.ytimg.com/vi/WQrmiOMZrRk/hqdefault.jpg" fetchpriority="high">
+
+  <!-- CDN React, ReactDOM & Babel : defer pour ne pas bloquer le parsing HTML -->
+  <script defer src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script defer src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script defer src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- FontAwesome non bloquant -->
+  <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
+
+  <!-- Polices réduites : moins de poids réseau -->
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 
   <style>
     :root {
@@ -60,6 +71,14 @@
     ::-webkit-scrollbar-track { background: #0b0b0d; }
     ::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 4px; }
     ::-webkit-scrollbar-thumb:hover { background: var(--zigou-red); }
+
+    /* FCP/LCP : écran de démarrage ultra-léger affiché avant React */
+    .boot-shell { position: fixed; inset: 0; z-index: 99999; background: #0b0b0d; overflow: hidden; }
+    .boot-nav { position: absolute; top: 0; left: 0; right: 0; z-index: 2; padding: 16px 4.5%; }
+    .boot-logo { font-family: 'Bebas Neue', Inter, sans-serif; color: #e50914; font-size: 2.3rem; letter-spacing: 1px; }
+    .boot-hero { position: absolute; inset: 0; background: #0b0b0d; }
+    .boot-hero img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .boot-overlay { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(11,11,13,.92), rgba(11,11,13,.2) 65%), linear-gradient(0deg, #0b0b0d 0%, transparent 35%); }
 
     /* NAVBAR */
     .navbar {
@@ -2119,7 +2138,16 @@
 </head>
 <body>
 
-  <div id="root"></div>
+  <div id="root">
+    <!-- Fallback HTML : permet un FCP/LCP immédiat avant le démarrage de React/Babel. -->
+    <div class="boot-shell" aria-hidden="true">
+      <div class="boot-nav"><span class="boot-logo">ZIGOUFLIX</span></div>
+      <div class="boot-hero">
+        <img src="https://i.ytimg.com/vi/WQrmiOMZrRk/hqdefault.jpg" alt="" fetchpriority="high" decoding="async">
+        <div class="boot-overlay"></div>
+      </div>
+    </div>
+  </div>
 
   <script type="text/babel">
     const { useState, useEffect, useRef, useCallback, useMemo } = React;
@@ -2860,7 +2888,7 @@
             onMouseLeave={handleLeave}
             onClick={() => (isTouch || hovered) && onInfo(movie)}
           >
-            <img src={movie.thumb} alt={movie.title} className="card-img" loading="lazy" />
+            <img src={movie.thumb} alt={movie.title} className="card-img" loading="lazy" decoding="async" width="320" height="180" />
 
             {showPreview && !isTouch && !isNarrow && (
               <>
@@ -3042,7 +3070,9 @@
       useEffect(() => {
         let cancelled = false;
 
-        loadFallbackVideos();
+        // Lancer les requêtes après le premier paint afin de laisser l'image LCP
+        // et le CSS critique passer avant les appels YouTube/oEmbed.
+        const fallbackTimer = window.setTimeout(loadFallbackVideos, 80);
 
         // Le catalogue de secours s'affiche immédiatement. La synchronisation
         // réseau démarre après le premier rendu pour ne pas concurrencer le scroll.
@@ -3074,6 +3104,7 @@
 
         return () => {
           cancelled = true;
+          window.clearTimeout(fallbackTimer);
           if (window.cancelIdleCallback && typeof idleId === "number") {
             window.cancelIdleCallback(idleId);
           } else {
@@ -3117,6 +3148,20 @@
       };
 
       const heroMovies = useMemo(() => videos.slice(0, 5), [videos]);
+
+      // L'iframe YouTube ne doit jamais être le LCP : on l'initialise après le rendu initial.
+      const [heroVideoReady, setHeroVideoReady] = useState(false);
+      useEffect(() => {
+        if (isNarrow || heroMovies.length === 0) return;
+        const start = () => setHeroVideoReady(true);
+        const idle = window.requestIdleCallback
+          ? window.requestIdleCallback(start, { timeout: 3000 })
+          : window.setTimeout(start, 2500);
+        return () => {
+          if (window.cancelIdleCallback && typeof idle === "number") window.cancelIdleCallback(idle);
+          else window.clearTimeout(idle);
+        };
+      }, [isNarrow, heroMovies.length]);
 
       useEffect(() => {
         if (currentTab !== "home" || searchTerm || activeMovie || heroMovies.length < 2) return;
@@ -3169,6 +3214,14 @@
       }, [videos, searchTerm]);
 
       const favoriteItems = useMemo(() => videos.filter((m) => favorites.includes(m.id)), [videos, favorites]);
+
+      // Conserve le shell tant que le premier contenu réel n'est pas prêt :
+      // il devient ainsi un véritable placeholder LCP au lieu d'un flash.
+      useEffect(() => {
+        if (!videos.length) return;
+        const shell = document.querySelector(".boot-shell");
+        if (shell) shell.remove();
+      }, [videos.length]);
 
       const goHome = () => { setCurrentTab("home"); setSearchTerm(""); setNavOpen(false); setMobileSearchOpen(false); };
 
@@ -3226,10 +3279,19 @@
               {heroMovies.map((movie, idx) => (
                 <div key={movie.id} className={`hero-slide ${idx === heroIndex ? "active" : ""}`}>
                   <div className="hero-video-wrapper">
-                    {idx === heroIndex && !isNarrow ? (
-                      <iframe src={`https://www.youtube.com/embed/${movie.id}?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&loop=1&playlist=${movie.id}`} allow="autoplay"></iframe>
+                    {idx === heroIndex && !isNarrow && heroVideoReady ? (
+                      <iframe loading="lazy" src={`https://www.youtube.com/embed/${movie.id}?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&loop=1&playlist=${movie.id}`} allow="autoplay"></iframe>
                     ) : (
-                      <img src={movie.thumb} alt={movie.title} className="hero-fallback-img" />
+                      <img
+                        src={movie.thumb}
+                        alt={movie.title}
+                        className="hero-fallback-img"
+                        loading={idx === 0 ? "eager" : "lazy"}
+                        fetchPriority={idx === 0 ? "high" : "low"}
+                        decoding="async"
+                        width="1280"
+                        height="720"
+                      />
                     )}
                   </div>
                   <div className="hero-overlay"></div>
